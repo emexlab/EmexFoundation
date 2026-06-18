@@ -28,7 +28,7 @@ else()
 
     # Setting up compiler flags
     set(_EV_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
-    set(_EV_OPT_FLAGS )
+    set(_EV_OPT_FLAGS -fPIC)
 
     list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math -funroll-loops)
 
