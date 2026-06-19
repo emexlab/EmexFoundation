@@ -11,6 +11,7 @@ add_library(evObj STATIC
     src/alloc.c
     src/event.c
     src/reference.c
+    src/heap.c
 )
 
 target_include_directories(evObj
@@ -30,14 +31,19 @@ else()
     set(_EV_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
     set(_EV_OPT_FLAGS -fPIC)
 
-    list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math -funroll-loops)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        list(APPEND _EV_OPT_FLAGS -O0 -g)
+    else()
+        list(APPEND _EV_OPT_FLAGS -O3 -fomit-frame-pointer -fstrict-aliasing -ffast-math -funroll-loops)
 
-    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-        list(APPEND _EMEX64_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)
-    elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
-        list(APPEND _EMEX64_OPT_FLAGS -fvectorize -fslp-vectorize)
+        if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+            list(APPEND _EV_OPT_FLAGS -fgraphite-identity -floop-nest-optimize -fipa-pta)
+        elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+            list(APPEND _EV_OPT_FLAGS -fvectorize -fslp-vectorize)
+        endif()
     endif()
 
+    target_compile_definitions(evObj PRIVATE $<$<CONFIG:Debug>:DEBUG>)
     target_compile_options(evObj PRIVATE ${_EV_WARN_FLAGS} ${_EV_OPT_FLAGS})
 endif()
 
