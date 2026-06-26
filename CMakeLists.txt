@@ -9,9 +9,8 @@ find_package(Threads REQUIRED)
 
 add_library(evObj STATIC
     src/alloc.c
-    src/event.c
     src/reference.c
-    src/heap.c
+    src/register.c
 )
 
 target_include_directories(evObj

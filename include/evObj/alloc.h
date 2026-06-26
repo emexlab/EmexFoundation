@@ -27,13 +27,6 @@
 
 #include <evObj/defs.h>
 
-#define evo_alloc(main) (void*)evobject_alloc(main)
-#define evo_alloc_fastpath(name) (void*)evobject_alloc(GET_EVOBJECT_MAIN_EVENT_HANDLER(name))
-#define evo_copy(evo) (void*)evobject_copy((evobject_t*)evo)
-#define evo_snapshot(evo, option) (void*)evobject_snapshot((evobject_t*)evo, option)
-
-evobject_strong_t *evobject_alloc(evobject_main_event_handler_t handler);
-evobject_strong_t *evobject_copy(evobject_t *evo);
-evobject_snapshot_t *evobject_snapshot(evobject_t *evo, evobject_snapshot_options_t option);
+EVObjectRef EVAlloc(EVTypeID typeID);
 
 #endif /* EVOBJECT_ALLOC_H */

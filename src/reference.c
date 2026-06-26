@@ -23,103 +23,73 @@
  */
 
 #include <evObj/reference.h>
-#include <evObj/event.h>
+#include <evObj/register.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <dlfcn.h>
 
-bool evobject_retain(evobject_t *evo)
+bool EVRetain(EVObjectRef ref)
 {
-    assert(evo != NULL);
+    EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
 
     /* performing retain if valid */
     while(1)
     {
         /* getting current reference count */
-        int current = atomic_load(&evo->refcount);
+        int current = atomic_load(&object->refcount);
 
         /* checking if object can be retained */
-        if(current <= 0 || (atomic_load(&evo->state) == evObjStateInvalid))
+        if(current <= 0 || (atomic_load(&object->state) == kEVObjectStateInvalid))
         {
-            #ifdef DEBUG
-            fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
-            #endif /* DEBUG */
             return false;
         }
 
         /* retaining object */
-        if(atomic_compare_exchange_weak(&evo->refcount, &current, current + 1))
+        if(atomic_compare_exchange_weak(&object->refcount, &current, current + 1))
         {
             /* performing another check */
-            if(atomic_load(&evo->state) == evObjStateInvalid)
+            if(atomic_load(&object->state) == kEVObjectStateInvalid)
             {
                 /* rollback using release logic */
-                evo_release(evo);
-                #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m failed to retain object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current);
-                #endif /* DEBUG */
+                EVRelease(ref);
                 return false;
             }
 
-            #ifdef DEBUG
-            fprintf(stderr, "\033[1m[evObj]\033[0m retained object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m)\n", (void*)evo, current + 1);
-            #endif /* DEBUG */
             return true;
         }
     }
 }
 
-void evobject_invalidate(evobject_strong_t *evo)
+void EVRelease(EVObjectRef ref)
 {
-    assert(evo != NULL);
-    evo_event_trigger(evo, evObjEventInvalidate, 0);
-    atomic_store(&(evo->state), evObjStateInvalid);
-}
-
-void evobject_release(evobject_strong_t *evo)
-{
-    assert(evo != NULL);
+    EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
 
     /* releasing and trying to get the old reference count */
-    int old = atomic_fetch_sub(&evo->refcount, 1);
+    int old = atomic_fetch_sub(&object->refcount, 1);
     if(old == 1)
     {
-        evobject_event_trigger(evo, evObjEventDeinit, 0);
-
-        /* only a normal object has these locks */
-        switch(evo->base_type)
+        /* trigger handler */
+        EVClass *class = EVClassGetByID(object->typeID);
+        assert(class != NULL);
+        if(class->deinit != NULL)
         {
-            case evObjBaseTypeObject:
-                pthread_rwlock_destroy(&(evo->rwlock));
-                pthread_rwlock_destroy(&(evo->event_rwlock));
-                #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m -> \033[1m%d\033[0m)\n", (void*)evo, old, old - 1);
-                #endif /* DEBUG */
-                break;
-            case evObjBaseTypeObjectSnapshot:
-                if(evo->orig != NULL)
-                {
-                    evo_release(evo->orig);
-                }
-                #ifdef DEBUG
-                fprintf(stderr, "\033[1m[evObj]\033[0m deinitilized object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m -> \033[1m%d\033[0m)\n", (void*)evo, old, old - 1);
-                #endif /* DEBUG */
-                break;
-            default:
-                fprintf(stderr, "\033[1m[evObj]\033[0m unknown object type \033[1m%d\033[0m on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m -> \033[1m%d\033[0m)\n", evo->base_type, (void*)evo, old, old - 1);
-                exit(1);
+            class->deinit(ref);
         }
-
-        free(evo);
+        pthread_mutex_destroy(&object->mutex);
+        free(object);
     }
     else if(old <= 0)
     {
-        fprintf(stderr, "\033[1m[evObj]\033[0m reference underflow on object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m -> \033[1m%d\033[0m)\n", (void*)evo, old, old - 1);
+        fprintf(stderr, "EVRelease: fatal error occured, reference underflow\n");
         exit(1);
     }
+}
 
-    #ifdef DEBUG
-    fprintf(stderr, "\033[1m[evObj]\033[0m released object @ \033[1m%p\033[0m (rfcnt=\033[1m%d\033[0m -> \033[1m%d\033[0m)\n", (void*)evo, old, old - 1);
-    #endif /* DEBUG */
+void EVInvalidate(EVObjectRef ref)
+{
+    EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
+    atomic_store(&(object->state), kEVObjectStateInvalid);
 }

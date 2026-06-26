@@ -22,15 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_EVENT_H
-#define EVOBJECT_EVENT_H
+#include <stdatomic.h>
+#include <evObj/register.h>
 
-#include <evObj/defs.h>
+static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
+static _Atomic(uint64_t) ev_class_next = 1;
 
-#define evo_event_register(evo, mask, handler, context, event) evobject_event_register((evobject_t*)evo, mask, handler, context, event)
-#define evo_event_trigger(evo, mask, value) evobject_event_trigger((evobject_t*)evo, mask, value)
+EVTypeID EVClassRegister(EVClass *cls)
+{
+    uint64_t id = atomic_fetch_add_explicit(&ev_class_next, 1, memory_order_relaxed);
+    if(id >= EV_MAX_CLASSES)
+    {
+        return kEVNotATypeID;
+    }
 
-int evobject_event_register(evobject_strong_t *evo, evobject_event_type_t mask, evobject_event_handler_t handler, void *context, evobject_event_t **event);
-void evobject_event_trigger(evobject_strong_t *evo, evobject_event_type_t mask, uint64_t value);
+    cls->typeID = id;
+    atomic_store_explicit(&ev_class_table[id], cls, memory_order_release);
+    return id;
+}
 
-#endif /* EVOBJECT_EVENT_H */
+EVClass *EVClassGetByID(EVTypeID id)
+{
+    if(id == kEVNotATypeID || id >= EV_MAX_CLASSES)
+    {
+        return NULL;
+    }
+    return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
+}

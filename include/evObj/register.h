@@ -22,19 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJ_HEAP_H
-#define EVOBJ_HEAP_H
+#ifndef EVOBJECT_REGISTER_H
+#define EVOBJECT_REGISTER_H
 
-#include <evObj/defs.h>
+#include <stdint.h>
 #include <stddef.h>
-#include <stdbool.h>
+#include <evObj/defs.h>
 
-void *ev_heap_alloc(size_t len);
-void *ev_heap_calloc(size_t count, size_t len);
+#define kEVNotATypeID   ((uint64_t)0)
+#define EV_MAX_CLASSES  1024
 
-bool ev_heap_retain(void *p);
-void ev_heap_release(void *p);
+EVTypeID EVClassRegister(EVClass *cls);
+EVClass *EVClassGetByID(EVTypeID id);
 
-evobject_t *ev_heap_get_header(void *p);
-
-#endif /* EVOBJ_HEAP_H */
+#endif /* EVOBJECT_REGISTER_H */

@@ -34,81 +34,22 @@
 #define DEFINE_EVOBJECT_MAIN_EVENT_HANDLER(name) int64_t evobject_event_handler_##name##_main(evobject_t **evarr, evobject_event_type_t type)
 #define GET_EVOBJECT_MAIN_EVENT_HANDLER(name) evobject_event_handler_##name##_main
 
-#define EVOBJECT_EVENT_MAX 128
-
-/* enumeration of kernel virt object base types */
-enum evObjBaseType {
-    evObjBaseTypeObject = 0,                        /* normal allocated object with referencing */
-    evObjBaseTypeObjectSnapshot = 1,                /* snapshot of object also with referencing, but with seperate memory */
-};
-
-/* enumeration of kernel virt object events */
-enum evObjEvent {
-    evObjEventNone = 0,                             /* nothing, but for event registration relevant, they cannot escape getting deinit or unregistration notif */
-    evObjEventInit = 1ull << 0,                     /* object initilizes                            MARK: important for main event handler */
-    evObjEventDeinit = 1ull << 1,                   /* object deinitilizes                          MARK: important for main event handler */
-    evObjEventCopy = 1ull << 2,                     /* object copies into new object                MARK: important for main event handler */
-    evObjEventSnapshot = 1ull << 3,                 /* object snapshots into snapshotted object     MARK: important for main event handler */
-    evObjEventInvalidate = 1ull << 4,               /* object becomes invalidated */
-    evObjEventUnregister = 1ull << 5,               /* object event handler gets unregistered, only called on the affected handler */
-    evObjEventCustom0 = 1ull << 6,                  /* custom object events */
-    evObjEventCustom1 = 1ull << 7,
-    evObjEventCustom2 = 1ull << 8,
-    evObjEventCustom3 = 1ull << 9,
-    evObjEventCustom4 = 1ull << 10,
-    evObjEventCustom5 = 1ull << 11,
-    evObjEventCustom6 = 1ull << 12,
-    evObjEventCustom7 = 1ull << 13,
-    evObjEventCustom8 = 1ull << 14,
-    evObjEventCustom9 = 1ull << 15,
-    evObjEventCustom10 = 1ull << 16
-};
-
 /* enumeration of kernel virt object states */
-enum evObjState {
-    evObjStateNormal = 0,                           /* object is in normal state */
-    evObjStateInvalid                               /* object is invalidated and cannot be retained, only released, its used to mark a object as meaningless */
-};
-
-/* enumeration for type of snapshotting */
-enum evObjSnap {
-    evObjSnapStatic = 0,                            /* dont create reference back nor set orig pointer */
-    evObjSnapReferenced,                            /* creates new reference and sets orig pointer */
-    evObjSnapConsumeReference                       /* consumes callers reference and sets orig pointer */
-};
+typedef enum {
+    kEVObjectStateNormal = 0,                       /* object is in normal state */
+    kEVObjectStateInvalid                           /* object is invalidated and cannot be retained, only released, its used to mark a object as meaningless */
+} kEVObjectState;
 
 /* kernel virt object types */
-typedef struct evobject     evobject_t;             /* weak object type (needs retain on use) */
-typedef struct evobject     evobject_strong_t;      /* strong object (referenced for calle) */
-typedef struct evobject     evobject_snapshot_t;    /* snapshot of object (references object usually) */
-typedef struct rcu_evobject rcu_evobject_t;         /* weak rcu object */
-typedef struct rcu_evobject rcu_evobject_strong_t;  /* strong rcu object */
+typedef struct evobject     EVObject;               /* weak object type (needs retain on use) */
+typedef void * EVObjectRef;  /* so the compiler shuts up */
 
-/* kernel virt object event type */
-typedef struct evevent      evobject_event_t;
-
-/* kernel virt object enumeration types */
-typedef enum evObjBaseType  evobject_base_type_t;
-typedef enum evObjEvent     evobject_event_type_t;
-typedef enum evObjState     evobject_state_t;
-typedef enum evObjSnap      evobject_snapshot_options_t;
-
-typedef int64_t (*evobject_main_event_handler_t)(evobject_t**, evobject_event_type_t);
-typedef bool (*evobject_event_handler_t)(evobject_event_type_t, uint64_t, evobject_event_t*);
-
-struct evevent {
-    evobject_event_t *previous;                     /* pointer to previous event */
-    evobject_event_t *next;                         /* pointer to next event */
-    evobject_t *owner;                              /* pointer of who owns the event */
-    evobject_event_handler_t handler;               /* pointer to handler */
-    evobject_event_type_t mask;                     /* event mask decides for what the handler does things */
-    pthread_mutex_t in_use;                         /* usage marker (can cause freeze if no reference to the object exists anymore) */
-    void *ctx;                                      /* pointer to payload MARK: if heap allocated, deallocate it on unregistration */
-};
-
-struct evobject {
-    /* type of object */
-    evobject_base_type_t base_type;
+typedef struct evobject {
+    /*
+     * the typeID of the class of that
+     * object, similar to CFRuntime.
+     */
+    uint64_t typeID;
 
     /*
      * reference count of an object if
@@ -116,6 +57,7 @@ struct evobject {
      * automatically.
      */
     _Atomic int refcount;
+    pthread_mutex_t mutex;  /* makes sure nothing mutates */
 
     /*
      * the object state value marks a
@@ -125,24 +67,25 @@ struct evobject {
      * might wanna do with this object as its literally
      * marked as not useful anymore.
      */
-    _Atomic evobject_state_t state;
+    _Atomic kEVObjectState state;
+} EVObject;
 
-    /* state handler for each object */
-    evobject_main_event_handler_t main_handler;
+typedef void (*evobject_init_handler_t)(EVObjectRef ref);
+typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
+typedef EVObject *(*evobject_copy_handler_t)(EVObjectRef ref);
 
-    /* events */
-    pthread_rwlock_t event_rwlock;
-    uint64_t event_count;
-    evobject_event_t *event;
+typedef uint64_t EVTypeID;
 
-    /*
-     * main read-write lock of this structure,
-     * mainly used when modifying kcproc.
-     */
-    pthread_rwlock_t rwlock;
+typedef struct evclass {
+    /* properties  */
+    const char *name;
+    size_t size;                    /* must be bigger than the header it self */
+    EVTypeID typeID;
 
-    /* reference back to original (for snapshot) */
-    evobject_strong_t *orig;
-};
+    /* handlers */
+    evobject_init_handler_t init;
+    evobject_deinit_handler_t deinit;
+    evobject_copy_handler_t copy;
+} EVClass;
 
 #endif /* EVOBJECT_DEFS_H */

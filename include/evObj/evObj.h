@@ -27,9 +27,7 @@
 
 #include <evObj/defs.h>
 #include <evObj/alloc.h>
-#include <evObj/event.h>
-#include <evObj/lock.h>
 #include <evObj/reference.h>
-#include <evObj/heap.h>
+#include <evObj/register.h>
 
 #endif /* EVOBJ_H */

@@ -27,12 +27,8 @@
 
 #include <evObj/defs.h>
 
-#define evo_retain(obj) evobject_retain((evobject_t *)(obj))
-#define evo_invalidate(obj) evobject_invalidate((evobject_strong_t *)(obj))
-#define evo_release(obj) evobject_release((evobject_strong_t *)(obj))
-
-bool evobject_retain(evobject_t *evo);
-void evobject_invalidate(evobject_strong_t *evo);
-void evobject_release(evobject_strong_t *evo);
+bool EVRetain(EVObjectRef ref);
+void EVRelease(EVObjectRef ref);
+void EVInvalidate(EVObjectRef ref);
 
 #endif /* EVOBJECT_REFERENCE_H */
