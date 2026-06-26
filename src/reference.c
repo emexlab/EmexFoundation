@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-bool EVRetain(EVObjectRef ref)
+EVObjectRef EVRetain(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
@@ -42,7 +42,7 @@ bool EVRetain(EVObjectRef ref)
         /* checking if object can be retained */
         if(current <= 0 || (atomic_load(&object->state) == kEVObjectStateInvalid))
         {
-            return false;
+            return NULL;
         }
 
         /* retaining object */
@@ -53,10 +53,10 @@ bool EVRetain(EVObjectRef ref)
             {
                 /* rollback using release logic */
                 EVRelease(ref);
-                return false;
+                return NULL;
             }
 
-            return true;
+            return ref;
         }
     }
 }

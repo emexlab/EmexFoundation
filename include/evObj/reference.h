@@ -27,7 +27,7 @@
 
 #include <evObj/defs.h>
 
-bool EVRetain(EVObjectRef ref);
+EVObjectRef EVRetain(EVObjectRef ref);
 void EVRelease(EVObjectRef ref);
 void EVInvalidate(EVObjectRef ref);
 
