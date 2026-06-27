@@ -95,4 +95,6 @@ int EVGetRetainCount(EVObjectRef ref);
 EVTypeID EVClassRegister(EVClass *cls);
 EVClass *EVClassGetByID(EVTypeID id);
 
+EVAllocator *EVGetAllocator(EVObjectRef ref);
+
 #endif /* EVBASE_H */

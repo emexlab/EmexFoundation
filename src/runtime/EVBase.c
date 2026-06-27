@@ -143,3 +143,8 @@ EVClass *EVClassGetByID(EVTypeID id)
     return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
 }
 
+EVAllocator *EVGetAllocator(EVObjectRef ref)
+{
+    EVObject *object = (EVObject*)ref;
+    return object->allocator;
+}
