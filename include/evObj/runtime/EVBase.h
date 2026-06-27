@@ -42,7 +42,7 @@ typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
 typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
-typedef struct evclass {
+typedef struct {
     /* properties  */
     const char *name;
     size_t size;                    /* must be bigger than the header it self */
@@ -55,7 +55,7 @@ typedef struct evclass {
     evobject_equal_handler_t equal;
 } EVClass;
 
-typedef struct evobject {
+typedef struct {
     /*
      * the typeID of the class of that
      * object, similar to CFRuntime.
