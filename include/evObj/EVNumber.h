@@ -44,7 +44,7 @@ typedef EVObjectRef EVNumberRef;
 
 EVTypeID EVNumberGetTypeID(void);
 
-EVNumberRef EVNumberCreate(kEVNumberType type, const void *value);
+EVNumberRef EVNumberCreate(EVAllocator *allocator, kEVNumberType type, const void *value);
 
 int EVNumberGetByteSize(EVNumberRef numberRef);
 kEVNumberType EVNumberGetType(EVNumberRef numberRef);

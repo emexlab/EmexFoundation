@@ -27,7 +27,6 @@
 #include <assert.h>
 #include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/EVAllocator.h>
-#include <evObj/runtime/EVBase.h>
 #include <evObj/EVNumber.h>
 
 typedef struct EVNumber {
@@ -113,7 +112,8 @@ EVTypeID EVNumberGetTypeID(void)
     return EVNumberObjClass.typeID;
 }
 
-EVNumberRef EVNumberCreate(kEVNumberType type,
+EVNumberRef EVNumberCreate(EVAllocator *allocator,
+                           kEVNumberType type,
                            const void *value)
 {
     if(value == NULL)
@@ -121,7 +121,7 @@ EVNumberRef EVNumberCreate(kEVNumberType type,
         return NULL;
     }
 
-    EVNumber num = EVObjectAlloc(kEVAllocatorDefault, EVNumberGetTypeID());
+    EVNumber num = EVObjectAlloc(allocator, EVNumberGetTypeID());
     if(num == NULL)
     {
         return NULL;
