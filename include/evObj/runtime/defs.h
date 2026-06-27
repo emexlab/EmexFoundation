@@ -35,29 +35,11 @@
 #define GET_EVOBJECT_MAIN_EVENT_HANDLER(name) evobject_event_handler_##name##_main
 
 typedef uint64_t EVTypeID;
-
-/* kernel virt object types */
-typedef struct evobject     EVObject;               /* weak object type (needs retain on use) */
 typedef void * EVObjectRef;  /* so the compiler shuts up */
-
-typedef struct evobject {
-    /*
-     * the typeID of the class of that
-     * object, similar to CFRuntime.
-     */
-    uint64_t typeID;
-
-    /*
-     * reference count of an object if
-     * it hits zero it will release
-     * automatically.
-     */
-    _Atomic int refcount;
-} EVObject;
 
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
-typedef EVObject *(*evobject_copy_handler_t)(EVObjectRef ref);
+typedef EVObjectRef (*evobject_copy_handler_t)(EVObjectRef ref);
 typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
 typedef struct evclass {
@@ -72,5 +54,20 @@ typedef struct evclass {
     evobject_copy_handler_t copy;
     evobject_equal_handler_t equal;
 } EVClass;
+
+typedef struct evobject {
+    /*
+     * the typeID of the class of that
+     * object, similar to CFRuntime.
+     */
+    EVTypeID typeID;
+
+    /*
+     * reference count of an object if
+     * it hits zero it will release
+     * automatically.
+     */
+    _Atomic int refcount;
+} EVObject;
 
 #endif /* EVOBJECT_DEFS_H */
