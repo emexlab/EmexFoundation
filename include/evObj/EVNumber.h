@@ -22,17 +22,34 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJ_H
-#define EVOBJ_H
+#ifndef EVNUMBER_H
+#define EVNUMBER_H
 
-/* runtime */
 #include <evObj/runtime/defs.h>
-#include <evObj/runtime/base.h>
-#include <evObj/runtime/alloc.h>
-#include <evObj/runtime/reference.h>
-#include <evObj/runtime/register.h>
 
-/* types */
-#include <evObj/EVNumber.h>
+typedef enum: uint8_t {
+    kEVNumberTypeSInt8,
+    kEVNumberTypeSInt16,
+    kEVNumberTypeSInt32,
+    kEVNumberTypeSInt64,
+} kEVNumberType;
 
-#endif /* EVOBJ_H */
+typedef enum: uint8_t {
+    kEVNumberComparisonResultLessThan,
+    kEVNumberComparisonResultEqualTo,
+    kEVNumberComparisonResultGreaterThan,
+} kEVNumberComparisonResult;
+
+typedef EVObjectRef EVNumberRef;
+
+EVTypeID EVNumberGetTypeID(void);
+
+EVNumberRef EVNumberCreate(kEVNumberType type, const void *value);
+
+int EVNumberGetByteSize(EVNumberRef numberRef);
+kEVNumberType EVNumberGetType(EVNumberRef numberRef);
+bool EVNumberGetValue(EVNumberRef numberRef, kEVNumberType type, void *value);
+
+kEVNumberComparisonResult EVNumberCompare(EVNumberRef numberRef, EVNumberRef otherNumberRef);
+
+#endif /* EVNUMBER_H */

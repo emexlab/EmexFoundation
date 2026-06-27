@@ -22,17 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_REGISTER_H
-#define EVOBJECT_REGISTER_H
+#ifndef EVOBJECT_BASE_H
+#define EVOBJECT_BASE_H
 
-#include <stdint.h>
-#include <stddef.h>
-#include <evObj/defs.h>
+#include <evObj/runtime/defs.h>
 
-#define kEVNotATypeID   ((uint64_t)0)
-#define EV_MAX_CLASSES  1024
+EVTypeID EVGetTypeID(EVObjectRef ref);
 
-EVTypeID EVClassRegister(EVClass *cls);
-EVClass *EVClassGetByID(EVTypeID id);
+bool EVEqual(EVObjectRef ref1, EVObjectRef ref2);
 
-#endif /* EVOBJECT_REGISTER_H */
+#endif /* EVOBJECT_BASE_H */

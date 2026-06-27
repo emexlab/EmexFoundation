@@ -22,13 +22,39 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_BASE_H
-#define EVOBJECT_BASE_H
+#include <evObj/runtime/base.h>
+#include <evObj/runtime/register.h>
 
-#include <evObj/defs.h>
+EVTypeID EVGetTypeID(EVObjectRef ref)
+{
+    return ((EVObject*)ref)->typeID;
+}
 
-EVTypeID EVGetTypeID(EVObjectRef ref);
+bool EVEqual(EVObjectRef ref1,
+             EVObjectRef ref2)
+{
+    if(ref1 == ref2)
+    {
+        return true;
+    }
+    if(ref1 == NULL || ref2 == NULL)
+    {
+        return false;
+    }
 
-Boolean EVEqual(EVObjectRef ref1, EVObjectRef ref2);
+    /* types must match */
+    EVTypeID typeID = EVGetTypeID(ref1);
+    if(typeID != EVGetTypeID(ref2))
+    {
+        return false;
+    }
 
-#endif /* EVOBJECT_BASE_H */
+    EVClass *class = EVClassGetByID(typeID);
+    if(class->equal != NULL)
+    {
+        return class->equal(ref1, ref2);
+    }
+
+    /* no handler == not equal */
+    return false;
+}

@@ -41,7 +41,6 @@ typedef enum {
 } kEVObjectState;
 
 typedef uint64_t EVTypeID;
-typedef bool Boolean;
 
 /* kernel virt object types */
 typedef struct evobject     EVObject;               /* weak object type (needs retain on use) */
@@ -76,7 +75,7 @@ typedef struct evobject {
 typedef void (*evobject_init_handler_t)(EVObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EVObjectRef ref);
 typedef EVObject *(*evobject_copy_handler_t)(EVObjectRef ref);
-typedef Boolean *(*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
+typedef bool (*evobject_equal_handler_t)(EVObjectRef ref1, EVObjectRef ref2);
 
 typedef struct evclass {
     /* properties  */

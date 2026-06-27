@@ -8,10 +8,12 @@ project(evObj
 find_package(Threads REQUIRED)
 
 add_library(evObj STATIC
-    src/base.c
-    src/alloc.c
-    src/reference.c
-    src/register.c
+    src/runtime/base.c
+    src/runtime/alloc.c
+    src/runtime/reference.c
+    src/runtime/register.c
+
+    src/EVNumber.c
 )
 
 target_include_directories(evObj

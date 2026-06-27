@@ -22,8 +22,8 @@
  * SOFTWARE.
  */
 
-#include <evObj/reference.h>
-#include <evObj/register.h>
+#include <evObj/runtime/reference.h>
+#include <evObj/runtime/register.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>

@@ -22,16 +22,30 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_REFERENCE_H
-#define EVOBJECT_REFERENCE_H
+#include <stdatomic.h>
+#include <evObj/runtime/register.h>
 
-#include <evObj/defs.h>
+static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
+static _Atomic(uint64_t) ev_class_next = 1;
 
-EVObjectRef EVRetain(EVObjectRef ref);
-void EVRelease(EVObjectRef ref);
+EVTypeID EVClassRegister(EVClass *cls)
+{
+    uint64_t id = atomic_fetch_add_explicit(&ev_class_next, 1, memory_order_relaxed);
+    if(id >= EV_MAX_CLASSES)
+    {
+        return kEVNotATypeID;
+    }
 
-void EVInvalidate(EVObjectRef ref);
+    cls->typeID = id;
+    atomic_store_explicit(&ev_class_table[id], cls, memory_order_release);
+    return id;
+}
 
-int EVGetRetainCount(EVObjectRef ref);
-
-#endif /* EVOBJECT_REFERENCE_H */
+EVClass *EVClassGetByID(EVTypeID id)
+{
+    if(id == kEVNotATypeID || id >= EV_MAX_CLASSES)
+    {
+        return NULL;
+    }
+    return atomic_load_explicit(&ev_class_table[id], memory_order_acquire);
+}

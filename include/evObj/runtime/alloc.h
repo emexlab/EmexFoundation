@@ -22,39 +22,11 @@
  * SOFTWARE.
  */
 
-#include <evObj/base.h>
-#include <evObj/register.h>
+#ifndef EVOBJECT_ALLOC_H
+#define EVOBJECT_ALLOC_H
 
-EVTypeID EVGetTypeID(EVObjectRef ref)
-{
-    return ((EVObject*)ref)->typeID;
-}
+#include <evObj/runtime/defs.h>
 
-Boolean EVEqual(EVObjectRef ref1,
-                EVObjectRef ref2)
-{
-    if(ref1 == ref2)
-    {
-        return true;
-    }
-    if(ref1 == NULL || ref2 == NULL)
-    {
-        return false;
-    }
+EVObjectRef EVAlloc(EVTypeID typeID);
 
-    /* types must match */
-    EVTypeID typeID = EVGetTypeID(ref1);
-    if(typeID != EVGetTypeID(ref2))
-    {
-        return false;
-    }
-
-    EVClass *class = EVClassGetByID(typeID);
-    if(class->equal != NULL)
-    {
-        return class->equal(ref1, ref2);
-    }
-
-    /* no handler == not equal */
-    return false;
-}
+#endif /* EVOBJECT_ALLOC_H */

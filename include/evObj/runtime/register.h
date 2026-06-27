@@ -22,11 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJECT_ALLOC_H
-#define EVOBJECT_ALLOC_H
+#ifndef EVOBJECT_REGISTER_H
+#define EVOBJECT_REGISTER_H
 
-#include <evObj/defs.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <evObj/runtime/defs.h>
 
-EVObjectRef EVAlloc(EVTypeID typeID);
+#define kEVNotATypeID   ((uint64_t)0)
+#define EV_MAX_CLASSES  1024
 
-#endif /* EVOBJECT_ALLOC_H */
+EVTypeID EVClassRegister(EVClass *cls);
+EVClass *EVClassGetByID(EVTypeID id);
+
+#endif /* EVOBJECT_REGISTER_H */
