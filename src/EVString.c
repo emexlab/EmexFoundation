@@ -274,3 +274,26 @@ size_t EVStringGetLength(EVStringRef stringRef)
     EVString string = (EVString)stringRef;
     return string->len;
 }
+
+bool EVStringGetCString(EVStringRef stringRef,
+                        char *str,
+                        size_t str_len,
+                        kEVStringEncoding encoding)
+{
+    const char *str_ptr = EVStringGetCStringPtr(stringRef, encoding);
+    if(str_ptr == NULL)
+    {
+        return false;
+    }
+
+    size_t len = EVStringGetLength(stringRef);
+    if((len + 1) > str_len)
+    {
+        /* buffer is too small */
+        return false;
+    }
+
+    memcpy(str, str_ptr, len);
+    str[len] = '\0';
+    return true;
+}
