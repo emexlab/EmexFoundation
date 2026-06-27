@@ -59,7 +59,6 @@ typedef struct evobject {
      * automatically.
      */
     _Atomic int refcount;
-    pthread_mutex_t mutex;  /* makes sure nothing mutates */
 
     /*
      * the object state value marks a

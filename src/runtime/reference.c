@@ -77,7 +77,6 @@ void EVRelease(EVObjectRef ref)
         {
             class->deinit(ref);
         }
-        pthread_mutex_destroy(&object->mutex);
         free(object);
     }
     else if(old <= 0)

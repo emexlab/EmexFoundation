@@ -44,13 +44,7 @@ EVObjectRef EVAlloc(EVTypeID typeID)
     object->refcount = 1;
     object->state = kEVObjectStateNormal;
     object->typeID = class->typeID;
-
-    if(pthread_mutex_init(&object->mutex, NULL) != 0)
-    {
-        free(object);
-        return NULL;
-    }
-
+    
     /* initilizing when applicable */
     if(class->init != NULL)
     {
