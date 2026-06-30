@@ -28,7 +28,8 @@
 #include <string.h>
 #include <assert.h>
 
-static EVObjectRef __EVAllocatorDefaultAllocate(EVTypeID typeID,
+static EVObjectRef __EVAllocatorDefaultAllocate(EVAllocator *allocator,
+                                                EVTypeID typeID,
                                                 size_t size)
 {
     /*
@@ -47,7 +48,7 @@ static EVObjectRef __EVAllocatorDefaultAllocate(EVTypeID typeID,
     }
     object->refcount = 1;
     object->typeID = class->typeID;
-    object->allocator = kEVAllocatorDefault;
+    object->allocator = allocator;
 
     /* initilizing when applicable */
     if(class->init != NULL)
@@ -58,7 +59,8 @@ static EVObjectRef __EVAllocatorDefaultAllocate(EVTypeID typeID,
     return (EVObjectRef)object;
 }
 
-static void __EVAllocatorDefaultDeallocate(EVObjectRef ref)
+static void __EVAllocatorDefaultDeallocate(EVAllocator *allocator,
+                                           EVObjectRef ref)
 {
     free(ref);
 }
@@ -81,12 +83,12 @@ EVObjectRef EVObjectAlloc(EVAllocator *allocator,
     /* checking if allocator is correctly configured (it must) */
     assert(allocator->allocate != NULL && allocator->deallocate != NULL);
 
-    return allocator->allocate(typeID, size);
+    return allocator->allocate(allocator, typeID, size);
 }
 
 void EVObjectDealloc(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
-    object->allocator->deallocate(object);
+    object->allocator->deallocate(object->allocator, object);
 }
