@@ -364,16 +364,78 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
         return NULL;
     }
 
+    /* the separator has to comply to the encoding of the string */
+    if(string->encoding != separatorString->encoding &&
+        !__EVStringValidateEncoding(string->encoding, separatorString->buf, separatorString->len))
+    {
+        return NULL;
+    }
+
+    /* the string must be bigger than the separator */
+    if(separatorString->len >= string->len)
+    {
+        return NULL;
+    }
+
+    /* now we gotta calculate the amount of split items */
+    size_t component_cnt = 0;
+    for(size_t i = 0; i < string->len; i++)
+    {
+        if(strncmp(&string->buf[i], separatorString->buf, separatorString->len) == 0)
+        {
+            component_cnt++;
+        }
+    }
+
     /* gotta need a array */
     EVAllocatorRef allocatorRef = EVGetAllocator(stringRef);
-    EVMutableArrayRef componentsArrayRef = EVArrayCreateMutable(allocatorRef, kEVArrayCallbacksObjectCallbacks, 0);
+    EVMutableArrayRef componentsArrayRef = EVArrayCreateMutable(allocatorRef, kEVArrayCallbacksObjectCallbacks, component_cnt);
     if(componentsArrayRef == NULL)
     {
         return NULL;
     }
 
-    /* nothing to do for now */
-    EVRelease(componentsArrayRef);
+    /* now creating the sub components */
+    size_t last_len_match = 0;
+    for(size_t i = 0; i < string->len; i++)
+    {
+        if(strncmp(&string->buf[i], separatorString->buf, separatorString->len) == 0)
+        {
+            size_t len = i - last_len_match;
+            EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[last_len_match], len, string->encoding);
+            if(componentRef == NULL)
+            {
+                EVRelease(componentsArrayRef);
+                return NULL;
+            }
 
-    return NULL;
+            bool success = EVArrayAppendValue(componentsArrayRef, componentRef);
+            EVRelease(componentRef);
+            if(!success)
+            {
+                EVRelease(componentsArrayRef);
+                return NULL;
+            }
+
+            last_len_match = i + separatorString->len;
+        }
+    }
+
+    /* creating ref for remaining lenght */
+    size_t len = string->len - last_len_match;
+    if(len <= 0)
+    {
+        return componentsArrayRef;
+    }
+
+    EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[last_len_match], len, string->encoding);
+    bool success = EVArrayAppendValue(componentsArrayRef, componentRef);
+    EVRelease(componentRef);
+    if(!success)
+    {
+        EVRelease(componentsArrayRef);
+        return NULL;
+    }
+
+    return componentsArrayRef;
 }
