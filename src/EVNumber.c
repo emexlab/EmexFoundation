@@ -96,7 +96,6 @@ static EVClass EVNumberClass = {
     .size = sizeof(struct EVNumber),
     .init = NULL,
     .deinit = NULL,
-    .copy = NULL,
     .equal = __EVNumberEqual,
 };
 

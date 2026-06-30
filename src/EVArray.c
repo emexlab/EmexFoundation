@@ -118,7 +118,6 @@ static EVClass EVArrayClass = {
     .size = sizeof(struct EVArray),
     .init = NULL,
     .deinit = __EVArrayClassDeinit,
-    .copy = NULL,
     .equal = __EVArrayClassEqual,
 };
 

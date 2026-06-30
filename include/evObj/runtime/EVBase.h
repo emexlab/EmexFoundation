@@ -54,7 +54,6 @@ typedef struct {
     /* handlers */
     evobject_init_handler_t init;
     evobject_deinit_handler_t deinit;
-    evobject_copy_handler_t copy;
     evobject_equal_handler_t equal;
 } EVClass;
 

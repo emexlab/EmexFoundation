@@ -161,7 +161,6 @@ static EVClass EVStringClass = {
     .size = sizeof(struct EVString),
     .init = NULL,
     .deinit = __EVStringDealloc,
-    .copy = NULL,
     .equal = __EVStringEqual,
 };
 
