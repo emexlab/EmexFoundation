@@ -119,8 +119,18 @@ static void __EVStringInit(EVStringRef stringRef)
     EVString string = (EVString)stringRef;
 
     /* we first automatically expect it to be at the inline */
+    string->mutable = false;
     string->is_inlined = true;
     string->buf = (char*)((const char*)string + sizeof(struct __EVString));
+}
+
+static void __EVStringDeinit(EVStringRef stringRef)
+{
+    EVString string = (EVString)stringRef;
+    if(string->mutable)
+    {
+        free(string->buf);
+    }
 }
 
 static bool __EVStringEqual(EVStringRef stringRef1,
@@ -156,7 +166,7 @@ static EVClass EVStringClass = {
     .name = "EVString",
     .typeID = kEVNotATypeID,
     .init = __EVStringInit,
-    .deinit = NULL,
+    .deinit = __EVStringDeinit,
     .equal = __EVStringEqual,
 };
 
@@ -242,6 +252,7 @@ EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
+    len = strnlen((const char*)buf, len);
     if(!__EVStringValidateEncoding(encoding, (const char*)buf, len))
     {
         return NULL;
@@ -255,6 +266,36 @@ EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
 
     memcpy(string->buf, buf, len);
     string->buf[len] = '\0';
+    string->len = len;
+    string->encoding = encoding;
+
+    return (EVStringRef)string;
+}
+
+EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
+                                            uint8_t *buf,
+                                            size_t len,
+                                            kEVStringEncoding encoding)
+{
+    if(buf == NULL || len == 0)
+    {
+        return NULL;
+    }
+
+    len = strnlen((const char*)buf, len);
+    if(!__EVStringValidateEncoding(encoding, (const char*)buf, len))
+    {
+        return NULL;
+    }
+
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString));
+    if(string == NULL)
+    {
+        return NULL;
+    }
+
+    string->is_inlined = false; /* string is not inlined lol */
+    string->buf = (char*)buf;
     string->len = len;
     string->encoding = encoding;
 
@@ -285,6 +326,37 @@ EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef,
     {
         return EVStringCreateWithCStringNoCopy(allocatorRef, string->buf, string->encoding);
     }
+}
+
+EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef,
+                                             EVStringRef stringRef)
+{
+    EVString string = (EVString)stringRef;
+    if(string == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EVGetAllocator(stringRef);
+    }
+
+    EVString mutableString = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString));
+    if(mutableString == NULL)
+    {
+        return NULL;
+    }
+
+    mutableString->buf = malloc(string->len + 1);
+    memcpy(mutableString->buf, string->buf, string->len);
+    mutableString->buf[string->len] = '\0';
+    mutableString->len = string->len;
+    mutableString->encoding = string->encoding;
+    mutableString->is_inlined = false;
+    mutableString->mutable = true;
+
+    return (EVMutableStringRef)mutableString;
 }
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef,
@@ -424,4 +496,49 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
     }
 
     return componentsArrayRef;
+}
+
+static bool __EVIsWhitespace(char c)
+{
+    return c == ' '  || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f';
+}
+
+
+bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
+{
+    EVString mutableString = (EVString)mutableStringRef;
+    if(mutableString == NULL || !mutableString->mutable)
+    {
+        return false;
+    }
+
+    size_t start = 0;
+    while(start < mutableString->len && __EVIsWhitespace(mutableString->buf[start]))
+    {
+        start++;
+    }
+
+    if(start == mutableString->len)
+    {
+        mutableString->buf[0] = '\0';
+        mutableString->len = 0;
+        return true;
+    }
+
+    size_t end = mutableString->len - 1;
+    while(end > start && __EVIsWhitespace(mutableString->buf[end]))
+    {
+        end--;
+    }
+
+    size_t new_len = end - start + 1;
+
+    if(start != 0)
+    {
+        memmove(mutableString->buf, mutableString->buf + start, new_len);
+    }
+    mutableString->buf[new_len] = '\0';
+    mutableString->len = new_len;
+
+    return true;
 }

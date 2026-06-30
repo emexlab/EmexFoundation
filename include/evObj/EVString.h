@@ -37,12 +37,14 @@ typedef enum: uint8_t {
 } kEVStringEncoding;
 
 typedef EVObjectRef EVStringRef;
+typedef EVObjectRef EVMutableStringRef;
 
 typedef struct __EVString {
     EVObject header;
     kEVStringEncoding encoding;
+    bool mutable;
     bool is_inlined;    /* meaning the object has the string buffer in it self */
-    char *buf;
+    char *buf;          /* it is neither inlined nor undeallocatable if mutable */
     size_t len;
 } *__EVString;
 
@@ -51,6 +53,7 @@ typedef struct __EVString {
 #define EV_STR_ENC(cStr, enc) (__extension__ ({ \
     static struct __EVString _evk = { \
         .encoding = (enc), \
+        .mutable = false, \
         .is_inlined = false, \
         .buf = (char *)("" cStr ""), \
         .len = sizeof("" cStr "") - 1, \
@@ -64,15 +67,16 @@ EVTypeID EVStringGetTypeID(void);
 EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
 EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
 EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef, const uint8_t *buf, size_t len, kEVStringEncoding encoding);
-/*
- * EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, uint8_t *buf, size_t len, kEVStringEncoding encoding);
- */
+EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, uint8_t *buf, size_t len, kEVStringEncoding encoding);
 EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef, EVStringRef stringRef);
+EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef, EVStringRef stringRef);
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef, kEVStringEncoding encoding);
 size_t EVStringGetLength(EVStringRef stringRef);
 bool EVStringGetCString(EVStringRef stringRef, char *str, size_t str_len, kEVStringEncoding encoding);
 
 EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef, EVStringRef separatorStringRef);
+
+bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef);
 
 #endif /* EVSTRING_H */
