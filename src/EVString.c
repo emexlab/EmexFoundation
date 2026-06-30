@@ -143,18 +143,21 @@ static bool __EVStringEqual(EVStringRef stringRef1,
         return false;
     }
 
+    /* they share the same lenght */
+    size_t len = string1->len;
+
     /* strings must comply to their encodings */
     if(string1->encoding != string2->encoding)
     {
-        bool string1_complies = __EVStringValidateEncoding(string2->encoding, string1->buf, string1->len);
-        bool string2_complies = __EVStringValidateEncoding(string1->encoding, string2->buf, string2->len);
+        bool string1_complies = __EVStringValidateEncoding(string2->encoding, string1->buf, len);
+        bool string2_complies = __EVStringValidateEncoding(string1->encoding, string2->buf, len);
         if(!string1_complies || !string2_complies)
         {
             return false;
         }
     }
 
-    return (memcmp(string1->buf, string2->buf, string1->len) == 0);
+    return (memcmp(string1->buf, string2->buf, len) == 0);
 }
 
 static EVClass EVStringClass = {
@@ -231,6 +234,35 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
 
     string->is_inlined = false; /* string is not inlined lol */
     string->buf = (char*)str;
+    string->len = len;
+    string->encoding = encoding;
+
+    return (EVStringRef)string;
+}
+
+EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
+                                      const uint8_t *buf,
+                                      size_t len,
+                                      kEVStringEncoding encoding)
+{
+    if(buf == NULL || len == 0)
+    {
+        return NULL;
+    }
+
+    if(!__EVStringValidateEncoding(encoding, (const char*)buf, len))
+    {
+        return NULL;
+    }
+
+    EVString string = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct EVString) + len + 1);
+    if(string == NULL)
+    {
+        return NULL;
+    }
+
+    memcpy(string->buf, buf, len);
+    string->buf[len] = '\0';
     string->len = len;
     string->encoding = encoding;
 
@@ -319,4 +351,29 @@ bool EVStringGetCString(EVStringRef stringRef,
     memcpy(str, str_ptr, len);
     str[len] = '\0';
     return true;
+}
+
+EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
+                                              EVStringRef separatorStringRef)
+{
+    EVString string = (EVString)stringRef;
+    EVString separatorString = (EVString)separatorStringRef;
+
+    if(string == NULL || separatorString == NULL)
+    {
+        return NULL;
+    }
+
+    /* gotta need a array */
+    EVAllocatorRef allocatorRef = EVGetAllocator(stringRef);
+    EVMutableArrayRef componentsArrayRef = EVArrayCreateMutable(allocatorRef, kEVArrayCallbacksObjectCallbacks, 0);
+    if(componentsArrayRef == NULL)
+    {
+        return NULL;
+    }
+
+    /* nothing to do for now */
+    EVRelease(componentsArrayRef);
+
+    return NULL;
 }

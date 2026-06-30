@@ -43,13 +43,15 @@ EVTypeID EVStringGetTypeID(void);
 EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
 EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef, const char *str, kEVStringEncoding encoding);
 EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef, const uint8_t *buf, size_t len, kEVStringEncoding encoding);
-EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, uint8_t *buf, size_t len, kEVStringEncoding encoding);
+/*
+ * EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, uint8_t *buf, size_t len, kEVStringEncoding encoding);
+ */
 EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef, EVStringRef stringRef);
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef, kEVStringEncoding encoding);
 size_t EVStringGetLength(EVStringRef stringRef);
 bool EVStringGetCString(EVStringRef stringRef, char *str, size_t str_len, kEVStringEncoding encoding);
 
-EVArrayRef EVStringSplitStringBySeparator(EVStringRef stringRef, EVStringRef separator);
+EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef, EVStringRef separatorStringRef);
 
 #endif /* EVSTRING_H */
