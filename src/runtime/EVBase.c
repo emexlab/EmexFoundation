@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/EVAllocator.h>
+#include <evObj/EVString.h>
 
 static _Atomic(EVClass *) ev_class_table[EV_MAX_CLASSES];
 static _Atomic(uint64_t) ev_class_next = 1;
@@ -142,4 +143,22 @@ EVAllocatorRef EVGetAllocator(EVObjectRef ref)
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
     return object->allocator;
+}
+
+EVStringRef EVCopyDescription(EVObjectRef ref)
+{
+    EVObject *object = (EVObject*)ref;
+    assert(object != NULL);
+
+    EVClass *cls = EVClassGetByID(object->typeID);
+    assert(cls != NULL);
+
+    if(cls->copyDescription)
+    {
+        return cls->copyDescription(ref);
+    }
+    else
+    {
+        return EVStringCreateWithFormat(object->allocator, EV_STR("<%s: %p>"), cls->name, ref);
+    }
 }
