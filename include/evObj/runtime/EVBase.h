@@ -106,4 +106,6 @@ EVAllocatorRef EVGetAllocator(EVObjectRef ref);
 
 EVStringRef EVCopyDescription(EVObjectRef ref);
 
+void EVLog(EVStringRef formatStringRef, ...);
+
 #endif /* EVBASE_H */

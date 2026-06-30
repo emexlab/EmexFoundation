@@ -176,3 +176,22 @@ EVStringRef EVCopyDescription(EVObjectRef ref)
 
     return descriptionFallbackRef;
 }
+
+void EVLog(EVStringRef formatStringRef, ...)
+{
+    va_list arguments;
+    va_start(arguments, formatStringRef);
+    EVStringRef resultRef = EVStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
+    va_end(arguments);
+
+    if(resultRef == NULL)
+    {
+        return;
+    }
+
+    const char *resultCptr = EVStringGetCStringPtr(resultRef, kEVStringEncodingUTF8);
+    if(resultCptr)
+    {
+        fprintf(stderr, "%s", resultCptr);
+    }
+}
