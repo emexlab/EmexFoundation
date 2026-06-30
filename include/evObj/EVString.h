@@ -60,6 +60,7 @@ typedef struct __EVString {
         .len = sizeof("" cStr "") - 1, \
         .header.is_stack_obj = true, \
     }; \
+    _evk.header.typeID = EVStringGetTypeID(), \
     (EVStringRef)&_evk; \
 }))
 

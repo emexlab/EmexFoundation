@@ -148,17 +148,31 @@ EVAllocatorRef EVGetAllocator(EVObjectRef ref)
 EVStringRef EVCopyDescription(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
-    assert(object != NULL);
+    if(object == NULL)
+    {
+        return EV_STR("<nil>");
+    }
 
     EVClass *cls = EVClassGetByID(object->typeID);
-    assert(cls != NULL);
+    if(cls == NULL)
+    {
+        return EV_STR("<nil>");
+    }
 
     if(cls->copyDescription)
     {
-        return cls->copyDescription(ref);
+        EVStringRef descriptionRef = cls->copyDescription(ref);
+        if(descriptionRef != NULL)
+        {
+            return descriptionRef;
+        }
     }
-    else
+
+    EVStringRef descriptionFallbackRef = EVStringCreateWithFormat(object->allocator, EV_STR("<%s: %p>"), cls->name, ref);
+    if(descriptionFallbackRef == NULL)
     {
-        return EVStringCreateWithFormat(object->allocator, EV_STR("<%s: %p>"), cls->name, ref);
+        return EV_STR("<nil>");
     }
+
+    return descriptionFallbackRef;
 }

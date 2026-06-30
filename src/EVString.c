@@ -26,6 +26,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <evObj/runtime/EVBase.h>
 #include <evObj/runtime/EVAllocator.h>
 #include <evObj/EVString.h>
@@ -163,12 +164,18 @@ static bool __EVStringEqual(EVStringRef stringRef1,
     return (memcmp(string1->buf, string2->buf, len) == 0);
 }
 
+static EVStringRef __EVStringCopyDescription(EVStringRef stringRef)
+{
+    return EVRetain(stringRef); /* just return our selves */
+}
+
 static EVClass EVStringClass = {
     .name = "EVString",
     .typeID = kEVNotATypeID,
     .init = __EVStringInit,
     .deinit = __EVStringDeinit,
     .equal = __EVStringEqual,
+    .copyDescription = __EVStringCopyDescription,
 };
 
 static void EVStringRegisterClass(void)
@@ -303,6 +310,128 @@ EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
     return (EVStringRef)string;
 }
 
+typedef struct {
+    char *data;
+    size_t len;
+    size_t cap;
+    bool failed;
+} __EVFmtBuf;
+
+static void __evfb_ensure(__EVFmtBuf *b,
+                          size_t extra)
+{
+    if(b->failed)
+    {
+        return;
+    }
+    if(b->len + extra + 1 > b->cap)
+    {
+        size_t nc = b->cap ? b->cap : 64;
+        while(nc < b->len + extra + 1)
+        {
+            nc *= 2;
+        }
+        char *p = realloc(b->data, nc);
+        if(p == NULL)
+        {
+            b->failed = true;
+            return;
+        }
+        b->data = p; b->cap = nc;
+    }
+}
+static void __evfb_bytes(__EVFmtBuf *b, const char *s, size_t n)
+{
+    __evfb_ensure(b, n); if (b->failed) return;
+    memcpy(b->data + b->len, s, n); b->len += n;
+}
+
+static void __evfb_char(__EVFmtBuf *b, char c)
+{
+    __evfb_ensure(b, 1); if (b->failed) return; b->data[b->len++] = c;
+}
+
+enum {
+    LEN_NONE,
+    LEN_hh,
+    LEN_h,
+    LEN_l,
+    LEN_ll,
+    LEN_j,
+    LEN_z,
+    LEN_t,
+    LEN_L
+};
+
+#define __EV_EMIT(TYPE) do { \
+    TYPE _v = va_arg(*ap, TYPE); \
+    int _n = snprintf(NULL, 0, spec, _v); \
+    if(_n < 0) \
+    { \
+        b->failed = true; \
+        return; \
+    } \
+    __evfb_ensure(b, (size_t)_n); if (b->failed) return; \
+    snprintf(b->data + b->len, (size_t)_n + 1, spec, _v); \
+    b->len += (size_t)_n; \
+} while (0)
+
+static void __EVEmitValue(__EVFmtBuf *b,
+                          const char *spec,
+                          char conv,
+                          int lenmod,
+                          va_list *ap)
+{
+    switch(conv)
+    {
+        case 'd':
+        case 'i':
+            switch (lenmod)
+            {
+                case LEN_l: __EV_EMIT(long); break;
+                case LEN_ll: __EV_EMIT(long long); break;
+                case LEN_j: __EV_EMIT(intmax_t); break;
+                case LEN_z: __EV_EMIT(size_t); break;
+                case LEN_t: __EV_EMIT(ptrdiff_t); break;
+                default: __EV_EMIT(int); break;
+        } break;
+    case 'o':
+    case 'u':
+    case 'x':
+    case 'X':
+        switch(lenmod)
+        {
+            case LEN_l: __EV_EMIT(unsigned long); break;
+            case LEN_ll: __EV_EMIT(unsigned long long); break;
+            case LEN_j: __EV_EMIT(uintmax_t); break;
+            case LEN_z: __EV_EMIT(size_t); break;
+            case LEN_t: __EV_EMIT(ptrdiff_t); break;
+            default: __EV_EMIT(unsigned int); break;
+        } break;
+    case 'e':
+    case 'E':
+    case 'f':
+    case 'F':
+    case 'g':
+    case 'G':
+    case 'a':
+    case 'A':
+        if(lenmod == LEN_L)
+        {
+            __EV_EMIT(long double);
+        }
+        else
+        {
+            __EV_EMIT(double);
+        }
+        break;
+    case 'c': __EV_EMIT(int); break;
+    case 's': __EV_EMIT(const char *); break;
+    case 'p': __EV_EMIT(void *); break;
+    default: __evfb_bytes(b, spec, strlen(spec)); break;
+    }
+}
+
 EVStringRef EVStringCreateWithFormatAndArguments(EVAllocatorRef allocatorRef,
                                                  EVStringRef formatStringRef,
                                                  va_list arguments)
@@ -312,33 +441,179 @@ EVStringRef EVStringCreateWithFormatAndArguments(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    const char *fmtCptr = EVStringGetCStringPtr(formatStringRef, kEVStringEncodingUTF8);
-    if(fmtCptr == NULL)
+    const char *fmt = EVStringGetCStringPtr(formatStringRef, kEVStringEncodingUTF8);
+    if(fmt == NULL)
     {
         return NULL;
     }
 
-    va_list measure;
-    va_copy(measure, arguments);
-    int needed = vsnprintf(NULL, 0, fmtCptr, measure);
-    va_end(measure);
+    __EVFmtBuf b = {0};
+    va_list ap;
+    va_copy(ap, arguments);
 
-    if(needed < 0)
+    const char *p = fmt;
+    while(*p)
     {
-        return NULL;
+        if(*p != '%')
+        {
+            __evfb_char(&b, *p++);
+            continue;
+        }
+        const char *start = p++;
+        if(*p == '%')
+        {
+            __evfb_char(&b, '%');
+            p++;
+            continue;
+        }
+
+        char spec[64]; int si = 0; spec[si++] = '%';
+        while(*p && strchr("-+ 0#'", *p))
+        {
+            if(si < 58)
+            {
+                spec[si++] = *p; p++;
+            }
+        }
+
+        if(*p == '*')
+        {
+            int w = va_arg(ap, int);
+            si += snprintf(spec+si, sizeof spec - si, "%d", w);
+            p++;
+        }
+        else
+        {
+            while(isdigit((unsigned char)*p))
+            {
+                if(si < 58)
+                {
+                    spec[si++] = *p;
+                }
+                p++;
+            }
+        }
+
+        if(*p == '.')
+        {
+            if(si < 58)
+            {
+                spec[si++] = '.';
+            }
+            p++;
+            if(*p == '*')
+            {
+                int pr = va_arg(ap, int);
+                si += snprintf(spec+si, sizeof spec - si, "%d", pr);
+                p++;
+            }
+            else
+            {
+                while(isdigit((unsigned char)*p))
+                {
+                    if(si < 58)
+                    {
+                        spec[si++] = *p;
+                    }
+                    p++;
+                }
+            }
+        }
+
+        int lenmod = LEN_NONE;
+        if(*p == 'h')
+        {
+            if(p[1]=='h')
+            {
+                lenmod=LEN_hh;
+                spec[si++]='h';
+                spec[si++]='h';
+                p+=2;
+            }
+            else
+            {
+                lenmod=LEN_h;
+                spec[si++]='h';
+                p++;
+            }
+        }
+        else if(*p == 'l')
+        {
+            if(p[1]=='l')
+            {
+                lenmod=LEN_ll;
+                spec[si++]='l';
+                spec[si++]='l';
+                p+=2;
+            }
+            else
+            {
+                lenmod=LEN_l;
+                spec[si++]='l';
+                p++;
+            }
+        }
+        else if(*p == 'j')
+        {
+            lenmod=LEN_j;
+            spec[si++]='j';
+            p++;
+        }
+        else if(*p == 'z')
+        {
+            lenmod=LEN_z;
+            spec[si++]='z';
+            p++;
+        }
+        else if(*p == 't')
+        {
+            lenmod=LEN_t;
+            spec[si++]='t';
+            p++;
+        }
+        else if(*p == 'L')
+        {
+            lenmod=LEN_L;
+            spec[si++]='L';
+            p++;
+        }
+
+        char conv = *p;
+        if(conv == '\0')
+        {
+            __evfb_bytes(&b, start, (size_t)(p - start));
+            break;
+        }
+        if(conv == 'n')
+        {
+            b.failed = true;
+            break;
+        }
+
+        if(conv == '@')
+        {
+            p++;
+            EVObjectRef obj = va_arg(ap, EVObjectRef);
+            EVStringRef descriptionRef = EVCopyDescription(obj);
+            const char *d = EVStringGetCStringPtr(descriptionRef, kEVStringEncodingUTF8);
+            __evfb_bytes(&b, d, strlen(d));
+            continue;
+        }
+
+        spec[si++] = conv; spec[si] = '\0'; p++;
+        __EVEmitValue(&b, spec, conv, lenmod, &ap);
     }
 
-    size_t bufsize = (size_t)needed + 1;
-    char *buf = malloc(bufsize);
-    if(buf == NULL)
+    va_end(ap);
+
+    if(b.failed)
     {
+        free(b.data);
         return NULL;
     }
-
-    vsnprintf(buf, bufsize, fmtCptr, arguments);
-    EVStringRef resultRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)buf, (size_t)needed, kEVStringEncodingUTF8);
-    free(buf);
-
+    
+    EVStringRef resultRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)(b.data ? b.data : ""), b.len, kEVStringEncodingUTF8);
+    free(b.data);
     return resultRef;
 }
 
