@@ -183,7 +183,6 @@ void EVLog(EVStringRef formatStringRef, ...)
     va_start(arguments, formatStringRef);
     EVStringRef resultRef = EVStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
     va_end(arguments);
-
     if(resultRef == NULL)
     {
         return;
@@ -194,4 +193,6 @@ void EVLog(EVStringRef formatStringRef, ...)
     {
         fprintf(stderr, "%s", resultCptr);
     }
+
+    EVRelease(resultRef);
 }
