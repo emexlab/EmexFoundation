@@ -22,19 +22,26 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJ_H
-#define EVOBJ_H
+#ifndef EVPAGE_H
+#define EVPAGE_H
 
-/* runtime */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
 
-/* types */
-#include <evObj/EVNumber.h>
-#include <evObj/EVString.h>
-#include <evObj/EVArray.h>
-#include <evObj/EVPage.h>
-#include <evObj/EVPageGroup.h>
-#include <evObj/EVData.h>
+typedef EVObjectRef EVPageRef;
 
-#endif /* EVOBJ_H */
+size_t __EVPageGetPageSize(void);
+
+EVTypeID EVPageGetTypeID(void);
+
+EVPageRef EVPageCreate(EVAllocatorRef allocatorRef);
+EVPageRef EVPageCreateWithOptions(EVAllocatorRef allocatorRef, void *addr, size_t len, int prot, int flags, int fd, off_t offset);
+
+size_t EVPageGetSize(EVPageRef pageRef);
+void *EVPageGetPtr(EVPageRef pageRef);
+
+#endif /* EVPAGE_H */

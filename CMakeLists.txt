@@ -14,6 +14,9 @@ add_library(evObj STATIC
     src/EVNumber.c
     src/EVString.c
     src/EVArray.c
+    src/EVPage.c
+    src/EVPageGroup.c
+    src/EVData.c
 )
 
 target_include_directories(evObj

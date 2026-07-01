@@ -22,19 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJ_H
-#define EVOBJ_H
+#ifndef EVDATA_H
+#define EVDATA_H
 
-/* runtime */
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
 
-/* types */
-#include <evObj/EVNumber.h>
-#include <evObj/EVString.h>
-#include <evObj/EVArray.h>
-#include <evObj/EVPage.h>
-#include <evObj/EVPageGroup.h>
-#include <evObj/EVData.h>
+typedef EVObjectRef EVDataRef;
+typedef EVObjectRef EVMutableDataRef;
 
-#endif /* EVOBJ_H */
+EVDataRef EVDataCreateWithCBuffer(EVAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
+EVDataRef EVDataCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef, const uint8_t *bytes, size_t length);
+EVMutableDataRef EVDataCreateMutable(EVAllocatorRef allocatorRef, size_t capacity);
+EVDataRef EVDataCreateCopy(EVAllocatorRef allocatorRef, EVDataRef dataRef);
+EVMutableDataRef EVDataCreateMutableCopy(EVAllocatorRef allocatorRef, EVDataRef dataRef);
+
+#endif /* EVDATA_H */

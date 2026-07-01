@@ -22,19 +22,32 @@
  * SOFTWARE.
  */
 
-#ifndef EVOBJ_H
-#define EVOBJ_H
+#ifndef EVPAGE_GROUP_H
+#define EVPAGE_GROUP_H
 
-/* runtime */
-#include <evObj/runtime/EVBase.h>
-#include <evObj/runtime/EVAllocator.h>
-
-/* types */
-#include <evObj/EVNumber.h>
-#include <evObj/EVString.h>
-#include <evObj/EVArray.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 #include <evObj/EVPage.h>
-#include <evObj/EVPageGroup.h>
-#include <evObj/EVData.h>
+#include <evObj/EVArray.h>
+#include <evObj/runtime/EVBase.h>
 
-#endif /* EVOBJ_H */
+typedef EVObjectRef EVPageGroupRef;
+
+EVTypeID EVPageGroupGetTypeID(void);
+
+EVPageGroupRef EVPageGroupCreate(EVAllocatorRef allocatorRef);
+EVPageGroupRef EVPageGroupCreateWithPages(EVAllocatorRef allocatorRef, EVArrayRef pagesArrayRef);
+
+EVArrayRef EVPageGroupCopyPages(EVAllocatorRef allocatorRef, EVPageGroupRef groupRef);
+
+size_t EVPageGroupGetSize(EVPageGroupRef groupRef);
+bool EVPageGroupExtend(EVPageGroupRef groupRef);
+bool EVPageGroupMerge(EVPageGroupRef groupRef);
+
+size_t EVPageGroupWrite(EVPageGroupRef groupRef, size_t off, const uint8_t *b, size_t len);
+size_t EVPageGroupRead(EVPageGroupRef groupRef, size_t off, uint8_t *b, size_t len);
+
+#endif /* EVPAGE_GROUP_H */
