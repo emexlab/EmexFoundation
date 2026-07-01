@@ -337,6 +337,7 @@ bool __EVArrayResizeIfNeededForOneMoreIndex(EVArray array)
         return false;
     }
     array->items = new_ptr;
+    array->items_cap = new_cap;
 
     return true;
 }
