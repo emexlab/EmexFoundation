@@ -227,9 +227,10 @@ bool EVPageGroupMerge(EVPageGroupRef groupRef)
     }
 
     /* first appending new page */
-    if(!EVArrayAppendValue(group->pagesArrayRef, hugePageRef))
+    bool success = EVArrayAppendValue(group->pagesArrayRef, hugePageRef);
+    EVRelease(hugePageRef);
+    if(!success)
     {
-        EVRelease(hugePageRef);
         return false;
     }
 
