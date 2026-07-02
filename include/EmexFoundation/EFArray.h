@@ -33,9 +33,9 @@ typedef EFObjectRef EFArrayRef;
 typedef EFObjectRef EFMutableArrayRef;
 typedef EFObjectRef EFStringRef;
 
-typedef bool (*evarray_append_callback)(void *ptr);
+typedef Boolean (*evarray_append_callback)(void *ptr);
 typedef void (*evarray_remove_callback)(void *ptr);
-typedef bool (*evarray_equal_callback)(void *ptr1, void *ptr2);
+typedef Boolean (*evarray_equal_callback)(void *ptr1, void *ptr2);
 typedef EFStringRef (*evarray_copyDescription_callback)(EFAllocatorRef allocatorRef, void *ptr);
 
 typedef struct EFArrayCallbacks {

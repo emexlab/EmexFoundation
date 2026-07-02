@@ -49,7 +49,7 @@ EFArrayCallbacks kEFArrayCallbacksDefaultCallbacks = &(struct EFArrayCallbacks){
     .copyDescription = NULL,
 };
 
-static bool __EFArrayAppendObjectCallback(void *ptr)
+static Boolean __EFArrayAppendObjectCallback(void *ptr)
 {
     EFObjectRef ref = EFRetain((EFObjectRef)ptr);
     return (ref != NULL);
@@ -60,8 +60,8 @@ static void __EFArrayRemoveObjectCallback(void *ptr)
     EFRelease((EFObjectRef)ptr);
 }
 
-static bool __EFArrayEqualObjectCallback(void *ptr1,
-                                         void *ptr2)
+static Boolean __EFArrayEqualObjectCallback(void *ptr1,
+                                            void *ptr2)
 {
     return EFEqual((EFObjectRef)ptr1, (EFObjectRef)ptr2);
 }
