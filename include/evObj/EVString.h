@@ -43,8 +43,8 @@ typedef EVObjectRef EVMutableStringRef;
 typedef struct __EVString {
     EVObject header;
     kEVStringEncoding encoding;
-    bool is_mutable;
-    bool is_inlined;    /* meaning the object has the string buffer in it self */
+    Boolean is_mutable;
+    Boolean is_inlined; /* meaning the buffer pointer points to after the string object */
     char *buf;          /* it is neither inlined nor undeallocatable if mutable */
     EVIndex len;
 } *__EVString;

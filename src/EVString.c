@@ -116,16 +116,6 @@ static bool __EVStringValidateEncoding(kEVStringEncoding encoding,
     return false;
 }
 
-static void __EVStringInit(EVStringRef stringRef)
-{
-    EVString string = (EVString)stringRef;
-
-    /* we first automatically expect it to be at the inline */
-    string->is_mutable = false;
-    string->is_inlined = true;
-    string->buf = (char*)((const char*)string + sizeof(struct __EVString));
-}
-
 static void __EVStringDeinit(EVStringRef stringRef)
 {
     EVString string = (EVString)stringRef;
@@ -172,7 +162,7 @@ static EVStringRef __EVStringCopyDescription(EVStringRef stringRef)
 static EVClass EVStringClass = {
     .name = "EVString",
     .typeID = kEVNotATypeID,
-    .init = __EVStringInit,
+    .init = NULL,
     .deinit = __EVStringDeinit,
     .equal = __EVStringEqual,
     .copyDescription = __EVStringCopyDescription,
@@ -217,13 +207,13 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
     if(is_mutable)
     {
         string->buf = malloc(len + 1);
-        string->is_inlined = false;
-        string->is_mutable = true;
+        is_inlined = false; /* must be false */
         goto needs_copy;
     }
     else if(is_inlined)
-needs_copy:
     {
+        string->buf = (char*)((const char*)string + sizeof(struct __EVString));
+    needs_copy:
         memcpy(string->buf, buf, len);
         string->buf[len] = '\0';
     }
@@ -232,8 +222,12 @@ needs_copy:
         string->is_inlined = false; /* string is not inlined lol */
         string->buf = (char*)buf;
     }
+
+    /* always assigned with the same values */
     string->len = len;
     string->encoding = encoding;
+    string->is_inlined = !is_mutable && is_inlined; /* is_inlined is only possible when is_mutable is not enabled */
+    string->is_mutable = is_mutable;
 
     return (EVStringRef)string;
 }
