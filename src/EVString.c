@@ -208,7 +208,7 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
     {
         string->buf = malloc(len + 1);
         is_inlined = false; /* must be false */
-        goto needs_copy;
+        goto needs_copy;    /* skips past the string->buf pointer assignment of a inlined string */
     }
     else if(is_inlined)
     {
@@ -219,7 +219,6 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
     }
     else
     {
-        string->is_inlined = false; /* string is not inlined lol */
         string->buf = (char*)buf;
     }
 
