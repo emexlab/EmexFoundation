@@ -194,7 +194,8 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
                                            const uint8_t *buf,
                                            size_t len,
                                            kEVStringEncoding encoding,
-                                           Boolean is_inlined)
+                                           Boolean is_inlined,
+                                           Boolean is_mutable)
 {
     if(buf == NULL)
     {
@@ -213,7 +214,15 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
         return NULL;
     }
 
-    if(is_inlined)
+    if(is_mutable)
+    {
+        string->buf = malloc(len + 1);
+        string->is_inlined = false;
+        string->is_mutable = true;
+        goto needs_copy;
+    }
+    else if(is_inlined)
+needs_copy:
     {
         memcpy(string->buf, buf, len);
         string->buf[len] = '\0';
@@ -234,7 +243,7 @@ EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
                                       size_t len,
                                       kEVStringEncoding encoding)
 {
-    return __EVStringCreate(allocatorRef, buf, len, encoding, true);
+    return __EVStringCreate(allocatorRef, buf, len, encoding, true, false);
 }
 
 EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
@@ -242,7 +251,7 @@ EVStringRef EVStringCreateWithCBufferNoCopy(EVAllocatorRef allocatorRef,
                                             size_t len,
                                             kEVStringEncoding encoding)
 {
-    return __EVStringCreate(allocatorRef, buf, len, encoding, false);
+    return __EVStringCreate(allocatorRef, buf, len, encoding, false, false);
 }
 
 EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
@@ -255,7 +264,7 @@ EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
     }
 
     size_t len = strlen(str);
-    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, true);
+    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, true, false);
 }
 
 EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
@@ -268,7 +277,7 @@ EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
     }
 
     size_t len = strlen(str);
-    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, false);
+    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, false, false);
 }
 
 typedef struct {
@@ -593,27 +602,19 @@ EVStringRef EVStringCreateWithFormat(EVAllocatorRef allocatorRef,
 EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef,
                                EVStringRef stringRef)
 {
-    if(stringRef == NULL)
+    EVString string = (EVString)stringRef;
+    if(string == NULL)
     {
         return NULL;
     }
 
     if(allocatorRef == NULL)
     {
+        /* falling back to the same allocator used to allocate the source x3 */
         allocatorRef = EVGetAllocator(stringRef);
     }
 
-    /* copy gets harder due to the string inline feature now, inline strings have to stay inline */
-    EVString string = (EVString)stringRef;
-
-    if(string->is_inlined)
-    {
-        return EVStringCreateWithCString(allocatorRef, string->buf, string->encoding);
-    }
-    else
-    {
-        return EVStringCreateWithCStringNoCopy(allocatorRef, string->buf, string->encoding);
-    }
+    return __EVStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, false);
 }
 
 EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef,
@@ -627,24 +628,11 @@ EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef,
 
     if(allocatorRef == NULL)
     {
+        /* falling back to the same allocator used to allocate the source x3 */
         allocatorRef = EVGetAllocator(stringRef);
     }
 
-    EVString mutableString = EVObjectAlloc(allocatorRef, EVStringGetTypeID(), sizeof(struct __EVString));
-    if(mutableString == NULL)
-    {
-        return NULL;
-    }
-
-    mutableString->buf = malloc(string->len + 1);
-    memcpy(mutableString->buf, string->buf, string->len);
-    mutableString->buf[string->len] = '\0';
-    mutableString->len = string->len;
-    mutableString->encoding = string->encoding;
-    mutableString->is_inlined = false;
-    mutableString->is_mutable = true;
-
-    return (EVMutableStringRef)mutableString;
+    return __EVStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, true);
 }
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef,
