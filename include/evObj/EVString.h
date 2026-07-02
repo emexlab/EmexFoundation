@@ -46,7 +46,7 @@ typedef struct __EVString {
     bool is_mutable;
     bool is_inlined;    /* meaning the object has the string buffer in it self */
     char *buf;          /* it is neither inlined nor undeallocatable if mutable */
-    size_t len;
+    EVIndex len;
 } *__EVString;
 
 #define EV_STR(cStr) EV_STR_ENC(cStr, kEVStringEncodingUTF8)
@@ -57,7 +57,7 @@ typedef struct __EVString {
         .is_mutable = false, \
         .is_inlined = false, \
         .buf = (char *)("" cStr ""), \
-        .len = sizeof("" cStr "") - 1, \
+        .len = (EVIndex)(sizeof("" cStr "") - 1), \
         .header.is_stack_obj = true, \
     }; \
     _evk.header.typeID = EVStringGetTypeID(), \
@@ -76,12 +76,12 @@ EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef, EVStringRef stringRe
 EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef, EVStringRef stringRef);
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef, kEVStringEncoding encoding);
-size_t EVStringGetLength(EVStringRef stringRef);
-bool EVStringGetCString(EVStringRef stringRef, char *str, size_t str_len, kEVStringEncoding encoding);
+EVIndex EVStringGetLength(EVStringRef stringRef);
+Boolean EVStringGetCString(EVStringRef stringRef, char *str, size_t str_len, kEVStringEncoding encoding);
 
 EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef, EVStringRef separatorStringRef);
 
-bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef);
-bool EVStringAppendString(EVMutableStringRef mutableStringRef, EVStringRef stringRef);
+Boolean EVStringTrimWhitespace(EVMutableStringRef mutableStringRef);
+Boolean EVStringAppendString(EVMutableStringRef mutableStringRef, EVStringRef stringRef);
 
 #endif /* EVSTRING_H */

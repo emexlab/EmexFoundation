@@ -703,7 +703,7 @@ const char *EVStringGetCStringPtr(EVStringRef stringRef,
     return string->buf;
 }
 
-size_t EVStringGetLength(EVStringRef stringRef)
+EVIndex EVStringGetLength(EVStringRef stringRef)
 {
     if(stringRef == NULL)
     {
@@ -714,10 +714,10 @@ size_t EVStringGetLength(EVStringRef stringRef)
     return string->len;
 }
 
-bool EVStringGetCString(EVStringRef stringRef,
-                        char *str,
-                        size_t str_len,
-                        kEVStringEncoding encoding)
+Boolean EVStringGetCString(EVStringRef stringRef,
+                           char *str,
+                           size_t str_len,
+                           kEVStringEncoding encoding)
 {
     const char *str_ptr = EVStringGetCStringPtr(stringRef, encoding);
     if(str_ptr == NULL)
@@ -725,8 +725,8 @@ bool EVStringGetCString(EVStringRef stringRef,
         return false;
     }
 
-    size_t len = EVStringGetLength(stringRef);
-    if((len + 1) > str_len)
+    EVIndex len = EVStringGetLength(stringRef);
+    if((len + 1) > (EVIndex)str_len)
     {
         /* buffer is too small */
         return false;
@@ -762,31 +762,31 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
     }
 
     /* now we gotta calculate the amount of split items */
-    size_t component_cnt = 0;
-    for(size_t i = 0; i < string->len; i++)
+    EVIndex componentCount = 0;
+    for(EVIndex i = 0; i < string->len; i++)
     {
-        if(strncmp(&string->buf[i], separatorString->buf, separatorString->len) == 0)
+        if(strncmp(&string->buf[i], separatorString->buf, (size_t)separatorString->len) == 0)
         {
-            component_cnt++;
+            componentCount++;
         }
     }
 
     /* gotta need a array */
     EVAllocatorRef allocatorRef = EVGetAllocator(stringRef);
-    EVMutableArrayRef componentsArrayRef = EVArrayCreateMutable(allocatorRef, kEVArrayCallbacksObjectCallbacks, component_cnt);
+    EVMutableArrayRef componentsArrayRef = EVArrayCreateMutable(allocatorRef, kEVArrayCallbacksObjectCallbacks, componentCount);
     if(componentsArrayRef == NULL)
     {
         return NULL;
     }
 
     /* now creating the sub components */
-    size_t last_len_match = 0;
-    for(size_t i = 0; i < string->len; i++)
+    EVIndex lastLengthMatch = 0;
+    for(EVIndex i = 0; i < string->len; i++)
     {
         if(strncmp(&string->buf[i], separatorString->buf, separatorString->len) == 0)
         {
-            size_t len = i - last_len_match;
-            EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[last_len_match], len, string->encoding);
+            EVIndex length = i - lastLengthMatch;
+            EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[lastLengthMatch], length, string->encoding);
             if(componentRef == NULL)
             {
                 EVRelease(componentsArrayRef);
@@ -801,19 +801,19 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
                 return NULL;
             }
 
-            last_len_match = i + separatorString->len;
+            lastLengthMatch = i + separatorString->len;
             i += separatorString->len - 1;
         }
     }
 
     /* creating ref for remaining lenght */
-    size_t len = string->len - last_len_match;
+    EVIndex len = string->len - lastLengthMatch;
     if(len <= 0)
     {
         return componentsArrayRef;
     }
 
-    EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[last_len_match], len, string->encoding);
+    EVStringRef componentRef = EVStringCreateWithCBuffer(allocatorRef, (const uint8_t *)&string->buf[lastLengthMatch], len, string->encoding);
     bool success = EVArrayAppendValue(componentsArrayRef, componentRef);
     EVRelease(componentRef);
     if(!success)
@@ -825,13 +825,13 @@ EVArrayRef EVStringComponentsSplitBySeparator(EVStringRef stringRef,
     return componentsArrayRef;
 }
 
-static bool __EVIsWhitespace(char c)
+static Boolean __EVIsWhitespace(char c)
 {
     return c == ' '  || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f';
 }
 
 
-bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
+Boolean EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
 {
     EVString mutableString = (EVString)mutableStringRef;
     if(mutableString == NULL || !mutableString->is_mutable)
@@ -839,7 +839,7 @@ bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
         return false;
     }
 
-    size_t start = 0;
+    EVIndex start = 0;
     while(start < mutableString->len && __EVIsWhitespace(mutableString->buf[start]))
     {
         start++;
@@ -852,17 +852,17 @@ bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
         return true;
     }
 
-    size_t end = mutableString->len - 1;
+    EVIndex end = mutableString->len - 1;
     while(end > start && __EVIsWhitespace(mutableString->buf[end]))
     {
         end--;
     }
 
-    size_t new_len = end - start + 1;
+    EVIndex new_len = end - start + 1;
 
     if(start != 0)
     {
-        memmove(mutableString->buf, mutableString->buf + start, new_len);
+        memmove(mutableString->buf, mutableString->buf + start, (size_t)new_len);
     }
     mutableString->buf[new_len] = '\0';
     mutableString->len = new_len;
@@ -870,8 +870,8 @@ bool EVStringTrimWhitespace(EVMutableStringRef mutableStringRef)
     return true;
 }
 
-bool EVStringAppendString(EVMutableStringRef mutableStringRef,
-                          EVStringRef stringRef)
+Boolean EVStringAppendString(EVMutableStringRef mutableStringRef,
+                             EVStringRef stringRef)
 {
     EVString mutableString = (EVString)mutableStringRef;
     EVString appendString = (EVString)stringRef;
