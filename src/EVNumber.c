@@ -149,7 +149,7 @@ EVNumberRef EVNumberCreate(EVAllocatorRef allocatorRef,
     return num;
 }
 
-int EVNumberGetByteSize(EVNumberRef numberRef)
+EVIndex EVNumberGetByteSize(EVNumberRef numberRef)
 {
     if(numberRef == NULL)
     {
@@ -183,9 +183,9 @@ kEVNumberType EVNumberGetType(EVNumberRef numberRef)
     return num->type;
 }
 
-bool EVNumberGetValue(EVNumberRef numberRef,
-                      kEVNumberType type,
-                      void *value)
+Boolean EVNumberGetValue(EVNumberRef numberRef,
+                         kEVNumberType type,
+                         void *value)
 {
     if(numberRef == NULL || value == NULL)
     {

@@ -48,9 +48,9 @@ EVTypeID EVNumberGetTypeID(void);
 
 EVNumberRef EVNumberCreate(EVAllocatorRef allocatorRef, kEVNumberType type, const void *value);
 
-int EVNumberGetByteSize(EVNumberRef numberRef);
+EVIndex EVNumberGetByteSize(EVNumberRef numberRef);
 kEVNumberType EVNumberGetType(EVNumberRef numberRef);
-bool EVNumberGetValue(EVNumberRef numberRef, kEVNumberType type, void *value);
+Boolean EVNumberGetValue(EVNumberRef numberRef, kEVNumberType type, void *value);
 
 kEVNumberComparisonResult EVNumberCompare(EVNumberRef numberRef, EVNumberRef otherNumberRef);
 

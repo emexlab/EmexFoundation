@@ -220,7 +220,6 @@ bool EVPageGroupMerge(EVPageGroupRef groupRef)
         return false;
     }
 
-    uint64_t count = EVArrayGetCount(group->pagesArrayRef);
     size_t loc = 0;
     for(uint64_t i = 0; i < count; i++)
     {
