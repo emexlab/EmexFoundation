@@ -36,5 +36,6 @@
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/EFData.h>
+#include <EmexFoundation/EFFileHandle.h>
 
 #endif /* EMEXFOUNDATION_H */
