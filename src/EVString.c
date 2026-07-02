@@ -231,6 +231,20 @@ static inline EVStringRef __EVStringCreate(EVAllocatorRef allocatorRef,
     return (EVStringRef)string;
 }
 
+static inline EVStringRef __EVStringCreateWithCString(EVAllocatorRef allocatorRef,
+                                                      const char *str,
+                                                      kEVStringEncoding encoding,
+                                                      Boolean is_inlined)
+{
+    if(str == NULL)
+    {
+        return NULL;
+    }
+
+    size_t len = strlen(str);
+    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, is_inlined, false);
+}
+
 EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
                                       const uint8_t *buf,
                                       size_t len,
@@ -251,26 +265,14 @@ EVStringRef EVStringCreateWithCString(EVAllocatorRef allocatorRef,
                                       const char *str,
                                       kEVStringEncoding encoding)
 {
-    if(str == NULL)
-    {
-        return NULL;
-    }
-
-    size_t len = strlen(str);
-    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, true, false);
+    return __EVStringCreateWithCString(allocatorRef, str, encoding, true);
 }
 
 EVStringRef EVStringCreateWithCStringNoCopy(EVAllocatorRef allocatorRef,
                                             const char *str,
                                             kEVStringEncoding encoding)
 {
-    if(str == NULL)
-    {
-        return NULL;
-    }
-
-    size_t len = strlen(str);
-    return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, false, false);
+    return __EVStringCreateWithCString(allocatorRef, str, encoding, false);
 }
 
 typedef struct {
@@ -280,8 +282,8 @@ typedef struct {
     bool failed;
 } __EVFmtBuf;
 
-static void __evfb_ensure(__EVFmtBuf *b,
-                          size_t extra)
+static inline void __evfb_ensure(__EVFmtBuf *b,
+                                 size_t extra)
 {
     if(b->failed)
     {
@@ -303,13 +305,16 @@ static void __evfb_ensure(__EVFmtBuf *b,
         b->data = p; b->cap = nc;
     }
 }
-static void __evfb_bytes(__EVFmtBuf *b, const char *s, size_t n)
+static inline void __evfb_bytes(__EVFmtBuf *b,
+                                const char *s,
+                                size_t n)
 {
     __evfb_ensure(b, n); if (b->failed) return;
     memcpy(b->data + b->len, s, n); b->len += n;
 }
 
-static void __evfb_char(__EVFmtBuf *b, char c)
+static inline void __evfb_char(__EVFmtBuf *b,
+                               char c)
 {
     __evfb_ensure(b, 1); if (b->failed) return; b->data[b->len++] = c;
 }
@@ -339,11 +344,11 @@ enum {
     b->len += (size_t)_n; \
 } while (0)
 
-static void __EVEmitValue(__EVFmtBuf *b,
-                          const char *spec,
-                          char conv,
-                          int lenmod,
-                          va_list *ap)
+static inline void __EVEmitValue(__EVFmtBuf *b,
+                                 const char *spec,
+                                 char conv,
+                                 int lenmod,
+                                 va_list *ap)
 {
     switch(conv)
     {
