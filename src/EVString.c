@@ -245,6 +245,25 @@ static inline EVStringRef __EVStringCreateWithCString(EVAllocatorRef allocatorRe
     return __EVStringCreate(allocatorRef, (const uint8_t*)str, len, encoding, is_inlined, false);
 }
 
+static inline EVStringRef __EVStringCreateCopy(EVAllocatorRef allocatorRef,
+                                               EVStringRef stringRef,
+                                               Boolean is_mutable)
+{
+    EVString string = (EVString)stringRef;
+    if(string == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        /* falling back to the same allocator used to allocate the source x3 */
+        allocatorRef = EVGetAllocator(stringRef);
+    }
+
+    return __EVStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, is_mutable);
+}
+
 EVStringRef EVStringCreateWithCBuffer(EVAllocatorRef allocatorRef,
                                       const uint8_t *buf,
                                       size_t len,
@@ -600,37 +619,13 @@ EVStringRef EVStringCreateWithFormat(EVAllocatorRef allocatorRef,
 EVStringRef EVStringCreateCopy(EVAllocatorRef allocatorRef,
                                EVStringRef stringRef)
 {
-    EVString string = (EVString)stringRef;
-    if(string == NULL)
-    {
-        return NULL;
-    }
-
-    if(allocatorRef == NULL)
-    {
-        /* falling back to the same allocator used to allocate the source x3 */
-        allocatorRef = EVGetAllocator(stringRef);
-    }
-
-    return __EVStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, false);
+    return __EVStringCreateCopy(allocatorRef, stringRef, false);
 }
 
 EVMutableStringRef EVStringCreateMutableCopy(EVAllocatorRef allocatorRef,
                                              EVStringRef stringRef)
 {
-    EVString string = (EVString)stringRef;
-    if(string == NULL)
-    {
-        return NULL;
-    }
-
-    if(allocatorRef == NULL)
-    {
-        /* falling back to the same allocator used to allocate the source x3 */
-        allocatorRef = EVGetAllocator(stringRef);
-    }
-
-    return __EVStringCreate(allocatorRef, (const uint8_t*)string->buf, string->len, string->encoding, string->is_inlined, true);
+    return __EVStringCreateCopy(allocatorRef, stringRef, true);
 }
 
 const char *EVStringGetCStringPtr(EVStringRef stringRef,
