@@ -113,7 +113,7 @@ typedef struct {
      * it hits zero it will release
      * automatically.
      */
-    _Atomic int refcount;
+    _Atomic EVIndex refcount;
 } EVObject;
 
 EVTypeID EVGetTypeID(EVObjectRef ref);
@@ -121,7 +121,7 @@ Boolean EVEqual(EVObjectRef ref1, EVObjectRef ref2);
 
 EVObjectRef EVRetain(EVObjectRef ref);
 void EVRelease(EVObjectRef ref);
-int EVGetRetainCount(EVObjectRef ref);
+EVIndex EVGetRetainCount(EVObjectRef ref);
 
 EVTypeID EVClassRegister(EVClass *cls);
 EVClass *EVClassGetByID(EVTypeID id);

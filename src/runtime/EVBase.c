@@ -88,7 +88,7 @@ void EVRelease(EVObjectRef ref)
     }
 
     /* releasing and trying to get the old reference count */
-    int old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);
+    EVIndex old = atomic_fetch_sub_explicit(&object->refcount, 1, memory_order_release);
     if(old == 1)
     {
         atomic_thread_fence(memory_order_acquire);
@@ -108,7 +108,7 @@ void EVRelease(EVObjectRef ref)
     }
 }
 
-int EVGetRetainCount(EVObjectRef ref)
+EVIndex EVGetRetainCount(EVObjectRef ref)
 {
     EVObject *object = (EVObject*)ref;
     assert(object != NULL);
