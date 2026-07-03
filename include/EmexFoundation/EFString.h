@@ -58,7 +58,7 @@ typedef struct __EFString {
         .isInlined = false, \
         .buffer = (char *)("" cStr ""), \
         .length = (EFIndex)(sizeof("" cStr "") - 1), \
-        .header.is_stack_obj = true, \
+        .header.isStatic = true, \
     }; \
     _evk.header.typeID = EFStringGetTypeID(), \
     (EFStringRef)&_evk; \

@@ -70,7 +70,7 @@ EFObjectRef EFRetain(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    if(object->is_stack_obj)
+    if(object->isStatic)
     {
         return ref;
     }
@@ -82,7 +82,7 @@ void EFRelease(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    if(object->is_stack_obj)
+    if(object->isStatic)
     {
         return;
     }
@@ -112,6 +112,10 @@ EFIndex EFGetRetainCount(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
+    if(object->isStatic)
+    {
+        return 1;   /* static.. */
+    }
     return atomic_load(&object->refcount);
 }
 

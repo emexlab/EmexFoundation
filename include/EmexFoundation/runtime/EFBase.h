@@ -105,8 +105,8 @@ typedef struct {
     /* self explainatory */
     EFAllocatorRef allocatorRef;
 
-    /* set once */
-    Boolean is_stack_obj;
+    /* is not allocated by a allocator for example */
+    Boolean isStatic;
 
     /*
      * reference count of an object if
