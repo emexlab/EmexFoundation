@@ -34,7 +34,10 @@
 
 typedef struct __EFFileHandle {
     EFObject header;
-    Boolean isBackedByRealFile;
+    int flg;
+    bool readable;
+    bool writable;
+    Boolean isBackedByFileDescriptor;
 
     union {
         int fileDescriptor;
@@ -43,20 +46,20 @@ typedef struct __EFFileHandle {
             EFIndex offset;
             EFIndex endOffset;  /* last offset written to */
             EFPageGroupRef pageGroupRef;
-        } vfd;
+        } virtualFileDescriptor;
     };
 } *__EFFileHandle;
 
 static void __EVFileHandleDeinit(EFObjectRef fileHandleRef)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         close(fileHandle->fileDescriptor);
     }
-    else if(fileHandle->vfd.pageGroupRef != NULL)
+    else if(fileHandle->virtualFileDescriptor.pageGroupRef != NULL)
     {
-        EFRelease(fileHandle->vfd.pageGroupRef);
+        EFRelease(fileHandle->virtualFileDescriptor.pageGroupRef);
     }
 }
 
@@ -90,15 +93,19 @@ EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
     }
 
     fileHandle->fileDescriptor = -1;
-    fileHandle->isBackedByRealFile = false;
-    fileHandle->vfd.offset = 0;
-    fileHandle->vfd.endOffset = 0;
-    fileHandle->vfd.pageGroupRef = EFPageGroupCreate(allocatorRef);
-    if(fileHandle->vfd.pageGroupRef == NULL)
+    fileHandle->isBackedByFileDescriptor = false;
+    fileHandle->virtualFileDescriptor.offset = 0;
+    fileHandle->virtualFileDescriptor.endOffset = 0;
+    fileHandle->virtualFileDescriptor.pageGroupRef = EFPageGroupCreate(allocatorRef);
+    if(fileHandle->virtualFileDescriptor.pageGroupRef == NULL)
     {
         EFRelease(fileHandle);
         return NULL;
     }
+
+    fileHandle->flg = O_RDWR | O_CREAT | O_TRUNC;   /* some bs flags */
+    fileHandle->readable = true;
+    fileHandle->writable = true;
 
     return fileHandle;
 }
@@ -119,7 +126,18 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
     }
 
     fileHandle->fileDescriptor = fd;
-    fileHandle->isBackedByRealFile = true;
+    fileHandle->isBackedByFileDescriptor = true;
+
+    fileHandle->flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
+    if(fileHandle->flg == -1)
+    {
+        EFRelease(fileHandle);
+        return NULL;
+    }
+
+    UInt8 access_mode = fileHandle->flg & O_ACCMODE;
+    fileHandle->readable = access_mode == O_RDONLY || access_mode == O_RDWR;
+    fileHandle->writable = access_mode == O_WRONLY || access_mode == O_RDWR;
 
     return fileHandle;
 }
@@ -172,16 +190,16 @@ EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         return (EFIndex)read(fileHandle->fileDescriptor, buffer, (size_t)length);
     }
     else
     {
-        EFIndex vret = EFPageGroupRead(fileHandle->vfd.pageGroupRef, (size_t)fileHandle->vfd.offset, buffer, length);
+        EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, (size_t)fileHandle->virtualFileDescriptor.offset, buffer, length);
         if(vret > 0)
         {
-            fileHandle->vfd.offset += vret;
+            fileHandle->virtualFileDescriptor.offset += vret;
         }
         return vret;
     }
@@ -198,34 +216,34 @@ EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         return (EFIndex)write(fileHandle->fileDescriptor, buffer, (size_t)length);
     }
     else
     {
-        EFIndex start = fileHandle->vfd.offset;
+        EFIndex start = fileHandle->virtualFileDescriptor.offset;
         EFIndex endOffset = start + length;
 
-        while(endOffset > EFPageGroupGetLength(fileHandle->vfd.pageGroupRef))
+        while(endOffset > EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef))
         {
-            if(!EFPageGroupExtend(fileHandle->vfd.pageGroupRef))
+            if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
             {
                 return -1;
             }
         }
 
-        EFIndex vret = EFPageGroupWrite(fileHandle->vfd.pageGroupRef, start, buffer, length);
+        EFIndex vret = EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, start, buffer, length);
         if(vret < 0)
         {
             return vret;
         
         }
 
-        fileHandle->vfd.offset = start + vret;
-        if(fileHandle->vfd.offset > fileHandle->vfd.endOffset)
+        fileHandle->virtualFileDescriptor.offset = start + vret;
+        if(fileHandle->virtualFileDescriptor.offset > fileHandle->virtualFileDescriptor.endOffset)
         {
-            fileHandle->vfd.endOffset = fileHandle->vfd.offset;
+            fileHandle->virtualFileDescriptor.endOffset = fileHandle->virtualFileDescriptor.offset;
         }
         return vret;
     }
@@ -241,7 +259,7 @@ EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         return (EFIndex)ftruncate(fileHandle->fileDescriptor, length);
     }
@@ -254,12 +272,12 @@ EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
         }
 
         EFIndex newlen = length;
-        EFIndex oldlen = fileHandle->vfd.endOffset;
+        EFIndex oldlen = fileHandle->virtualFileDescriptor.endOffset;
 
         /* make sure the backing store can hold the new lenght */
-        while(EFPageGroupGetLength(fileHandle->vfd.pageGroupRef) < newlen)
+        while(EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef) < newlen)
         {
-            if(!EFPageGroupExtend(fileHandle->vfd.pageGroupRef))
+            if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
             {
                 return -1;
             }
@@ -278,7 +296,7 @@ EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
                 {
                     chunk = (EFIndex)sizeof(zeros);
                 }
-                EFPageGroupWrite(fileHandle->vfd.pageGroupRef, pos, zeros, chunk);
+                EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, pos, zeros, chunk);
                 pos += chunk;
             }
         }
@@ -312,7 +330,7 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
             return -1;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         return (EFIndex)lseek(fileHandle->fileDescriptor, offset, a);
     }
@@ -325,10 +343,10 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
                 base = 0;
                 break;
             case SEEK_CUR:
-                base = fileHandle->vfd.offset;
+                base = fileHandle->virtualFileDescriptor.offset;
                 break;
             case SEEK_END:
-                base = fileHandle->vfd.endOffset;
+                base = fileHandle->virtualFileDescriptor.endOffset;
                 break;
             default:
                 return -1;
@@ -344,7 +362,7 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
             return -1;
         }
 
-        fileHandle->vfd.offset = newOffset;
+        fileHandle->virtualFileDescriptor.offset = newOffset;
         return newOffset;
     }
 
@@ -359,7 +377,7 @@ void EFFileHandleSync(EFFileHandleRef fileHandleRef)
         return;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         fsync(fileHandle->fileDescriptor);
     }
@@ -373,7 +391,7 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
         return -1;
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         struct stat fdstat;
         if(fstat(fileHandle->fileDescriptor, &fdstat) != 0)
@@ -384,7 +402,7 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
     }
     else
     {
-        return fileHandle->vfd.endOffset;
+        return fileHandle->virtualFileDescriptor.endOffset;
     }
 }
 
@@ -396,30 +414,7 @@ Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef)
         return false;
     }
 
-    if(fileHandle->isBackedByRealFile)
-    {
-        int flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
-        if(flg == -1)
-        {
-            return false;
-        }
-
-        switch(flg & O_ACCMODE)
-        {
-            case O_RDONLY:
-                return true;
-            case O_WRONLY:
-                return false;
-            case O_RDWR:
-                return true;
-            default:
-                return false;
-        }
-    }
-    else
-    {
-        return true;
-    }
+    return fileHandle->readable;
 }
 
 Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef)
@@ -430,30 +425,7 @@ Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef)
         return false;
     }
 
-    if(fileHandle->isBackedByRealFile)
-    {
-        int flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
-        if(flg == -1)
-        {
-            return false;
-        }
-
-        switch(flg & O_ACCMODE)
-        {
-            case O_RDONLY:
-                return false;
-            case O_WRONLY:
-                return true;
-            case O_RDWR:
-                return true;
-            default:
-                return false;
-        }
-    }
-    else
-    {
-        return true;
-    }
+    return fileHandle->writable;
 }
 
 EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
@@ -517,11 +489,11 @@ EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(fileHandleRef);
     }
 
-    if(fileHandle->isBackedByRealFile)
+    if(fileHandle->isBackedByFileDescriptor)
     {
         int prot_flg = PROT_NONE;
-        prot_flg |= (EFFileHandleIsReadable(fileHandleRef) ? PROT_READ : PROT_NONE);
-        prot_flg |= (EFFileHandleIsWritable(fileHandleRef) ? PROT_WRITE : PROT_NONE);
+        prot_flg |= (fileHandle->readable ? PROT_READ : PROT_NONE);
+        prot_flg |= (fileHandle->writable ? PROT_WRITE : PROT_NONE);
 
         EFPageRef pageRef = EFPageCreateWithOptions(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), prot_flg, MAP_SHARED, fileHandle->fileDescriptor, 0);
         if(pageRef == NULL)
@@ -539,6 +511,6 @@ EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
     }
     else
     {
-        return EFPageGroupCreateCopy(allocatorRef, fileHandle->vfd.pageGroupRef);
+        return EFPageGroupCreateCopy(allocatorRef, fileHandle->virtualFileDescriptor.pageGroupRef);
     }
 }
