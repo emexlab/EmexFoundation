@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/runtime/EFBase.h>
@@ -387,6 +388,74 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
     }
 }
 
+Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return false;
+    }
+
+    if(fileHandle->isBackedByRealFile)
+    {
+        int flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
+        if(flg == -1)
+        {
+            return false;
+        }
+
+        switch(flg & O_ACCMODE)
+        {
+            case O_RDONLY:
+                return true;
+            case O_WRONLY:
+                return false;
+            case O_RDWR:
+                return true;
+            default:
+                return false;
+        }
+    }
+    else
+    {
+        return true;
+    }
+}
+
+Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return false;
+    }
+
+    if(fileHandle->isBackedByRealFile)
+    {
+        int flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
+        if(flg == -1)
+        {
+            return false;
+        }
+
+        switch(flg & O_ACCMODE)
+        {
+            case O_RDONLY:
+                return false;
+            case O_WRONLY:
+                return true;
+            case O_RDWR:
+                return true;
+            default:
+                return false;
+        }
+    }
+    else
+    {
+        return true;
+    }
+}
+
 EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
                                        EFFileHandleRef fileHandleRef,
                                        EFRange range)
@@ -432,4 +501,44 @@ EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
 out_failed_restore_position:
     EFFileHandleSeek(fileHandleRef, backupPosition, kEFFileHandleSeekTypeSet);
     return NULL;
+}
+
+EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
+                                         EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(fileHandleRef);
+    }
+
+    if(fileHandle->isBackedByRealFile)
+    {
+        int prot_flg = PROT_NONE;
+        prot_flg |= (EFFileHandleIsReadable(fileHandleRef) ? PROT_READ : PROT_NONE);
+        prot_flg |= (EFFileHandleIsWritable(fileHandleRef) ? PROT_WRITE : PROT_NONE);
+
+        EFPageRef pageRef = EFPageCreateWithOptions(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), prot_flg, MAP_SHARED, fileHandle->fileDescriptor, 0);
+        if(pageRef == NULL)
+        {
+            return NULL;
+        }
+
+        EFPageGroupRef groupRef = EFPageGroupCreateWithPage(allocatorRef, pageRef);
+        EFRelease(pageRef);
+        if(groupRef == NULL)
+        {
+            return NULL;
+        }
+        return groupRef;
+    }
+    else
+    {
+        return EFPageGroupCreateCopy(allocatorRef, fileHandle->vfd.pageGroupRef);
+    }
 }

@@ -38,6 +38,7 @@ EFTypeID EFPageGroupGetTypeID(void);
 EFPageGroupRef EFPageGroupCreate(EFAllocatorRef allocatorRef);
 EFPageGroupRef EFPageGroupCreateWithPage(EFAllocatorRef allocatorRef, EFPageRef pageRef);
 EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRef pagesArrayRef);
+EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
 EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 

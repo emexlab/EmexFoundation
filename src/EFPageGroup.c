@@ -165,6 +165,23 @@ EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef,
     return (EFPageGroupRef)group;
 }
 
+EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef,
+                                     EFPageGroupRef groupRef)
+{
+    __EFPageGroup group = (__EFPageGroup)groupRef;
+    if(group == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(groupRef);
+    }
+
+    return EFPageGroupCreateWithPages(allocatorRef, group->pagesArrayRef);
+}
+
 EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef,
                                 EFPageGroupRef groupRef)
 {

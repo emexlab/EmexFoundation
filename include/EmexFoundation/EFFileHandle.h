@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
+#include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
 typedef enum: UInt8 {
@@ -53,7 +54,11 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, kEFFileH
 void EFFileHandleSync(EFFileHandleRef fileHandleRef);
 
 EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
+Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
+Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
 
 EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
+
+EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
 #endif /* EFFILEHANDLE_H */
