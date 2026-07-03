@@ -92,7 +92,37 @@ EFPageGroupRef EFPageGroupCreate(EFAllocatorRef allocatorRef)
 
     EFPageGroupRef pageGroupRef = EFPageGroupCreateWithPages(allocatorRef, pagesArrayRef);
     EFRelease(pagesArrayRef);
-    return pageGroupRef == NULL ? NULL : pageGroupRef;
+    return pageGroupRef;
+}
+
+EFPageGroupRef EFPageGroupCreateWithPage(EFAllocatorRef allocatorRef,
+                                         EFPageRef pageRef)
+{
+    if(pageRef == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(pageRef);
+    }
+
+    EFMutableArrayRef pagesArrayRef = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, 1);
+    if(pagesArrayRef == NULL)
+    {
+        return NULL;
+    }
+
+    if(!EFArrayAppendValue(pagesArrayRef, pageRef))
+    {
+        EFRelease(pagesArrayRef);
+        return NULL;
+    }
+
+    EFPageGroupRef pageGroupRef = EFPageGroupCreateWithPages(allocatorRef, pagesArrayRef);
+    EFRelease(pagesArrayRef);
+    return pageGroupRef;
 }
 
 EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef,
