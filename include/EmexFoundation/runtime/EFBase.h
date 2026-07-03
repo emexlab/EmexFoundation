@@ -111,7 +111,7 @@ typedef struct {
 
     /*
      * reference count of an object if
-     * it hits zero it will release
+     * it hits zero it will free
      * automatically.
      */
     _Atomic EFIndex refcount;
