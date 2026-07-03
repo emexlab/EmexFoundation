@@ -50,17 +50,17 @@ extern EFArrayCallbacks kEFArrayCallbacksObjectCallbacks;
 
 EFTypeID EFArrayGetTypeID(void);
 
-EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef, EFArrayCallbacks callbacks, uint64_t capacity);
-
-EFMutableArrayRef EFArrayCreateMutableCopy(EFAllocator *allocator, EFArrayRef arrayRef);
-EFArrayRef EFArrayCreateCopy(EFAllocator *allocator, EFArrayRef arrayRef);
+EFArrayRef EFArrayCreate(EFAllocatorRef allocatorRef, EFArrayCallbacks callbacks, void **values, EFIndex valuesCount);
+EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef, EFArrayCallbacks callbacks, EFIndex capacity);
+EFMutableArrayRef EFArrayCreateMutableCopy(EFAllocatorRef allocatorRef, EFArrayRef arrayRef);
+EFArrayRef EFArrayCreateCopy(EFAllocatorRef allocatorRef, EFArrayRef arrayRef);
 
 EFIndex EFArrayGetCount(EFArrayRef arrayRef);
 void *EFArrayGetValueAtIndex(EFArrayRef arrayRef, EFIndex index);
 
-Boolean EFArrayAppendValue(EFArrayRef arrayRef, void *value);
+Boolean EFArrayAppendValue(EFMutableArrayRef arrayRef, void *value);
 
-Boolean EFArrayInsertValueAtIndex(EFArrayRef arrayRef, EFIndex index, void *ptr);
-void EFArrayRemoveValueAtIndex(EFArrayRef arrayRef, EFIndex index);
+Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef arrayRef, EFIndex index, void *ptr);
+void EFArrayRemoveValueAtIndex(EFMutableArrayRef arrayRef, EFIndex index);
 
 #endif /* EFARRAY_H */

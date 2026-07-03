@@ -33,10 +33,23 @@
 typedef EFObjectRef EFDataRef;
 typedef EFObjectRef EFMutableDataRef;
 
-EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef, const UInt8 *bytes, size_t length);
-EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *bytes, size_t length);
-EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, size_t capacity);
+EFTypeID EFDataGetTypeID(void);
+
+EFDataRef EFDataCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
+EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
 EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
+EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, EFIndex capacity);
 EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
+
+EFIndex EFDataGetLength(EFDataRef dataRef);
+const UInt8 *EFDataGetPtr(EFDataRef dataRef);
+UInt8 *EFDataGetMutablePtr(EFMutableDataRef mutableDataRef);
+Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef, EFRange range, UInt8 *buffer);
+
+Boolean EFDataSetLength(EFMutableDataRef mutableDataRef, EFIndex length);
+Boolean EFDataIncreaseLength(EFMutableDataRef mutableDataRef, EFIndex extraLength);
+Boolean EFDataAppendBuffer(EFMutableDataRef mutableDataRef, const UInt8 *buffer, EFIndex length);
+Boolean EFDataReplaceBufferInRange(EFMutableDataRef mutableDataRef, EFRange range, const UInt8 *newBytes, EFIndex newLength);
+Boolean EFDataDeleteBufferInRange(EFMutableDataRef mutableDataRef, EFRange range);
 
 #endif /* EFDATA_H */

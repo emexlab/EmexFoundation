@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 #include <EmexFoundation/EFString.h>
+#include <EmexFoundation/EFData.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
 typedef enum: UInt8 {
@@ -55,5 +56,7 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, kEFFileH
 void EFFileHandleSync(EFFileHandleRef fileHandleRef);
 
 EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
+
+EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
 
 #endif /* EFFILEHANDLE_H */

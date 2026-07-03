@@ -33,18 +33,8 @@ typedef struct EFData {
     Boolean isMutable;
     Boolean isInlined;    /* meaning the object has the buffer in it self */
     UInt8 *buffer;       /* it is neither inlined nor undeallocatable if mutable */
-    size_t length;
+    EFIndex length;
 } *EFData;
-
-static void __EFDataInit(EFDataRef dataRef)
-{
-    EFData data = (EFData)dataRef;
-
-    /* we first automatically expect it to be at the inline */
-    data->isMutable = false;
-    data->isInlined = true;
-    data->buffer = (UInt8*)((const char*)data + sizeof(struct EFData));
-}
 
 static void __EFDataDeinit(EFDataRef dataRef)
 {
@@ -58,7 +48,7 @@ static void __EFDataDeinit(EFDataRef dataRef)
 static EFClass EFDataClass = {
     .name = "EFData",
     .typeID = kEFNotATypeID,
-    .init = __EFDataInit,
+    .init = NULL,
     .deinit = __EFDataDeinit,
     .equal = NULL,
     .copyDescription = NULL,
@@ -76,43 +66,70 @@ EFTypeID EFDataGetTypeID(void)
     return EFDataClass.typeID;
 }
 
-EFDataRef EFDataCreateWithCBuffer(EFAllocatorRef allocatorRef,
-                                  const UInt8 *bytes,
-                                  size_t length)
+static inline EFStringRef __EFDataCreate(EFAllocatorRef allocatorRef,
+                                         const UInt8 *buffer,
+                                         EFIndex length,
+                                         Boolean isInlined,
+                                         Boolean isMutable)
 {
-    if(bytes == NULL)
+    if((buffer == NULL && !isMutable) || length < 0)
     {
         return NULL;
     }
 
-    EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData) + length);
-    memcpy(data->buffer, bytes, length);
-    data->length = length;
-
-    return (EFDataRef)data;
-}
-
-EFDataRef EFDataCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef,
-                                        const UInt8 *bytes,
-                                        size_t length)
-{
-    if(bytes == NULL)
+    EFData data = EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData) + (isInlined ? length + 1 : 0));
+    if(data == NULL)
     {
         return NULL;
     }
 
-    EFData data = (EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData));
-    data->isInlined = false;
-    data->buffer = (UInt8*)bytes;
+    if(isMutable)
+    {
+        data->buffer = malloc((size_t)length);
+        bzero(data->buffer, (size_t)length);
+        isInlined = false; /* must be false */
+    }
+    else if(isInlined)
+    {
+        data->buffer = (UInt8*)((const char*)data + sizeof(struct EFData));
+        memcpy(data->buffer, buffer, (size_t)length);
+        data->buffer[length] = '\0';
+    }
+    else
+    {
+        data->buffer = (UInt8*)buffer;
+    }
+
+    /* always assigned with the same values */
     data->length = length;
+    data->isInlined = !isMutable && isInlined; /* isInlined is only possible when isMutable is not enabled */
+    data->isMutable = isMutable;
 
     return (EFDataRef)data;
 }
 
-EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef,
-                                     size_t capacity)
+EFDataRef EFDataCreateWithBuffer(EFAllocatorRef allocatorRef,
+                                 const UInt8 *buffer,
+                                 EFIndex length)
 {
-    return NULL;
+    if(buffer == NULL)
+    {
+        return NULL;
+    }
+
+    return (EFDataRef)__EFDataCreate(allocatorRef, buffer, length, true, false);
+}
+
+EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef,
+                                       const UInt8 *buffer,
+                                       EFIndex length)
+{
+    if(buffer == NULL)
+    {
+        return NULL;
+    }
+
+    return (EFDataRef)__EFDataCreate(allocatorRef, buffer, length, false, false);
 }
 
 EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
@@ -129,10 +146,147 @@ EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(dataRef);
     }
     
-    return EFDataCreateWithCBuffer(allocatorRef, data->buffer, data->length);
+    return __EFDataCreate(allocatorRef, data->buffer, data->length, true, false);
 }
 
-EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef)
+EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef,
+                                     EFIndex capacity)
+{
+    return __EFDataCreate(allocatorRef, NULL, capacity, true, true);
+}
+
+EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef,
+                                         EFDataRef dataRef)
 {
     return NULL;
+}
+
+EFIndex EFDataGetLength(EFDataRef dataRef)
+{
+    EFData data = (EFData)dataRef;
+    if(data == NULL)
+    {
+        return 0;
+    }
+
+    return data->length;
+}
+
+const UInt8 *EFDataGetPtr(EFDataRef dataRef)
+{
+    EFData data = (EFData)dataRef;
+    if(data == NULL)
+    {
+        return NULL;
+    }
+
+    return data->buffer;
+}
+
+UInt8 *EFDataGetMutablePtr(EFMutableDataRef mutableDataRef)
+{
+    EFData mutableData = (EFData)mutableDataRef;
+    if(mutableData == NULL || !mutableData->isMutable)
+    {
+        return NULL;
+    }
+
+    return mutableData->buffer;
+}
+
+Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef,
+                                EFRange range,
+                                UInt8 *buffer)
+{
+    EFData data = (EFData)dataRef;
+    if(data == NULL || data->length < range.location || data->length < (range.location + range.length))
+    {
+        return false;
+    }
+
+    memcpy(buffer, data->buffer + (size_t)range.location, (size_t)range.length);
+    return true;
+}
+
+Boolean EFDataSetLength(EFMutableDataRef mutableDataRef,
+                        EFIndex length)
+{
+    EFData mutableData = (EFData)mutableDataRef;
+    if(mutableData == NULL || !mutableData->isMutable || length < 0)
+    {
+        return false;
+    }
+
+    if(mutableData->length == length)
+    {
+        return true;
+    }
+
+    void *newp = realloc(mutableData->buffer, (size_t)length);
+    if(newp == NULL)
+    {
+        return false;
+    }
+
+    mutableData->buffer = newp;
+    if(mutableData->length < length)
+    {
+        bzero(mutableData->buffer + (size_t)mutableData->length, length - mutableData->length);
+    }
+    mutableData->length = length;
+    return true;
+}
+
+Boolean EFDataIncreaseLength(EFMutableDataRef mutableDataRef,
+                             EFIndex extraLength)
+{
+    EFData mutableData = (EFData)mutableDataRef;
+    if(mutableData == NULL || !mutableData->isMutable || extraLength < 0)
+    {
+        return false;
+    }
+
+    EFIndex newLength = mutableData->length + extraLength;
+    if(newLength < mutableData->length)
+    {
+        /* integer overflow! */
+        return false;
+    }
+
+    return EFDataSetLength(mutableDataRef, newLength);
+}
+
+Boolean EFDataAppendBuffer(EFMutableDataRef mutableDataRef,
+                           const UInt8 *buffer,
+                           EFIndex length)
+{
+    EFData mutableData = (EFData)mutableDataRef;
+    if(mutableData == NULL || !mutableData->isMutable)
+    {
+        return false;
+    }
+
+    if(!EFDataIncreaseLength(mutableDataRef, length))
+    {
+        return false;
+    }
+
+    UInt8 *ptr = mutableData->buffer + (size_t)(mutableData->length - length);
+    memcpy(ptr, buffer, (size_t)length);
+
+    return true;
+}
+
+Boolean EFDataReplaceBufferInRange(EFMutableDataRef mutableDataRef,
+                                   EFRange range,
+                                   const UInt8 *newBytes,
+                                   EFIndex newLength)
+{
+    return false;
+}
+
+Boolean EFDataDeleteBufferInRange(EFMutableDataRef mutableDataRef,
+                                  EFRange range)
+{
+    return false;
 }

@@ -66,8 +66,8 @@ typedef struct __EFString {
 
 EFTypeID EFStringGetTypeID(void);
 
-EFStringRef EFStringCreateWithCBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, size_t length, kEFStringEncoding encoding);
-EFStringRef EFStringCreateWithCBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, size_t length, kEFStringEncoding encoding);
+EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, kEFStringEncoding encoding);
+EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
 EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);
@@ -77,7 +77,7 @@ EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStri
 
 const char *EFStringGetCStringPtr(EFStringRef stringRef, kEFStringEncoding encoding);
 EFIndex EFStringGetLength(EFStringRef stringRef);
-Boolean EFStringGetCString(EFStringRef stringRef, char *str, size_t str_len, kEFStringEncoding encoding);
+Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, kEFStringEncoding encoding);
 
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
 

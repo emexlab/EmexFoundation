@@ -389,3 +389,50 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
         return fileHandle->vfd.endOffset;
     }
 }
+
+EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
+                                       EFFileHandleRef fileHandleRef,
+                                       EFRange range)
+{
+    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(fileHandleRef);
+    }
+
+    EFIndex backupPosition = EFFileHandleSeek(fileHandleRef, 0, kEFFileHandleSeekTypeCur);  /* to be restored */
+    EFIndex position = EFFileHandleSeek(fileHandleRef, range.location, kEFFileHandleSeekTypeSet);
+    if(position != range.location)
+    {
+        goto out_failed_restore_position;
+    }
+
+    EFMutableDataRef mutableDataRef = EFDataCreateMutable(allocatorRef, range.length);
+    if(mutableDataRef == NULL)
+    {
+        goto out_failed_restore_position;
+    }
+
+    UInt8 *dataBuffer = EFDataGetMutablePtr(mutableDataRef);
+    EFIndex read = EFFileHandleRead(fileHandleRef, dataBuffer, range.length);
+    if(read < range.length)
+    {
+        EFRelease(mutableDataRef);
+        goto out_failed_restore_position;
+    }
+    
+    EFFileHandleSeek(fileHandleRef, backupPosition, kEFFileHandleSeekTypeSet);
+
+    EFDataRef dataRef = EFDataCreateCopy(allocatorRef, mutableDataRef);
+    EFRelease(mutableDataRef);
+    return dataRef;
+
+out_failed_restore_position:
+    EFFileHandleSeek(fileHandleRef, backupPosition, kEFFileHandleSeekTypeSet);
+    return NULL;
+}
