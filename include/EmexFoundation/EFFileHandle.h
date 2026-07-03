@@ -40,7 +40,7 @@ typedef enum: UInt8 {
     /* fuck darwin no SEEK_HOLE */
 } kEFFileHandleSeekType;
 
-typedef EFObjectRef EFFileHandleRef;
+typedef struct __EFFileHandle *EFFileHandleRef;
 
 EFTypeID EFFileHandleGetTypeID(void);
 

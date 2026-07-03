@@ -63,7 +63,7 @@ typedef void * EFObjectRef;  /* so the compiler shuts up */
 typedef struct EFAllocator EFAllocator;
 typedef void * EFAllocatorRef;
 
-typedef EFObjectRef EFStringRef;
+typedef struct __EFString *EFStringRef;
 
 typedef void (*evobject_init_handler_t)(EFObjectRef ref);
 typedef void (*evobject_deinit_handler_t)(EFObjectRef ref);

@@ -30,8 +30,8 @@
 #include <stdbool.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
-typedef EFObjectRef EFDataRef;
-typedef EFObjectRef EFMutableDataRef;
+typedef struct __EFData *EFDataRef;
+typedef struct __EFData *EFMutableDataRef;
 
 EFTypeID EFDataGetTypeID(void);
 

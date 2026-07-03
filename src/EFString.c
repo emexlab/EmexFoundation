@@ -116,7 +116,7 @@ static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
     return false;
 }
 
-static void __EFStringDeinit(EFStringRef stringRef)
+static void __EFStringDeinit(EFObjectRef stringRef)
 {
     EFString string = (EFString)stringRef;
     if(string->isMutable)
@@ -125,8 +125,8 @@ static void __EFStringDeinit(EFStringRef stringRef)
     }
 }
 
-static Boolean __EFStringEqual(EFStringRef stringRef1,
-                               EFStringRef stringRef2)
+static Boolean __EFStringEqual(EFObjectRef stringRef1,
+                               EFObjectRef stringRef2)
 {
     EFString string1 = (EFString)stringRef1;
     EFString string2 = (EFString)stringRef2;
@@ -154,7 +154,7 @@ static Boolean __EFStringEqual(EFStringRef stringRef1,
     return (memcmp(string1->buffer, string2->buffer, length) == 0);
 }
 
-static EFStringRef __EFStringCopyDescription(EFStringRef stringRef)
+static EFStringRef __EFStringCopyDescription(EFObjectRef stringRef)
 {
     return EFRetain(stringRef); /* just return our selves */
 }

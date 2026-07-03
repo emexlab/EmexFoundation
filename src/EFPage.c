@@ -58,24 +58,24 @@ EFIndex __EFPageGetPageLength(void)
     return __EFPageLength;
 }
 
-typedef struct EFPage {
+typedef struct __EFPage {
     EFObject header;
     UInt8 *mem;
     EFIndex length;
-} *EFPage;
+} *__EFPage;
 
-static void __EFPageDeinit(EFPageRef pageRef)
+static void __EFPageDeinit(EFObjectRef pageRef)
 {
-    EFPage page = (EFPage)pageRef;
+    __EFPage page = (__EFPage)pageRef;
     if(page->mem != MAP_FAILED)
     {
         munmap(page->mem, page->length);
     }
 }
 
-static EFStringRef __EFPageCopyDescription(EFPageRef pageRef)
+static EFStringRef __EFPageCopyDescription(EFObjectRef pageRef)
 {
-    EFPage page = (EFPage)pageRef;
+    __EFPage page = (__EFPage)pageRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(pageRef);
     EFClass *cls = EFClassGetByID(page->header.typeID);
     return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{mem = %p, length = %zu}"), cls->name, pageRef, page->mem, page->length);
@@ -115,7 +115,7 @@ EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
                                   int fd,
                                   off_t offset)
 {
-    EFPage page = (EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct EFPage));
+    __EFPage page = (__EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct __EFPage));
     if(page == NULL)
     {
         return NULL;
@@ -134,7 +134,7 @@ EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
 
 EFIndex EFPageGetLength(EFPageRef pageRef)
 {
-    EFPage page = (EFPage)pageRef;
+    __EFPage page = (__EFPage)pageRef;
     if(page == NULL)
     {
         return 0;
@@ -144,7 +144,7 @@ EFIndex EFPageGetLength(EFPageRef pageRef)
 
 void *EFPageGetPtr(EFPageRef pageRef)
 {
-    EFPage page = (EFPage)pageRef;
+    __EFPage page = (__EFPage)pageRef;
     if(page == NULL)
     {
         return NULL;

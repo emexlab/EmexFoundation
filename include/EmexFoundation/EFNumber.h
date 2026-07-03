@@ -42,7 +42,7 @@ typedef enum: UInt8 {
     kEFNumberComparisonResultGreaterThan,
 } kEFNumberComparisonResult;
 
-typedef EFObjectRef EFNumberRef;
+typedef struct __EVNumber *EFNumberRef;
 
 EFTypeID EFNumberGetTypeID(void);
 

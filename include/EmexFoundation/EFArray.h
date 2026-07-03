@@ -29,9 +29,8 @@
 #include <stdbool.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
-typedef EFObjectRef EFArrayRef;
-typedef EFObjectRef EFMutableArrayRef;
-typedef EFObjectRef EFStringRef;
+typedef struct __EFArray *EFArrayRef;
+typedef struct __EFArray *EFMutableArrayRef;
 
 typedef Boolean (*evarray_append_callback)(void *ptr);
 typedef void (*evarray_remove_callback)(void *ptr);

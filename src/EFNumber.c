@@ -29,7 +29,7 @@
 #include <EmexFoundation/runtime/EFAllocator.h>
 #include <EmexFoundation/EFNumber.h>
 
-typedef struct EFNumber {
+typedef struct __EVNumber {
     EFObject header;
     kEFNumberType type;
     union {
@@ -38,9 +38,9 @@ typedef struct EFNumber {
         int32_t s32;
         int64_t s64;
     };
-} *EFNumber;
+} *__EVNumber;
 
-static int64_t __EFNumberGetSInt64Value(EFNumber number)
+static int64_t __EFNumberGetSInt64Value(__EVNumber number)
 {
     if(number == NULL)
     {
@@ -62,11 +62,11 @@ static int64_t __EFNumberGetSInt64Value(EFNumber number)
     }
 }
 
-static Boolean __EFNumberEqual(EFNumberRef ref1,
-                               EFNumberRef ref2)
+static Boolean __EFNumberEqual(EFObjectRef ref1,
+                               EFObjectRef ref2)
 {
-    EFNumber a = (EFNumber)ref1;
-    EFNumber b = (EFNumber)ref2;
+    __EVNumber a = (__EVNumber)ref1;
+    __EVNumber b = (__EVNumber)ref2;
     
     if(a->type != b->type)
     {
@@ -120,7 +120,7 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFNumber num = EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct EFNumber));
+    __EVNumber num = (__EVNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EVNumber));
     if(num == NULL)
     {
         return NULL;
@@ -156,7 +156,7 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
         return 0;
     }
 
-    EFNumber num = (EFNumber)numberRef;
+    __EVNumber num = (__EVNumber)numberRef;
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
@@ -179,7 +179,7 @@ kEFNumberType EFNumberGetType(EFNumberRef numberRef)
         return kEFNumberTypeSInt8;
     }
 
-    EFNumber num = (EFNumber)numberRef;
+    __EVNumber num = (__EVNumber)numberRef;
     return num->type;
 }
 
@@ -192,7 +192,7 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
         return false;
     }
 
-    EFNumber num = (EFNumber)numberRef;
+    __EVNumber num = (__EVNumber)numberRef;
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
@@ -215,8 +215,8 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
 kEFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef,
                                           EFNumberRef otherNumberRef)
 {
-    EFNumber num = (EFNumber)numberRef;
-    EFNumber otherNum = (EFNumber)otherNumberRef;
+    __EVNumber num = (__EVNumber)numberRef;
+    __EVNumber otherNum = (__EVNumber)otherNumberRef;
 
     if(num == NULL || otherNum == NULL)
     {

@@ -34,7 +34,7 @@
 #include <EmexFoundation/runtime/EFBase.h>
 #include <EmexFoundation/runtime/EFAllocator.h>
 
-typedef struct EFFileHandle {
+typedef struct __EFFileHandle {
     EFObject header;
     Boolean isBackedByRealFile;
 
@@ -47,11 +47,11 @@ typedef struct EFFileHandle {
             EFPageGroupRef pageGroupRef;
         } vfd;
     };
-} *EFFileHandle;
+} *__EFFileHandle;
 
-static void __EVFileHandleDeinit(EFFileHandleRef fileHandleRef)
+static void __EVFileHandleDeinit(EFObjectRef fileHandleRef)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle->isBackedByRealFile)
     {
         close(fileHandle->fileDescriptor);
@@ -85,7 +85,7 @@ EFTypeID EFFileHandleGetTypeID(void)
 
 EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
 {
-    EFFileHandle fileHandle = (EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct EFFileHandle));
+    __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
@@ -114,7 +114,7 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
         return NULL;
     }
 
-    EFFileHandle fileHandle = (EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct EFFileHandle));
+    __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
@@ -168,7 +168,7 @@ EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,
                          UInt8 *buffer,
                          EFIndex length)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return -1;
@@ -194,7 +194,7 @@ EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
                           const UInt8 *buffer,
                           EFIndex length)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return -1;
@@ -237,7 +237,7 @@ EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
 EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
                              EFIndex length)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return -1;
@@ -292,7 +292,7 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
                          EFIndex offset,
                          kEFFileHandleSeekType seekType)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return -1;
@@ -355,7 +355,7 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
 
 void EFFileHandleSync(EFFileHandleRef fileHandleRef)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return;
@@ -369,7 +369,7 @@ void EFFileHandleSync(EFFileHandleRef fileHandleRef)
 
 EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return -1;
@@ -394,7 +394,7 @@ EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
                                        EFFileHandleRef fileHandleRef,
                                        EFRange range)
 {
-    EFFileHandle fileHandle = (EFFileHandle)fileHandleRef;
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
     {
         return NULL;

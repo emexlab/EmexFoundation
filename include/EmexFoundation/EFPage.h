@@ -32,7 +32,7 @@
 #include <stddef.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
-typedef EFObjectRef EFPageRef;
+typedef struct __EFPage *EFPageRef;
 
 EFIndex __EFPageGetPageLength(void);
 

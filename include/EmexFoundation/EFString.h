@@ -37,8 +37,8 @@ typedef enum: UInt8 {
     kEFStringEncodingUTF8,
 } kEFStringEncoding;
 
-typedef EFObjectRef EFStringRef;
-typedef EFObjectRef EFMutableStringRef;
+typedef struct __EFString *EFStringRef;
+typedef struct __EFString *EFMutableStringRef;
 
 typedef struct __EFString {
     EFObject header;

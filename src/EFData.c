@@ -28,17 +28,17 @@
 #include <EmexFoundation/runtime/EFBase.h>
 #include <EmexFoundation/runtime/EFAllocator.h>
 
-typedef struct EFData {
+typedef struct __EFData {
     EFObject header;
     Boolean isMutable;
     Boolean isInlined;    /* meaning the object has the buffer in it self */
     UInt8 *buffer;       /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
-} *EFData;
+} *__EFData;
 
-static void __EFDataDeinit(EFDataRef dataRef)
+static void __EFDataDeinit(EFObjectRef dataRef)
 {
-    EFData data = (EFData)dataRef;
+    __EFData data = (__EFData)dataRef;
     if(data->isMutable)
     {
         free(data->buffer);
@@ -66,18 +66,18 @@ EFTypeID EFDataGetTypeID(void)
     return EFDataClass.typeID;
 }
 
-static inline EFStringRef __EFDataCreate(EFAllocatorRef allocatorRef,
-                                         const UInt8 *buffer,
-                                         EFIndex length,
-                                         Boolean isInlined,
-                                         Boolean isMutable)
+static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
+                                       const UInt8 *buffer,
+                                       EFIndex length,
+                                       Boolean isInlined,
+                                       Boolean isMutable)
 {
     if((buffer == NULL && !isMutable) || length < 0)
     {
         return NULL;
     }
 
-    EFData data = EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct EFData) + (isInlined ? length + 1 : 0));
+    __EFData data = (__EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct __EFData) + (isInlined ? length + 1 : 0));
     if(data == NULL)
     {
         return NULL;
@@ -91,7 +91,7 @@ static inline EFStringRef __EFDataCreate(EFAllocatorRef allocatorRef,
     }
     else if(isInlined)
     {
-        data->buffer = (UInt8*)((const char*)data + sizeof(struct EFData));
+        data->buffer = (UInt8*)((const char*)data + sizeof(struct __EFData));
         memcpy(data->buffer, buffer, (size_t)length);
         data->buffer[length] = '\0';
     }
@@ -135,7 +135,7 @@ EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef,
 EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
                            EFDataRef dataRef)
 {
-    EFData data = (EFData)dataRef;
+    __EFData data = (__EFData)dataRef;
     if(data == NULL)
     {
         return NULL;
@@ -163,7 +163,7 @@ EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef,
 
 EFIndex EFDataGetLength(EFDataRef dataRef)
 {
-    EFData data = (EFData)dataRef;
+    __EFData data = (__EFData)dataRef;
     if(data == NULL)
     {
         return 0;
@@ -174,7 +174,7 @@ EFIndex EFDataGetLength(EFDataRef dataRef)
 
 const UInt8 *EFDataGetPtr(EFDataRef dataRef)
 {
-    EFData data = (EFData)dataRef;
+    __EFData data = (__EFData)dataRef;
     if(data == NULL)
     {
         return NULL;
@@ -185,7 +185,7 @@ const UInt8 *EFDataGetPtr(EFDataRef dataRef)
 
 UInt8 *EFDataGetMutablePtr(EFMutableDataRef mutableDataRef)
 {
-    EFData mutableData = (EFData)mutableDataRef;
+    __EFData mutableData = (__EFData)mutableDataRef;
     if(mutableData == NULL || !mutableData->isMutable)
     {
         return NULL;
@@ -198,7 +198,7 @@ Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef,
                                 EFRange range,
                                 UInt8 *buffer)
 {
-    EFData data = (EFData)dataRef;
+    __EFData data = (__EFData)dataRef;
     if(data == NULL || data->length < range.location || data->length < (range.location + range.length))
     {
         return false;
@@ -211,7 +211,7 @@ Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef,
 Boolean EFDataSetLength(EFMutableDataRef mutableDataRef,
                         EFIndex length)
 {
-    EFData mutableData = (EFData)mutableDataRef;
+    __EFData mutableData = (__EFData)mutableDataRef;
     if(mutableData == NULL || !mutableData->isMutable || length < 0)
     {
         return false;
@@ -240,7 +240,7 @@ Boolean EFDataSetLength(EFMutableDataRef mutableDataRef,
 Boolean EFDataIncreaseLength(EFMutableDataRef mutableDataRef,
                              EFIndex extraLength)
 {
-    EFData mutableData = (EFData)mutableDataRef;
+    __EFData mutableData = (__EFData)mutableDataRef;
     if(mutableData == NULL || !mutableData->isMutable || extraLength < 0)
     {
         return false;
@@ -260,7 +260,7 @@ Boolean EFDataAppendBuffer(EFMutableDataRef mutableDataRef,
                            const UInt8 *buffer,
                            EFIndex length)
 {
-    EFData mutableData = (EFData)mutableDataRef;
+    __EFData mutableData = (__EFData)mutableDataRef;
     if(mutableData == NULL || !mutableData->isMutable)
     {
         return false;

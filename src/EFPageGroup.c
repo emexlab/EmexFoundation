@@ -30,20 +30,20 @@
 #include <EmexFoundation/runtime/EFBase.h>
 #include <EmexFoundation/runtime/EFAllocator.h>
 
-typedef struct EFPageGroup {
+typedef struct __EFPageGroup {
     EFObject header;
     EFMutableArrayRef pagesArrayRef;
-} *EFPageGroup;
+} *__EFPageGroup;
 
-static void __EFPageGroupDeinit(EFPageRef pageRef)
+static void __EFPageGroupDeinit(EFObjectRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)pageRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     EFRelease(group->pagesArrayRef);
 }
 
-static EFStringRef __EFPageGroupCopyDescription(EFPageGroupRef groupRef)
+static EFStringRef __EFPageGroupCopyDescription(EFObjectRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(groupRef);
     EFClass *cls = EFClassGetByID(group->header.typeID);
     return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{pagesArray = %@, length = %zu}"), cls->name, groupRef, group->pagesArrayRef, EFPageGroupGetLength(groupRef));
@@ -127,7 +127,7 @@ EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef,
     }
 
     /* now we gotta create the object it self */
-    EFPageGroup group = (EFPageGroup)EFObjectAlloc(allocatorRef, EFPageGroupGetTypeID(), sizeof(struct EFPageGroup));
+    __EFPageGroup group = (__EFPageGroup)EFObjectAlloc(allocatorRef, EFPageGroupGetTypeID(), sizeof(struct __EFPageGroup));
     if(group == NULL)
     {
         EFRelease(ownedPagesArrayRef);
@@ -141,7 +141,7 @@ EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef,
 EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef,
                                 EFPageGroupRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return NULL;
@@ -151,7 +151,7 @@ EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef,
 
 EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return 0;
@@ -170,7 +170,7 @@ EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef)
 
 Boolean EFPageGroupExtend(EFPageGroupRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return false;
@@ -190,7 +190,7 @@ Boolean EFPageGroupExtend(EFPageGroupRef groupRef)
 
 Boolean EFPageGroupMerge(EFPageGroupRef groupRef)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return false;
@@ -254,13 +254,13 @@ typedef enum {
     kVPXferWrite
 } kVPXfer;
 
-static EFIndex __EFPageGroupXfer(EFPageGroup groupRef,
+static EFIndex __EFPageGroupXfer(EFObjectRef groupRef,
                                  EFIndex off,
                                  UInt8 *b,
                                  EFIndex length,
                                  kVPXfer xfer)
 {
-    EFPageGroup group = (EFPageGroup)groupRef;
+    __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return 0;

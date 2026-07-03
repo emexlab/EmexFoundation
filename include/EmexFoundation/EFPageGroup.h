@@ -34,7 +34,7 @@
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/runtime/EFBase.h>
 
-typedef EFObjectRef EFPageGroupRef;
+typedef struct __EFPageGroup *EFPageGroupRef;
 
 EFTypeID EFPageGroupGetTypeID(void);
 
