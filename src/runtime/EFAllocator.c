@@ -32,8 +32,6 @@ static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
                                                 EFTypeID typeID,
                                                 size_t size)
 {
-    EFAllocator *allocator = (EFAllocator*)allocatorRef;
-
     /*
      * gotta need the class for the typeid
      * and the init handler.
@@ -51,7 +49,7 @@ static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
     object->is_stack_obj = false;
     object->refcount = 1;
     object->typeID = class->typeID;
-    object->allocator = allocator;
+    object->allocatorRef = allocatorRef;
 
     /* initilizing when applicable */
     if(class->init != NULL)
@@ -96,5 +94,5 @@ void EFObjectDealloc(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    object->allocator->deallocate(object->allocator, object);
+    ((EFAllocator*)(object->allocatorRef))->deallocate(object->allocatorRef, object);
 }

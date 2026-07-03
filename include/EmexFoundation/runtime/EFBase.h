@@ -59,9 +59,8 @@ typedef EFTimeInterval EFAbsoluteTime;
 
 /* special types */
 typedef unsigned long EFTypeID;
-typedef void * EFObjectRef;  /* so the compiler shuts up */
-typedef struct EFAllocator EFAllocator;
-typedef void * EFAllocatorRef;
+typedef void *EFObjectRef;      /* so the compiler shuts up */
+typedef void *EFAllocatorRef;
 
 typedef struct __EFString *EFStringRef;
 
@@ -104,7 +103,7 @@ typedef struct {
     EFTypeID typeID;
 
     /* self explainatory */
-    EFAllocator *allocator;
+    EFAllocatorRef allocatorRef;
 
     /* set once */
     Boolean is_stack_obj;

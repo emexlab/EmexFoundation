@@ -142,7 +142,7 @@ EFAllocatorRef EFGetAllocator(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    return object->allocator;
+    return object->allocatorRef;
 }
 
 EFStringRef EFCopyDescription(EFObjectRef ref)
@@ -168,7 +168,7 @@ EFStringRef EFCopyDescription(EFObjectRef ref)
         }
     }
 
-    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocator, EF_STR("<%s %p>"), cls->name, ref);
+    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocatorRef, EF_STR("<%s %p>"), cls->name, ref);
     if(descriptionFallbackRef == NULL)
     {
         return EF_STR("<nil>");
