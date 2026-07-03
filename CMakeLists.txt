@@ -11,8 +11,6 @@ add_library(EmexFoundation STATIC
     src/runtime/EFBase.c
     src/runtime/EFAllocator.c
 
-    src/runtime/objc/test.m
-
     src/EFNumber.c
     src/EFString.c
     src/EFArray.c
