@@ -22,8 +22,15 @@
 #ifndef EFNUMBER_H
 #define EFNUMBER_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdbool.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef enum: UInt8 {

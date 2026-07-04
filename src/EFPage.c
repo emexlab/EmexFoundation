@@ -19,8 +19,15 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <pthread.h>
 #include <sys/mman.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/runtime/EFRuntime.h>

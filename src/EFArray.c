@@ -19,10 +19,17 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <string.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/runtime/EFBase.h>

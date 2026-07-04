@@ -19,6 +19,9 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +30,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/runtime/EFBase.h>

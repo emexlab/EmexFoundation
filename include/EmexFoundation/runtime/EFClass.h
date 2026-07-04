@@ -22,6 +22,9 @@
 #ifndef EFCLASS_H
 #define EFCLASS_H
 
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFBase.h>
 
 #define EF_MAX_CLASSES  1024

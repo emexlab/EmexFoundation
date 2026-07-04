@@ -22,6 +22,9 @@
 #ifndef EFOBJECT_H
 #define EFOBJECT_H
 
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFBase.h>
 
 typedef struct {

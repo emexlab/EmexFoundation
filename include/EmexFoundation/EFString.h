@@ -22,9 +22,16 @@
 #ifndef EFSTRING_H
 #define EFSTRING_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFArray.h>
 

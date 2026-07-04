@@ -22,6 +22,9 @@
 #ifndef EMEXFOUNDATION_H
 #define EMEXFOUNDATION_H
 
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFNumber.h>
 #include <EmexFoundation/EFString.h>

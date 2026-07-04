@@ -22,6 +22,9 @@
 #ifndef EFRUNTIME_H
 #define EFRUNTIME_H
 
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFBase.h>
 #include <EmexFoundation/runtime/EFAllocator.h>
 #include <EmexFoundation/runtime/EFClass.h>

@@ -22,8 +22,15 @@
 #ifndef EFARRAY_H
 #define EFARRAY_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdbool.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFArray *EFArrayRef;

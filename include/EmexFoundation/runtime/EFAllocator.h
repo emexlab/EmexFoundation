@@ -22,6 +22,9 @@
 #ifndef EFALLOCATOR_H
 #define EFALLOCATOR_H
 
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFBase.h>
 
 extern EFAllocatorRef kEFAllocatorDefault;

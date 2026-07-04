@@ -22,9 +22,16 @@
 #ifndef EFDATA_H
 #define EFDATA_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFData *EFDataRef;

@@ -22,6 +22,9 @@
 #ifndef EFBASE_H
 #define EFBASE_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>

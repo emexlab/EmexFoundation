@@ -22,10 +22,17 @@
 #ifndef EFFILEHANDLE_H
 #define EFFILEHANDLE_H
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <fcntl.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFPageGroup.h>
