@@ -23,15 +23,6 @@
 #define EFPAGE_GROUP_H
 
 /* ----------------------------------------------------------------------
- *  System Headers
- * -------------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-
-/* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFPage.h>
