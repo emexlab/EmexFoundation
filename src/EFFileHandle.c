@@ -42,8 +42,8 @@
 typedef struct __EFFileHandle {
     EFObject header;
     int flg;
-    bool readable;
-    bool writable;
+    Boolean readable;
+    Boolean writable;
     Boolean isBackedByFileDescriptor;
 
     union {
