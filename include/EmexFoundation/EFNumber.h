@@ -31,24 +31,24 @@ typedef enum: UInt8 {
     kEFNumberTypeSInt16,
     kEFNumberTypeSInt32,
     kEFNumberTypeSInt64,
-} kEFNumberType;
+} EFNumberType;
 
 typedef enum: UInt8 {
     kEFNumberComparisonResultLessThan,
     kEFNumberComparisonResultEqualTo,
     kEFNumberComparisonResultGreaterThan,
-} kEFNumberComparisonResult;
+} EFNumberComparisonResult;
 
 typedef struct __EVNumber *EFNumberRef;
 
 EFTypeID EFNumberGetTypeID(void);
 
-EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef, kEFNumberType type, const void *value);
+EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef, EFNumberType type, const void *value);
 
 EFIndex EFNumberGetByteSize(EFNumberRef numberRef);
-kEFNumberType EFNumberGetType(EFNumberRef numberRef);
-Boolean EFNumberGetValue(EFNumberRef numberRef, kEFNumberType type, void *value);
+EFNumberType EFNumberGetType(EFNumberRef numberRef);
+Boolean EFNumberGetValue(EFNumberRef numberRef, EFNumberType type, void *value);
 
-kEFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
+EFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
 
 #endif /* EFNUMBER_H */

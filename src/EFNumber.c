@@ -28,7 +28,7 @@
 
 typedef struct __EVNumber {
     EFObject header;
-    kEFNumberType type;
+    EFNumberType type;
     union {
         int8_t s8;
         int16_t s16;
@@ -109,7 +109,7 @@ EFTypeID EFNumberGetTypeID(void)
 }
 
 EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
-                           kEFNumberType type,
+                           EFNumberType type,
                            const void *value)
 {
     if(value == NULL)
@@ -169,7 +169,7 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
     }
 }
 
-kEFNumberType EFNumberGetType(EFNumberRef numberRef)
+EFNumberType EFNumberGetType(EFNumberRef numberRef)
 {
     if(numberRef == NULL)
     {
@@ -181,7 +181,7 @@ kEFNumberType EFNumberGetType(EFNumberRef numberRef)
 }
 
 Boolean EFNumberGetValue(EFNumberRef numberRef,
-                         kEFNumberType type,
+                         EFNumberType type,
                          void *value)
 {
     if(numberRef == NULL || value == NULL)
@@ -209,7 +209,7 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
     }
 }
 
-kEFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef,
+EFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef,
                                           EFNumberRef otherNumberRef)
 {
     __EVNumber num = (__EVNumber)numberRef;
