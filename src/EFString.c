@@ -30,7 +30,7 @@
 
 typedef __EFString EFString;
 
-static Boolean __EFStringValidateEncoding(kEFStringEncoding encoding,
+static Boolean __EFStringValidateEncoding(EFStringEncoding encoding,
                                           const char *buffer,
                                           size_t length)
 {
@@ -180,7 +180,7 @@ EFTypeID EFStringGetTypeID(void)
 static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
                                            const UInt8 *buffer,
                                            EFIndex length,
-                                           kEFStringEncoding encoding,
+                                           EFStringEncoding encoding,
                                            Boolean isInlined,
                                            Boolean isMutable)
 {
@@ -230,7 +230,7 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
 
 static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRef,
                                                       const char *str,
-                                                      kEFStringEncoding encoding,
+                                                      EFStringEncoding encoding,
                                                       Boolean isInlined)
 {
     if(str == NULL)
@@ -264,7 +264,7 @@ static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
 EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef,
                                      const UInt8 *buffer,
                                      EFIndex length,
-                                     kEFStringEncoding encoding)
+                                     EFStringEncoding encoding)
 {
     return __EFStringCreate(allocatorRef, buffer, length, encoding, true, false);
 }
@@ -272,21 +272,21 @@ EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef,
 EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef,
                                            const UInt8 *buffer,
                                            EFIndex length,
-                                           kEFStringEncoding encoding)
+                                           EFStringEncoding encoding)
 {
     return __EFStringCreate(allocatorRef, buffer, length, encoding, false, false);
 }
 
 EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef,
                                       const char *str,
-                                      kEFStringEncoding encoding)
+                                      EFStringEncoding encoding)
 {
     return __EFStringCreateWithCString(allocatorRef, str, encoding, true);
 }
 
 EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef,
                                             const char *str,
-                                            kEFStringEncoding encoding)
+                                            EFStringEncoding encoding)
 {
     return __EFStringCreateWithCString(allocatorRef, str, encoding, false);
 }
@@ -626,7 +626,7 @@ EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef,
 }
 
 const char *EFStringGetCStringPtr(EFStringRef stringRef,
-                                  kEFStringEncoding encoding)
+                                  EFStringEncoding encoding)
 {
     if(stringRef == NULL)
     {
@@ -656,7 +656,7 @@ EFIndex EFStringGetLength(EFStringRef stringRef)
 Boolean EFStringGetCString(EFStringRef stringRef,
                            char *str,
                            EFIndex length,
-                           kEFStringEncoding encoding)
+                           EFStringEncoding encoding)
 {
     const char *str_ptr = EFStringGetCStringPtr(stringRef, encoding);
     if(str_ptr == NULL || length < 0)

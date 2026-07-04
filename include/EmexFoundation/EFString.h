@@ -32,14 +32,14 @@ typedef enum: UInt8 {
     kEFStringEncodingUTF7,
     kEFStringEncodingASCII = kEFStringEncodingUTF7,
     kEFStringEncodingUTF8,
-} kEFStringEncoding;
+} EFStringEncoding;
 
 typedef struct __EFString *EFStringRef;
 typedef struct __EFString *EFMutableStringRef;
 
 typedef struct __EFString {
     EFObject header;
-    kEFStringEncoding encoding;
+    EFStringEncoding encoding;
     Boolean isMutable;
     Boolean isInlined; /* meaning the buffer pointer points to after the string object */
     char *buffer;          /* it is neither inlined nor undeallocatable if mutable */
@@ -63,18 +63,18 @@ typedef struct __EFString {
 
 EFTypeID EFStringGetTypeID(void);
 
-EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, kEFStringEncoding encoding);
-EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, kEFStringEncoding encoding);
-EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
-EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, kEFStringEncoding encoding);
+EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
+EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
+EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
+EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
 EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);
 EFStringRef EFStringCreateWithFormat(EFAllocatorRef allocatorRef, EFStringRef format, ...);
 EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
 EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
 
-const char *EFStringGetCStringPtr(EFStringRef stringRef, kEFStringEncoding encoding);
+const char *EFStringGetCStringPtr(EFStringRef stringRef, EFStringEncoding encoding);
 EFIndex EFStringGetLength(EFStringRef stringRef);
-Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, kEFStringEncoding encoding);
+Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, EFStringEncoding encoding);
 
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
 
