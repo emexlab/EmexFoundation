@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFArray *EFArrayRef;
 typedef struct __EFArray *EFMutableArrayRef;

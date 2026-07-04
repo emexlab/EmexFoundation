@@ -29,7 +29,7 @@
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,

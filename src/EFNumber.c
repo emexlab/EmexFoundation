@@ -22,8 +22,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFNumber.h>
 
 typedef struct __EVNumber {

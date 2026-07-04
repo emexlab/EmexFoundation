@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFArray.h>
 
 typedef enum: UInt8 {

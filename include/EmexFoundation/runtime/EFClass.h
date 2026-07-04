@@ -19,28 +19,23 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EFRUNTIME_H
-#define EFRUNTIME_H
+#ifndef EFCLASS_H
+#define EFCLASS_H
 
 #include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
-#include <EmexFoundation/runtime/EFClass.h>
-#include <EmexFoundation/runtime/EFObject.h>
 
-EFTypeID EFClassRegister(EFClass *cls);
-EFClass *EFClassGetByID(EFTypeID id);
+#define EF_MAX_CLASSES  1024
 
-EFTypeID EFGetTypeID(EFObjectRef ref);
-Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
+typedef struct {
+    /* properties  */
+    const char *name;
+    EFTypeID typeID;
 
-EFObjectRef EFRetain(EFObjectRef ref);
-void EFRelease(EFObjectRef ref);
-EFIndex EFGetRetainCount(EFObjectRef ref);
+    /* handlers */
+    evobject_init_handler_t init;
+    evobject_deinit_handler_t deinit;
+    evobject_equal_handler_t equal;
+    evobject_copy_description_handler_t copyDescription;
+} EFClass;
 
-EFAllocatorRef EFGetAllocator(EFObjectRef ref);
-
-EFStringRef EFCopyDescription(EFObjectRef ref);
-
-void EFLog(EFStringRef formatStringRef, ...);
-
-#endif /* EFRUNTIME_H */
+#endif /* EFCLASS_H */

@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFPage *EFPageRef;
 

@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFPageGroup *EFPageGroupRef;
 

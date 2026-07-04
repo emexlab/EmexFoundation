@@ -24,8 +24,7 @@
 #include <sys/mman.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFPageGroup {
     EFObject header;

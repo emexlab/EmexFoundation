@@ -29,7 +29,6 @@
 #include <pthread.h>
 
 #define kEFNotATypeID   ((uint64_t)0)
-#define EF_MAX_CLASSES  1024
 
 /* normal types */
 typedef unsigned long EFOptionFlags;
@@ -69,64 +68,5 @@ typedef EFStringRef (*evobject_copy_description_handler_t)(EFObjectRef ref);
 
 typedef EFObjectRef (*evallocator_alloc_handler_t)(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
 typedef void (*evallocator_dealloc_handler_t)(EFAllocatorRef allocatorRef, EFObjectRef ref);
-
-typedef struct {
-    /* properties  */
-    const char *name;
-    EFTypeID typeID;
-
-    /* handlers */
-    evobject_init_handler_t init;
-    evobject_deinit_handler_t deinit;
-    evobject_equal_handler_t equal;
-    evobject_copy_description_handler_t copyDescription;
-} EFClass;
-
-typedef struct EFAllocator {
-    /* properties  */
-    const char *name;
-    void *info; /* a more complex allocator in the future will need this */
-
-    /* handlers */
-    evallocator_alloc_handler_t allocate;
-    evallocator_dealloc_handler_t deallocate;
-} EFAllocator;
-
-typedef struct {
-    /*
-     * the typeID of the class of that
-     * object, similar to CFRuntime.
-     */
-    EFTypeID typeID;
-
-    /* self explainatory */
-    EFAllocatorRef allocatorRef;
-
-    /* is not allocated by a allocator for example */
-    Boolean isStatic;
-
-    /*
-     * reference count of an object if
-     * it hits zero it will free
-     * automatically.
-     */
-    _Atomic EFIndex refcount;
-} EFObject;
-
-EFTypeID EFGetTypeID(EFObjectRef ref);
-Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
-
-EFObjectRef EFRetain(EFObjectRef ref);
-void EFRelease(EFObjectRef ref);
-EFIndex EFGetRetainCount(EFObjectRef ref);
-
-EFTypeID EFClassRegister(EFClass *cls);
-EFClass *EFClassGetByID(EFTypeID id);
-
-EFAllocatorRef EFGetAllocator(EFObjectRef ref);
-
-EFStringRef EFCopyDescription(EFObjectRef ref);
-
-void EFLog(EFStringRef formatStringRef, ...);
 
 #endif /* EFBASE_H */

@@ -26,6 +26,16 @@
 
 extern EFAllocatorRef kEFAllocatorDefault;
 
+typedef struct EFAllocator {
+    /* properties  */
+    const char *name;
+    void *info; /* a more complex allocator in the future will need this */
+
+    /* handlers */
+    evallocator_alloc_handler_t allocate;
+    evallocator_dealloc_handler_t deallocate;
+} EFAllocator;
+
 EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
 void EFObjectDealloc(EFObjectRef ref);
 

@@ -24,8 +24,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFString.h>
 
 typedef __EFString EFString;

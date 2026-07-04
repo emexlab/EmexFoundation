@@ -19,11 +19,11 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
                                                 EFTypeID typeID,

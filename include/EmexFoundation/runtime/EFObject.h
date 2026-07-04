@@ -19,28 +19,30 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EFRUNTIME_H
-#define EFRUNTIME_H
+#ifndef EFOBJECT_H
+#define EFOBJECT_H
 
 #include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
-#include <EmexFoundation/runtime/EFClass.h>
-#include <EmexFoundation/runtime/EFObject.h>
 
-EFTypeID EFClassRegister(EFClass *cls);
-EFClass *EFClassGetByID(EFTypeID id);
+typedef struct {
+    /*
+     * the typeID of the class of that
+     * object, similar to CFRuntime.
+     */
+    EFTypeID typeID;
 
-EFTypeID EFGetTypeID(EFObjectRef ref);
-Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
+    /* self explainatory */
+    EFAllocatorRef allocatorRef;
 
-EFObjectRef EFRetain(EFObjectRef ref);
-void EFRelease(EFObjectRef ref);
-EFIndex EFGetRetainCount(EFObjectRef ref);
+    /* is not allocated by a allocator for example */
+    Boolean isStatic;
 
-EFAllocatorRef EFGetAllocator(EFObjectRef ref);
+    /*
+     * reference count of an object if
+     * it hits zero it will free
+     * automatically.
+     */
+    _Atomic EFIndex refcount;
+} EFObject;
 
-EFStringRef EFCopyDescription(EFObjectRef ref);
-
-void EFLog(EFStringRef formatStringRef, ...);
-
-#endif /* EFRUNTIME_H */
+#endif /* EFOBJECT_H */

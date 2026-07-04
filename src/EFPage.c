@@ -23,8 +23,7 @@
 #include <sys/mman.h>
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFString.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/runtime/EFRuntime.h>
 
 #if defined(_WIN32)
     #include <windows.h>
