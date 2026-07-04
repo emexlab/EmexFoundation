@@ -36,7 +36,7 @@ typedef enum: UInt8 {
     kEFFileHandleSeekTypeCur,
     kEFFileHandleSeekTypeEnd,
     /* fuck darwin no SEEK_HOLE */
-} kEFFileHandleSeekType;
+} EFFileHandleSeekType;
 
 typedef struct __EFFileHandle *EFFileHandleRef;
 
@@ -50,7 +50,7 @@ EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex l
 EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
 EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);
 
-EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, kEFFileHandleSeekType seekType);
+EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, EFFileHandleSeekType seekType);
 void EFFileHandleSync(EFFileHandleRef fileHandleRef);
 
 EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);

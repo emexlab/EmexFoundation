@@ -306,7 +306,7 @@ EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
 
 EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
                          EFIndex offset,
-                         kEFFileHandleSeekType seekType)
+                         EFFileHandleSeekType seekType)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
