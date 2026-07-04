@@ -19,16 +19,10 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EMEXFOUNDATION_H
-#define EMEXFOUNDATION_H
+#ifndef EFRUNTIME_H
+#define EFRUNTIME_H
 
-#include <EmexFoundation/runtime/EFRuntime.h>
-#include <EmexFoundation/EFNumber.h>
-#include <EmexFoundation/EFString.h>
-#include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/EFPage.h>
-#include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/EFData.h>
-#include <EmexFoundation/EFFileHandle.h>
+#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/runtime/EFAllocator.h>
 
-#endif /* EMEXFOUNDATION_H */
+#endif /* EFRUNTIME_H */
