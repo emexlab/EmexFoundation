@@ -234,20 +234,6 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
     return (EFStringRef)string;
 }
 
-static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRef,
-                                                      const char *str,
-                                                      EFStringEncoding encoding,
-                                                      Boolean isInlined)
-{
-    if(str == NULL)
-    {
-        return NULL;
-    }
-
-    size_t length = strlen(str);
-    return __EFStringCreate(allocatorRef, (const UInt8*)str, length, encoding, isInlined, false);
-}
-
 static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
                                                EFStringRef stringRef,
                                                Boolean isMutable)
@@ -264,7 +250,21 @@ static inline EFStringRef __EFStringCreateCopy(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(stringRef);
     }
 
-    return __EFStringCreate(allocatorRef, (const UInt8*)string->buffer, string->length, string->encoding, string->isInlined, isMutable);
+    return __EFStringCreate(allocatorRef, (const UInt8*)string->buffer, string->length, string->encoding, true, isMutable);
+}
+
+static inline EFStringRef __EFStringCreateWithCString(EFAllocatorRef allocatorRef,
+                                                      const char *str,
+                                                      EFStringEncoding encoding,
+                                                      Boolean isInlined)
+{
+    if(str == NULL)
+    {
+        return NULL;
+    }
+
+    size_t length = strlen(str);
+    return __EFStringCreate(allocatorRef, (const UInt8*)str, length, encoding, isInlined, false);
 }
 
 EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef,
