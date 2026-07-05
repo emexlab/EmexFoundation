@@ -115,12 +115,17 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
     if(isMutable)
     {
         data->buffer = malloc((size_t)length);
-        bzero(data->buffer, (size_t)length);
         isInlined = false; /* must be false */
+        if(buffer != NULL)
+        {
+            goto needs_copy;
+        }
+        bzero(data->buffer, (size_t)length);
     }
     else if(isInlined)
     {
         data->buffer = (UInt8*)((const char*)data + sizeof(struct __EFData));
+needs_copy:
         memcpy(data->buffer, buffer, (size_t)length);
         data->buffer[length] = '\0';
     }
@@ -187,7 +192,18 @@ EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef,
 EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef,
                                          EFDataRef dataRef)
 {
-    return NULL;
+    __EFData data = (__EFData)dataRef;
+    if(data == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(dataRef);
+    }
+
+    return __EFDataCreate(allocatorRef, data->buffer, data->length, false, true);
 }
 
 EFIndex EFDataGetLength(EFDataRef dataRef)
