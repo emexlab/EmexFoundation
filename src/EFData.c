@@ -127,7 +127,6 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
         data->buffer = (UInt8*)((const char*)data + sizeof(struct __EFData));
 needs_copy:
         memcpy(data->buffer, buffer, (size_t)length);
-        data->buffer[length] = '\0';
     }
     else
     {
