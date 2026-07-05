@@ -81,7 +81,7 @@ static EFStringRef __EFPageCopyDescription(EFObjectRef pageRef)
     __EFPage page = (__EFPage)pageRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(pageRef);
     EFClass *cls = EFClassGetByID(page->header.typeID);
-    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{mem = %p, length = %zu}"), cls->name, pageRef, page->mem, page->length);
+    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{mem = %p, length = %ld}"), cls->name, pageRef, page->mem, page->length);
 }
 
 static EFClass EFPageClass = {
