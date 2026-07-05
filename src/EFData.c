@@ -115,6 +115,12 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
     if(isMutable)
     {
         data->buffer = malloc((size_t)length);
+        if(data->buffer == NULL)
+        {
+            EFRelease((EFDataRef)data);
+            return NULL;
+        }
+
         if(buffer != NULL)
         {
             goto needs_copy;

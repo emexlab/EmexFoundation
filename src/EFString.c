@@ -210,6 +210,11 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
     if(isMutable)
     {
         string->buffer = malloc((size_t)(length + 1));
+        if(string->buffer == NULL)
+        {
+            EFRelease((EFStringRef)string);
+            return NULL;
+        }
         goto needs_copy;    /* skips past the string->buffer pointer assignment of a inlined string */
     }
     else if(isInlined)
