@@ -28,9 +28,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFString.h>
-#include <EmexFoundation/runtime/EFRuntime.h>
 
 #if defined(_WIN32)
     #include <windows.h>

@@ -34,10 +34,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
 
 typedef struct __EFFileHandle {
     EFObject header;

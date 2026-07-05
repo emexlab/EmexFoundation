@@ -29,10 +29,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/EFString.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
 
 typedef struct __EFArray {
     EFObject header;

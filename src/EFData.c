@@ -28,9 +28,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFData.h>
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
+#include <EmexFoundation/EFString.h>
 
 typedef struct __EFData {
     EFObject header;

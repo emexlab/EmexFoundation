@@ -29,9 +29,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/EFString.h>
-#include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFPageGroup.h>
+#include <EmexFoundation/EFString.h>
 
 typedef struct __EFPageGroup {
     EFObject header;
