@@ -142,6 +142,24 @@ needs_copy:
     return (EFDataRef)data;
 }
 
+static inline EFDataRef __EFDataCreateCopy(EFAllocatorRef allocatorRef,
+                                           EFDataRef dataRef,
+                                           Boolean isMutable)
+{
+    __EFData data = (__EFData)dataRef;
+    if(data == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(dataRef);
+    }
+    
+    return __EFDataCreate(allocatorRef, data->buffer, data->length, true, isMutable);
+}
+
 EFDataRef EFDataCreateWithBuffer(EFAllocatorRef allocatorRef,
                                  const UInt8 *buffer,
                                  EFIndex length)
@@ -166,44 +184,22 @@ EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef,
     return (EFDataRef)__EFDataCreate(allocatorRef, buffer, length, false, false);
 }
 
-EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
-                           EFDataRef dataRef)
-{
-    __EFData data = (__EFData)dataRef;
-    if(data == NULL)
-    {
-        return NULL;
-    }
-
-    if(allocatorRef == NULL)
-    {
-        allocatorRef = EFGetAllocator(dataRef);
-    }
-    
-    return __EFDataCreate(allocatorRef, data->buffer, data->length, true, false);
-}
-
 EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef,
                                      EFIndex capacity)
 {
     return __EFDataCreate(allocatorRef, NULL, capacity, true, true);
 }
 
+EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef,
+                           EFDataRef dataRef)
+{
+    return __EFDataCreateCopy(allocatorRef, dataRef, false);
+}
+
 EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef,
                                          EFDataRef dataRef)
 {
-    __EFData data = (__EFData)dataRef;
-    if(data == NULL)
-    {
-        return NULL;
-    }
-
-    if(allocatorRef == NULL)
-    {
-        allocatorRef = EFGetAllocator(dataRef);
-    }
-
-    return __EFDataCreate(allocatorRef, data->buffer, data->length, false, true);
+    return __EFDataCreateCopy(allocatorRef, dataRef, true);
 }
 
 EFIndex EFDataGetLength(EFDataRef dataRef)
