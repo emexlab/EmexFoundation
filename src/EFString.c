@@ -844,3 +844,31 @@ Boolean EFStringAppendString(EFMutableStringRef mutableStringRef,
 
     return true;
 }
+
+Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef,
+                             EFStringRef formatStringRef,
+                             ...)
+{
+    EFString mutableString = (EFString)mutableStringRef;
+    if(mutableString == NULL || !mutableString->isMutable)
+    {
+        return false;
+    }
+    EFAllocatorRef allocatorRef = EFGetAllocator(mutableStringRef);
+
+    /* creating the formatted string to append */
+    va_list arguments;
+    va_start(arguments, formatStringRef);
+    EFStringRef resultRef = EFStringCreateWithFormatAndArguments(allocatorRef, formatStringRef, arguments);
+    va_end(arguments);
+
+    if(resultRef == NULL)
+    {
+        /* oufff :c */
+        return false;
+    }
+
+    bool success = EFStringAppendString(mutableStringRef, resultRef);
+    EFRelease(resultRef);   /* release regardless of succession */
+    return success;
+}

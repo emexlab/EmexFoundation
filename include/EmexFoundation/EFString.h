@@ -85,5 +85,6 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef
 
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
 Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
+Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
 
 #endif /* EFSTRING_H */
