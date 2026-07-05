@@ -140,7 +140,7 @@ needs_copy:
 
     /* always assigned with the same values */
     data->length = length;
-    data->isInlined = !isMutable && isInlined; /* isInlined is only possible when isMutable is not enabled */
+    data->isInlined = !isMutable && isInlined;  /* isInlined is only possible when isMutable is not enabled */
     data->isMutable = isMutable;
 
     return (EFDataRef)data;

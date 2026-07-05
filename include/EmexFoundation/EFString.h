@@ -36,7 +36,7 @@
 
 typedef enum: UInt8 {
     kEFStringEncodingUTF7,
-    kEFStringEncodingASCII = kEFStringEncodingUTF7,
+    kEFStringEncodingASCII,
     kEFStringEncodingUTF8,
 } EFStringEncoding;
 

@@ -42,7 +42,7 @@ static Boolean __EFStringValidateEncoding(EFStringEncoding encoding,
 {
     switch(encoding)
     {
-        case kEFStringEncodingUTF7:
+        case kEFStringEncodingASCII:
             for(size_t i = 0; i < length; i++)
             {
                 if((unsigned char)buffer[i] > 0x7F)
@@ -51,6 +51,66 @@ static Boolean __EFStringValidateEncoding(EFStringEncoding encoding,
                 }
             }
             return true;
+        case kEFStringEncodingUTF7: /* thanks to: https://www.rfc-editor.org/rfc/rfc2152.html */
+        {
+            static const signed char b64[256] = {};
+
+            size_t i = 0;
+            while(i < length)
+            {
+                unsigned char c = (unsigned char)buffer[i];
+                if(c > 0x7F)
+                {
+                    return false;
+                }
+
+                if(c != '+')
+                {
+                    i++;
+                    continue;
+                }
+
+                i++;
+                if(i < length && (unsigned char)buffer[i] == '-')
+                {
+                    i++;
+                    continue;
+                }
+
+                size_t bits = 0;
+                unsigned int acc = 0;
+                while(i < length)
+                {
+                    unsigned char d = (unsigned char)buffer[i];
+                    if(d > 0x7F)
+                    {
+                        return false;
+                    }
+                    signed char v = b64[d];
+                    if(v < 0)
+                    {
+                        break;
+                    }
+                    acc = (acc << 6) | (unsigned)v;
+                    bits += 6;
+                    i++;
+                }
+
+                if(bits % 16 != 0)
+                {
+                    unsigned int leftover = acc & ((1u << (bits % 16)) - 1);
+                    if((bits % 16) >= 6 || leftover != 0)
+                    {
+                        return false;
+                    }
+                }
+                if(i < length && (unsigned char)buffer[i] == '-')
+                {
+                    i++;
+                }
+            }
+            return true;
+        }
         case kEFStringEncodingUTF8: /* thanks to: https://www.rfc-editor.org/rfc/rfc3629.html */
         {
             size_t i = 0;
@@ -232,7 +292,7 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
     /* always assigned with the same values */
     string->length = length;
     string->encoding = encoding;
-    string->isInlined = !isMutable && isInlined; /* isInlined is only possible when isMutable is not enabled */
+    string->isInlined = !isMutable && isInlined;    /* isInlined is only possible when isMutable is not enabled */
     string->isMutable = isMutable;
 
     return (EFStringRef)string;
