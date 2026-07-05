@@ -49,13 +49,38 @@ static void __EFDataDeinit(EFObjectRef dataRef)
     }
 }
 
+static EFStringRef __EFDataCopyDescription(EFObjectRef dataRef)
+{
+    __EFData data = (__EFData)dataRef;
+    EFAllocatorRef allocatorRef = EFGetAllocator(dataRef);
+    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EF_STR("<"));
+    if(mutableStringRef == NULL)
+    {
+        return NULL;
+    }
+
+    if(!EFStringAppendString(mutableStringRef, data->isMutable ? EF_STR("EFMutableData") : EF_STR("EFData")))
+    {
+        EFRelease(mutableStringRef);
+        return NULL;
+    }
+
+    if(!EFStringAppendFormat(mutableStringRef, EF_STR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
+    {
+        EFRelease(mutableStringRef);
+        return NULL;
+    }
+
+    return mutableStringRef;
+}
+
 static EFClass EFDataClass = {
     .name = "EFData",
     .typeID = kEFNotATypeID,
     .init = NULL,
     .deinit = __EFDataDeinit,
     .equal = NULL,
-    .copyDescription = NULL,
+    .copyDescription = __EFDataCopyDescription,
 };
 
 static void EFDataRegisterClass(void)
