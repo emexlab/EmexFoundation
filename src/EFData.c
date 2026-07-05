@@ -115,7 +115,6 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
     if(isMutable)
     {
         data->buffer = malloc((size_t)length);
-        isInlined = false; /* must be false */
         if(buffer != NULL)
         {
             goto needs_copy;
