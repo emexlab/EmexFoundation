@@ -32,6 +32,7 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFArray.h>
+#include <EmexFoundation/EFData.h>
 
 typedef enum: UInt8 {
     kEFStringEncodingUTF7,
@@ -76,6 +77,9 @@ EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EF
 EFStringRef EFStringCreateWithFormat(EFAllocatorRef allocatorRef, EFStringRef format, ...);
 EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
 EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
+
+EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFStringEncoding encoding);
+EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef, EFDataRef dataRef, EFStringEncoding encoding);
 
 const char *EFStringGetCStringPtr(EFStringRef stringRef, EFStringEncoding encoding);
 EFIndex EFStringGetLength(EFStringRef stringRef);

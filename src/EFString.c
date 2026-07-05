@@ -648,6 +648,48 @@ const char *EFStringGetCStringPtr(EFStringRef stringRef,
     return string->buffer;
 }
 
+EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef,
+                                               EFStringRef stringRef,
+                                               EFStringEncoding encoding)
+{
+    __EFString string = (__EFString)stringRef;
+    if(string == NULL || !__EFStringValidateEncoding(encoding, string->buffer, string->length))
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(stringRef);
+    }
+
+    return EFDataCreateWithBuffer(allocatorRef, (const UInt8*)string->buffer, string->length);
+}
+
+EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef,
+                                                     EFDataRef dataRef,
+                                                     EFStringEncoding encoding)
+{
+    if(dataRef == NULL)
+    {
+        return NULL;
+    }
+
+    if(allocatorRef == NULL)
+    {
+        allocatorRef = EFGetAllocator(dataRef);
+    }
+
+    EFIndex dataLength = EFDataGetLength(dataRef);
+    const UInt8 *dataBuffer = EFDataGetPtr(dataRef);
+    if(dataBuffer == NULL)
+    {
+        return NULL;
+    }
+
+    return __EFStringCreate(allocatorRef, dataBuffer, dataLength, encoding, true, false);
+}
+
 EFIndex EFStringGetLength(EFStringRef stringRef)
 {
     if(stringRef == NULL)
