@@ -72,4 +72,13 @@ typedef EFStringRef (*evobject_copy_description_handler_t)(EFObjectRef ref);
 typedef EFObjectRef (*evallocator_alloc_handler_t)(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
 typedef void (*evallocator_dealloc_handler_t)(EFAllocatorRef allocatorRef, EFObjectRef ref);
 
+static inline EFRange EFRangeMake(EFIndex location,
+                                  EFIndex length)
+{
+    return (EFRange){
+        .location = location,
+        .length = length,
+    };
+}
+
 #endif /* EFBASE_H */
