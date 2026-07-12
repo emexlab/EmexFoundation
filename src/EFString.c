@@ -788,6 +788,78 @@ Boolean EFStringGetCString(EFStringRef stringRef,
     return true;
 }
 
+Boolean EFStringHasPrefix(EFStringRef stringRef,
+                          EFStringRef prefixRef)
+{
+    EFString string = (EFString)stringRef;
+    EFString prefix = (EFString)prefixRef;
+    if(string == NULL || prefix == NULL)
+    {
+        return false;
+    }
+
+    /* same string means its always true */
+    if(string == prefix)
+    {
+        return true;
+    }
+
+    /* prefix shall never be bigger than the string */
+    if(string->length < prefix->length)
+    {
+        return false;
+    }
+
+    /* encoding has to be compatible to eachother */
+    if(string->encoding != prefix->encoding)
+    {
+        Boolean string1_complies = __EFStringValidateEncoding(string->encoding, prefix->buffer, prefix->length);
+        Boolean string2_complies = __EFStringValidateEncoding(prefix->encoding, string->buffer, prefix->length);
+        if(!string1_complies || !string2_complies)
+        {
+            return false;
+        }
+    }
+
+    return strncmp(prefix->buffer, string->buffer, (size_t)prefix->length) == 0;
+}
+
+Boolean EFStringHasSuffix(EFStringRef stringRef,
+                          EFStringRef suffixRef)
+{
+    EFString string = (EFString)stringRef;
+    EFString suffix = (EFString)suffixRef;
+    if(string == NULL || suffix == NULL)
+    {
+        return false;
+    }
+
+    /* same string means its always true */
+    if(string == suffix)
+    {
+        return true;
+    }
+
+    /* prefix shall never be bigger than the string */
+    if(string->length < suffix->length)
+    {
+        return false;
+    }
+
+    /* encoding has to be compatible to eachother */
+    if(string->encoding != suffix->encoding)
+    {
+        Boolean string1_complies = __EFStringValidateEncoding(string->encoding, suffix->buffer, suffix->length);
+        Boolean string2_complies = __EFStringValidateEncoding(suffix->encoding, string->buffer, suffix->length);
+        if(!string1_complies || !string2_complies)
+        {
+            return false;
+        }
+    }
+
+    return strncmp(suffix->buffer, (string->buffer + string->length) - suffix->length, (size_t)suffix->length) == 0;
+}
+
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
                                               EFStringRef separatorStringRef)
 {

@@ -85,6 +85,9 @@ const char *EFStringGetCStringPtr(EFStringRef stringRef, EFStringEncoding encodi
 EFIndex EFStringGetLength(EFStringRef stringRef);
 Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, EFStringEncoding encoding);
 
+Boolean EFStringHasPrefix(EFStringRef stringRef, EFStringRef prefixRef);
+Boolean EFStringHasSuffix(EFStringRef stringRef, EFStringRef suffixRef);
+
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
 
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
