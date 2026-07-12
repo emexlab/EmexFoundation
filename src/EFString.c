@@ -671,7 +671,7 @@ EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef,
                                         EFRange range)
 {
     EFString string = (EFString)stringRef;
-    if(string == NULL || ((string->length - range.location) - range.location) < 0)
+    if(string == NULL || range.location > string->length || (range.location + range.length) > string->length)
     {
         return NULL;
     }
@@ -696,7 +696,7 @@ EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRe
                                                       EFRange range)
 {
     EFString string = (EFString)stringRef;
-    if(string == NULL || ((string->length - range.location) - range.location) < 0)
+    if(string == NULL || range.location > string->length || (range.location + range.length) > string->length)
     {
         return NULL;
     }
