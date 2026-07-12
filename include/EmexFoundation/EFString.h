@@ -88,6 +88,9 @@ Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, EFS
 Boolean EFStringHasPrefix(EFStringRef stringRef, EFStringRef prefixRef);
 Boolean EFStringHasSuffix(EFStringRef stringRef, EFStringRef suffixRef);
 
+Boolean EFStringEqual(EFStringRef stringRef1, EFStringRef stringRef2);
+Boolean EFStringEqualRange(EFStringRef stringRef1, EFStringRef stringRef2, EFRange range);  /* range applies to the first string */
+
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
 
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);

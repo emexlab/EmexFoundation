@@ -191,30 +191,7 @@ static void __EFStringDeinit(EFObjectRef stringRef)
 static Boolean __EFStringEqual(EFObjectRef stringRef1,
                                EFObjectRef stringRef2)
 {
-    EFString string1 = (EFString)stringRef1;
-    EFString string2 = (EFString)stringRef2;
-
-    /* size must match */
-    if(string1->length != string2->length)
-    {
-        return false;
-    }
-
-    /* they share the same length */
-    size_t length = string1->length;
-
-    /* strings must comply to their encodings */
-    if(string1->encoding != string2->encoding)
-    {
-        Boolean string1_complies = __EFStringValidateEncoding(string2->encoding, string1->buffer, length);
-        Boolean string2_complies = __EFStringValidateEncoding(string1->encoding, string2->buffer, length);
-        if(!string1_complies || !string2_complies)
-        {
-            return false;
-        }
-    }
-
-    return (memcmp(string1->buffer, string2->buffer, length) == 0);
+    return EFStringEqual(stringRef1, stringRef2);
 }
 
 static EFStringRef __EFStringCopyDescription(EFObjectRef stringRef)
@@ -858,6 +835,76 @@ Boolean EFStringHasSuffix(EFStringRef stringRef,
     }
 
     return strncmp(suffix->buffer, (string->buffer + string->length) - suffix->length, (size_t)suffix->length) == 0;
+}
+
+Boolean EFStringEqual(EFStringRef stringRef1,
+                      EFStringRef stringRef2)
+{
+    EFString string1 = (EFString)stringRef1;
+    EFString string2 = (EFString)stringRef2;
+    if(string1 == NULL || string2 == NULL)
+    {
+        return false;
+    }
+
+    /* size must match */
+    if(string1->length != string2->length)
+    {
+        return false;
+    }
+
+    /* they share the same length */
+    size_t length = string1->length;
+
+    /* strings must comply to their encodings */
+    if(string1->encoding != string2->encoding)
+    {
+        Boolean string1_complies = __EFStringValidateEncoding(string2->encoding, string1->buffer, length);
+        Boolean string2_complies = __EFStringValidateEncoding(string1->encoding, string2->buffer, length);
+        if(!string1_complies || !string2_complies)
+        {
+            return false;
+        }
+    }
+
+    return (memcmp(string1->buffer, string2->buffer, length) == 0);
+}
+
+Boolean EFStringEqualRange(EFStringRef stringRef1,
+                           EFStringRef stringRef2,
+                           EFRange range)
+{
+    EFString string = (EFString)stringRef1;
+    EFString rangeString = (EFString)stringRef2;
+    if(string == NULL || rangeString == NULL)
+    {
+        return false;
+    }
+
+    /* range must be valid inside string1 */
+    if((string->length - range.location) < range.length)
+    {
+        return false;
+    }
+
+    /* range length must fit atleast in string2 */
+    if(range.length < rangeString->length)
+    {
+        return false;
+    }
+
+    /* strings must comply to their encodings */
+    if(string->encoding != rangeString->encoding)
+    {
+        Boolean string1_complies = __EFStringValidateEncoding(rangeString->encoding, string->buffer + range.location, range.length);
+        Boolean string2_complies = __EFStringValidateEncoding(string->encoding, rangeString->buffer, range.length);
+        if(!string1_complies || !string2_complies)
+        {
+            return false;
+        }
+    }
+
+    return (memcmp(string->buffer + range.location, rangeString->buffer, range.length) == 0);
 }
 
 EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
