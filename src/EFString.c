@@ -974,7 +974,7 @@ Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef,
         return false;
     }
 
-    bool success = EFStringAppendString(mutableStringRef, resultRef);
+    Boolean success = EFStringAppendString(mutableStringRef, resultRef);
     EFRelease(resultRef);   /* release regardless of succession */
     return success;
 }
