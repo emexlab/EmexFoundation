@@ -215,8 +215,8 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
     }
 }
 
-EFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef,
-                                          EFNumberRef otherNumberRef)
+EFComparisonResult EFNumberCompare(EFNumberRef numberRef,
+                                   EFNumberRef otherNumberRef)
 {
     __EVNumber num = (__EVNumber)numberRef;
     __EVNumber otherNum = (__EVNumber)otherNumberRef;
@@ -224,11 +224,11 @@ EFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef,
     if(num == NULL || otherNum == NULL)
     {
         /* nothing to compare */
-        return kEFNumberComparisonResultEqualTo;
+        return kEFComparisonResultEqualTo;
     }
 
     int64_t int1 = __EFNumberGetSInt64Value(num);
     int64_t int2 = __EFNumberGetSInt64Value(otherNum);
 
-    return (int1 == int2) ? kEFNumberComparisonResultEqualTo : (int1 > int2) ? kEFNumberComparisonResultGreaterThan : kEFNumberComparisonResultLessThan;
+    return (int1 == int2) ? kEFComparisonResultEqualTo : (int1 > int2) ? kEFComparisonResultGreaterThan : kEFComparisonResultLessThan;
 }

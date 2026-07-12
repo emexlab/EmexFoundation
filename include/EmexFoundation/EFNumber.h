@@ -34,12 +34,6 @@ typedef enum: UInt8 {
     kEFNumberTypeSInt64,
 } EFNumberType;
 
-typedef enum: UInt8 {
-    kEFNumberComparisonResultLessThan,
-    kEFNumberComparisonResultEqualTo,
-    kEFNumberComparisonResultGreaterThan,
-} EFNumberComparisonResult;
-
 typedef struct __EVNumber *EFNumberRef;
 
 EFTypeID EFNumberGetTypeID(void);
@@ -50,6 +44,6 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef);
 EFNumberType EFNumberGetType(EFNumberRef numberRef);
 Boolean EFNumberGetValue(EFNumberRef numberRef, EFNumberType type, void *value);
 
-EFNumberComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
+EFComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
 
 #endif /* EFNUMBER_H */

@@ -56,6 +56,12 @@ typedef double EFTimeInterval;
 typedef EFTimeInterval EFAbsoluteTime;
 /* no OSStatus??? this is modern, aint macintosh carbon era shit, my water aint carbonised */
 
+typedef enum: UInt8 {
+    kEFComparisonResultLessThan,
+    kEFComparisonResultEqualTo,
+    kEFComparisonResultGreaterThan,
+} EFComparisonResult;
+
 /* special types */
 typedef unsigned long EFTypeID;
 typedef void *EFObjectRef;      /* so the compiler shuts up */
