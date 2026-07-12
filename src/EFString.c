@@ -666,10 +666,48 @@ EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef,
     return __EFStringCreateCopy(allocatorRef, stringRef, false);
 }
 
+EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef,
+                                        EFStringRef stringRef,
+                                        EFRange range)
+{
+    EFString string = (EFString)stringRef;
+    if(string == NULL || ((string->length - range.location) - range.location) < 0)
+    {
+        return NULL;
+    }
+    
+    if(allocatorRef == NULL)
+    {
+        /* falling back to the same allocator used to allocate the source x3 */
+        allocatorRef = EFGetAllocator(stringRef);
+    }
+
+    return __EFStringCreate(allocatorRef, (const UInt8*)(string->buffer + range.location), range.length, string->encoding, true, false);
+}
+
 EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef,
                                              EFStringRef stringRef)
 {
     return __EFStringCreateCopy(allocatorRef, stringRef, true);
+}
+
+EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRef,
+                                                      EFStringRef stringRef,
+                                                      EFRange range)
+{
+    EFString string = (EFString)stringRef;
+    if(string == NULL || ((string->length - range.location) - range.location) < 0)
+    {
+        return NULL;
+    }
+    
+    if(allocatorRef == NULL)
+    {
+        /* falling back to the same allocator used to allocate the source x3 */
+        allocatorRef = EFGetAllocator(stringRef);
+    }
+
+    return __EFStringCreate(allocatorRef, (const UInt8*)(string->buffer + range.location), range.length, string->encoding, true, true);
 }
 
 const char *EFStringGetCStringPtr(EFStringRef stringRef,

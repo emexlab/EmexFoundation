@@ -76,7 +76,9 @@ EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const c
 EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);
 EFStringRef EFStringCreateWithFormat(EFAllocatorRef allocatorRef, EFStringRef format, ...);
 EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
+EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
 EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
+EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
 
 EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFStringEncoding encoding);
 EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef, EFDataRef dataRef, EFStringEncoding encoding);
