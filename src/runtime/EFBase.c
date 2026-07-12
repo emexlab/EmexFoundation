@@ -32,6 +32,11 @@
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFString.h>
 
+EFRange EFRangeZero = {
+    .location = 0,
+    .length = 0,
+};
+
 static _Atomic(EFClass *) ev_class_table[EF_MAX_CLASSES];
 static _Atomic(uint64_t) ev_class_next = 1;
 

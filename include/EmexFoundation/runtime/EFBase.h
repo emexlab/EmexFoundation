@@ -81,4 +81,6 @@ static inline EFRange EFRangeMake(EFIndex location,
     };
 }
 
+extern EFRange EFRangeZero;
+
 #endif /* EFBASE_H */
