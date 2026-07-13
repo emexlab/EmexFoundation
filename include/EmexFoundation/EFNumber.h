@@ -32,6 +32,10 @@ typedef enum: UInt8 {
     kEFNumberTypeSInt16,
     kEFNumberTypeSInt32,
     kEFNumberTypeSInt64,
+    kEFNumberTypeUInt8,
+    kEFNumberTypeUInt16,
+    kEFNumberTypeUInt32,
+    kEFNumberTypeUInt64,
 } EFNumberType;
 
 typedef struct __EVNumber *EFNumberRef;

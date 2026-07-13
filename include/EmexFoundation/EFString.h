@@ -33,6 +33,7 @@
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/EFData.h>
+#include <EmexFoundation/EFNumber.h>
 
 typedef enum: UInt8 {
     kEFStringEncodingUTF7,
@@ -98,5 +99,8 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
 Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
 Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
+
+Boolean EFStringIsNumber(EFStringRef stringRef);
+EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
 
 #endif /* EFSTRING_H */

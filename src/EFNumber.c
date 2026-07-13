@@ -32,38 +32,13 @@
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFNumber.h>
 
+typedef __int128_t SInt128;
+
 typedef struct __EVNumber {
     EFObject header;
     EFNumberType type;
-    union {
-        int8_t s8;
-        int16_t s16;
-        int32_t s32;
-        int64_t s64;
-    };
+    SInt128 s128;
 } *__EVNumber;
-
-static int64_t __EFNumberGetSInt64Value(__EVNumber number)
-{
-    if(number == NULL)
-    {
-        return 0;
-    }
-    
-    switch(number->type)
-    {
-        case kEFNumberTypeSInt8:
-            return (int64_t)number->s8;
-        case kEFNumberTypeSInt16:
-            return(int64_t)number->s16;
-        case kEFNumberTypeSInt32:
-            return(int64_t)number->s32;
-        case kEFNumberTypeSInt64:
-            return(int64_t)number->s64;
-        default:
-            return 0;
-    }
-}
 
 static Boolean __EFNumberEqual(EFObjectRef ref1,
                                EFObjectRef ref2)
@@ -78,19 +53,7 @@ static Boolean __EFNumberEqual(EFObjectRef ref1,
     }
 
     /* comparing the number it self */
-    switch(a->type)
-    {
-        case kEFNumberTypeSInt8:
-            return a->s8 == b->s8;
-        case kEFNumberTypeSInt16:
-            return a->s16 == b->s16;
-        case kEFNumberTypeSInt32:
-            return a->s32 == b->s32;
-        case kEFNumberTypeSInt64:
-            return a->s64 == b->s64;
-        default:
-            return false;
-    }
+    return a->s128 == b->s128;
 }
 
 static EFClass EFNumberClass = {
@@ -132,22 +95,36 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
     switch(type)
     {
         case kEFNumberTypeSInt8:
-            num->s8  = *(const int8_t *)value;
+            num->s128 = (SInt128)*(const SInt8 *)value;
             break;
         case kEFNumberTypeSInt16:
-            num->s16 = *(const int16_t *)value;
+            num->s128 = (SInt128)*(const SInt16 *)value;
             break;
         case kEFNumberTypeSInt32:
-            num->s32 = *(const int32_t *)value;
+            num->s128 = (SInt128)*(const SInt32 *)value;
             break;
         case kEFNumberTypeSInt64:
-            num->s64 = *(const int64_t *)value;
+            num->s128 = (SInt128)*(const SInt64 *)value;
+            break;
+        case kEFNumberTypeUInt8:
+            num->s128 =(SInt128)*(const UInt8 *)value;
+            break;
+        case kEFNumberTypeUInt16:
+            num->s128 = (SInt128)*(const UInt16 *)value;
+            break;
+        case kEFNumberTypeUInt32:
+            num->s128 = (SInt128)*(const UInt32 *)value;
+            break;
+        case kEFNumberTypeUInt64:
+            num->s128 = (SInt128)*(const UInt64 *)value;
             break;
         default:
             /* possibly bad type */
             EFRelease(num);
             return NULL;
     }
+
+    num->type = type;
 
     return num;
 }
@@ -163,13 +140,17 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
-            return sizeof(UInt8);
+        case kEFNumberTypeUInt8:
+            return sizeof(SInt8);
         case kEFNumberTypeSInt16:
-            return sizeof(uint16_t);
+        case kEFNumberTypeUInt16:
+            return sizeof(SInt16);
         case kEFNumberTypeSInt32:
-            return sizeof(uint32_t);
+        case kEFNumberTypeUInt32:
+            return sizeof(SInt32);
         case kEFNumberTypeSInt64:
-            return sizeof(uint64_t);
+        case kEFNumberTypeUInt64:
+            return sizeof(SInt64);
         default:
             return 0;
     }
@@ -199,16 +180,28 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
     switch(num->type)
     {
         case kEFNumberTypeSInt8:
-            *(int8_t *)value = (UInt8)__EFNumberGetSInt64Value(num);
+            *(SInt8 *)value = (SInt8)num->s128;
             return true;
         case kEFNumberTypeSInt16:
-            *(int16_t *)value = (uint16_t)__EFNumberGetSInt64Value(num);
+            *(SInt16 *)value = (SInt16)num->s128;
             return true;
         case kEFNumberTypeSInt32:
-            *(int32_t *)value = (uint32_t)__EFNumberGetSInt64Value(num);
+            *(SInt32 *)value = (SInt32)num->s128;
             return true;
         case kEFNumberTypeSInt64:
-            *(int64_t *)value = (uint64_t)__EFNumberGetSInt64Value(num);
+            *(SInt64 *)value = (SInt64)num->s128;
+            return true;
+        case kEFNumberTypeUInt8:
+            *(UInt8 *)value = (UInt8)num->s128;
+            return true;
+        case kEFNumberTypeUInt16:
+            *(UInt16 *)value = (UInt16)num->s128;
+            return true;
+        case kEFNumberTypeUInt32:
+            *(UInt32 *)value = (UInt32)num->s128;
+            return true;
+        case kEFNumberTypeUInt64:
+            *(UInt64 *)value = (UInt64)num->s128;
             return true;
         default:
             return false;
@@ -227,8 +220,5 @@ EFComparisonResult EFNumberCompare(EFNumberRef numberRef,
         return kEFComparisonResultEqualTo;
     }
 
-    int64_t int1 = __EFNumberGetSInt64Value(num);
-    int64_t int2 = __EFNumberGetSInt64Value(otherNum);
-
-    return (int1 == int2) ? kEFComparisonResultEqualTo : (int1 > int2) ? kEFComparisonResultGreaterThan : kEFComparisonResultLessThan;
+    return (num->s128 == otherNum->s128) ? kEFComparisonResultEqualTo : (num->s128 > otherNum->s128) ? kEFComparisonResultGreaterThan : kEFComparisonResultLessThan;
 }

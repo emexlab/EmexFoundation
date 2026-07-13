@@ -22,6 +22,8 @@
 /* ----------------------------------------------------------------------
  *  System Headers
  * -------------------------------------------------------------------- */
+#include <errno.h>
+#include <setjmp.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -1134,4 +1136,217 @@ Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef,
     Boolean success = EFStringAppendString(mutableStringRef, resultRef);
     EFRelease(resultRef);   /* release regardless of succession */
     return success;
+}
+
+static _Thread_local jmp_buf OverflowJmpBuf;
+
+static Boolean __EFStringExtractNumberParseBase(const char *digits,
+                                                EFIndex base,
+                                                UInt64 *num)
+{
+    errno = 0;
+    UInt64 v = strtoull(digits, NULL, base);
+    if(errno == ERANGE)
+    {
+        return false;
+    }
+    if(num != NULL)
+    {
+        *num = v;
+    }
+    return true;
+}
+
+static Boolean __EFStringExtractNumberHexadecimal(const char *line,
+                                                  UInt64 *num)
+{
+    /* checking if user specified it as type hexadecimal  */
+    if(line[0] != '0' || (line[1] != 'x' && line[1] != 'X')) return false;
+
+    /* next check is to make sure if the string really is a hexadecimal  */
+    for(UInt64 i = 2;; i++)
+    {
+        if(line[i] == '\0')
+        {
+            if(!__EFStringExtractNumberParseBase(line + 2, 16, num))
+            {
+                longjmp(OverflowJmpBuf, 1);
+            }
+            return true;
+        }
+
+        if((line[i] < '0' || line[i] > '9') &&
+           (line[i] < 'a' || line[i] > 'f') &&
+           (line[i] < 'A' || line[i] > 'F'))
+        {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+static Boolean __EFStringExtractNumberBinary(const char *line,
+                                             UInt64 *num)
+{
+    /* checking if used specified it as a type binary */
+    if(line[0] != '0' || (line[1] != 'b' && line[1] != 'B')) return false;
+
+    /* checking if rest of the string complies to a binary */
+    for(UInt64 i = 2;; i++)
+    {
+        if(line[i] == '\0')
+        {
+            if(!__EFStringExtractNumberParseBase(line + 2, 2, num))
+            {
+                longjmp(OverflowJmpBuf, 1);
+            }
+            return true;
+        }
+
+        if(line[i] < '0' || line[i] > '1')
+        {
+            return false;
+        }
+    }
+
+    return false;
+}
+
+static Boolean __EFStringExtractNumberDecimal(const char *line,
+                                              UInt64 *num)
+{
+    /* checking if string complies to a decimal */
+    for(UInt64 i = 0;; i++)
+    {
+        if(line[i] == '\0')
+        {
+            if(!__EFStringExtractNumberParseBase(line, 10, num))
+            {
+                longjmp(OverflowJmpBuf, 1);
+            }
+            return true;
+        }
+
+        if(line[i] < '0' || line[i] > '9')
+        {
+            return false;
+        }
+    }
+
+    // If it passed all its a hexadecimal string
+    return false;
+}
+
+static Boolean __EFStringExtractNumberCharacter(const char *line,
+                                                UInt64 *num)
+{
+    /* checking if this is a string */
+    if(line[0] != '\'' || line[2] == '\0')
+    {
+        return false;
+    }
+
+    /* finding closed quote */
+    size_t len = strlen(line);
+    if(len < 3 || line[len - 1] != '\'')
+    {
+        return false;
+    }
+
+    char c;
+
+    /* checking if user specified it as normal or special character */
+    if(line[1] == '\\')
+    {
+        switch(line[2])
+        {
+            case 'n': c = '\n'; break;
+            case 't': c = '\t'; break;
+            case 'r': c = '\r'; break;
+            case 'b': c = '\b'; break;
+            case '0': c = '\0'; break;
+            case '\\': c = '\\'; break;
+            case '\'': c = '\''; break;
+            default: return false;
+        }
+    }
+    else
+    {
+        if(len != 3)
+        {
+            /* uhm whats up?! */
+            return false;
+        }
+        c = line[1];
+    }
+
+    if(num != NULL)
+    {
+        *num = (UInt64)c;
+    }
+
+    return true;
+}
+
+Boolean EFStringIsNumber(EFStringRef stringRef)
+{
+    __EFString string = (__EFString)stringRef;
+    if(string == NULL)
+    {
+        return false;
+    }
+
+    const char *ptr = EFStringGetCStringPtr(stringRef, kEFStringEncodingASCII);
+    if(ptr == NULL || setjmp(OverflowJmpBuf) != 0)
+    {
+        return false;
+    }
+
+    UInt64 num = 0;
+    if(__EFStringExtractNumberHexadecimal(ptr, &num) ||
+       __EFStringExtractNumberBinary(ptr, &num) ||
+       __EFStringExtractNumberDecimal(ptr, &num) ||
+       __EFStringExtractNumberCharacter(ptr, &num))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
+                               EFStringRef stringRef)
+{
+    __EFString string = (__EFString)stringRef;
+    if(string == NULL)
+    {
+        return NULL;
+    }
+
+    const char *ptr = EFStringGetCStringPtr(stringRef, kEFStringEncodingASCII);
+    if(ptr == NULL || setjmp(OverflowJmpBuf) != 0)
+    {
+        return NULL;
+    }
+
+    UInt64 num = 0;
+    if(__EFStringExtractNumberHexadecimal(ptr, &num) ||
+       __EFStringExtractNumberBinary(ptr, &num) ||
+       __EFStringExtractNumberDecimal(ptr, &num) ||
+       __EFStringExtractNumberCharacter(ptr, &num))
+    {
+        if(num <= SINT64_MAX)
+        {
+            SInt64 snum = (SInt64)num;
+            return EFNumberCreate(allocator, kEFNumberTypeSInt64, &snum);
+        }
+        else
+        {
+            return EFNumberCreate(allocator, kEFNumberTypeUInt64, &num);
+        }
+
+    }
+
+    return NULL;
 }
