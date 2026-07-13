@@ -100,7 +100,13 @@ Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
 Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
 Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
 
-Boolean EFStringIsNumber(EFStringRef stringRef);
+typedef enum EFStringConvertibility: UInt8 {
+    kEFStringConvertibilityTooLong,
+    kEFStringConvertibilityNormal,
+    kEFStringConvertibilityNotNumber,
+} EFStringConvertibility;
+
+EFStringConvertibility EFStringIsNumber(EFStringRef stringRef);
 EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
 
 #endif /* EFSTRING_H */

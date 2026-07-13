@@ -1289,18 +1289,23 @@ static Boolean __EFStringExtractNumberCharacter(const char *line,
     return true;
 }
 
-Boolean EFStringIsNumber(EFStringRef stringRef)
+EFStringConvertibility EFStringIsNumber(EFStringRef stringRef)
 {
     __EFString string = (__EFString)stringRef;
     if(string == NULL)
     {
-        return false;
+        return kEFStringConvertibilityNotNumber;
     }
 
     const char *ptr = EFStringGetCStringPtr(stringRef, kEFStringEncodingASCII);
-    if(ptr == NULL || setjmp(OverflowJmpBuf) != 0)
+    if(ptr == NULL)
     {
-        return false;
+        return kEFStringConvertibilityNotNumber;
+    }
+
+    if(setjmp(OverflowJmpBuf) != 0)
+    {
+        return kEFStringConvertibilityTooLong;
     }
 
     UInt64 num = 0;
@@ -1309,10 +1314,10 @@ Boolean EFStringIsNumber(EFStringRef stringRef)
        __EFStringExtractNumberDecimal(ptr, &num) ||
        __EFStringExtractNumberCharacter(ptr, &num))
     {
-        return true;
+        return kEFStringConvertibilityNormal;
     }
 
-    return false;
+    return kEFStringConvertibilityNotNumber;
 }
 
 EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
@@ -1345,7 +1350,6 @@ EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
         {
             return EFNumberCreate(allocator, kEFNumberTypeUInt64, &num);
         }
-
     }
 
     return NULL;
