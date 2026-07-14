@@ -28,6 +28,9 @@
 #include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef enum: UInt8 {
+    kEFNumberTypeOverflow,  /* so that other APIs can indicate that as a error */
+
+    /* normal integer types */
     kEFNumberTypeSInt8,
     kEFNumberTypeSInt16,
     kEFNumberTypeSInt32,

@@ -677,7 +677,7 @@ EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef,
     {
         return NULL;
     }
-    
+
     if(allocatorRef == NULL)
     {
         /* falling back to the same allocator used to allocate the source x3 */
@@ -702,7 +702,7 @@ EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRe
     {
         return NULL;
     }
-    
+
     if(allocatorRef == NULL)
     {
         /* falling back to the same allocator used to allocate the source x3 */
@@ -1234,7 +1234,7 @@ static Boolean __EFStringExtractNumberDecimal(const char *line,
         }
     }
 
-    // If it passed all its a hexadecimal string
+    /* if it passed all its a hexadecimal string */
     return false;
 }
 
@@ -1289,23 +1289,23 @@ static Boolean __EFStringExtractNumberCharacter(const char *line,
     return true;
 }
 
-EFStringConvertibility EFStringIsNumber(EFStringRef stringRef)
+Boolean EFStringIsNumber(EFStringRef stringRef)
 {
     __EFString string = (__EFString)stringRef;
     if(string == NULL)
     {
-        return kEFStringConvertibilityNotNumber;
+        return false;
     }
 
     const char *ptr = EFStringGetCStringPtr(stringRef, kEFStringEncodingASCII);
     if(ptr == NULL)
     {
-        return kEFStringConvertibilityNotNumber;
+        return false;
     }
 
     if(setjmp(OverflowJmpBuf) != 0)
     {
-        return kEFStringConvertibilityTooLong;
+        return true;
     }
 
     UInt64 num = 0;
@@ -1314,10 +1314,10 @@ EFStringConvertibility EFStringIsNumber(EFStringRef stringRef)
        __EFStringExtractNumberDecimal(ptr, &num) ||
        __EFStringExtractNumberCharacter(ptr, &num))
     {
-        return kEFStringConvertibilityNormal;
+        return true;
     }
 
-    return kEFStringConvertibilityNotNumber;
+    return false;
 }
 
 EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
@@ -1332,7 +1332,7 @@ EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
     const char *ptr = EFStringGetCStringPtr(stringRef, kEFStringEncodingASCII);
     if(ptr == NULL || setjmp(OverflowJmpBuf) != 0)
     {
-        return NULL;
+        return EFNumberCreate(allocator, kEFNumberTypeOverflow, NULL);
     }
 
     UInt64 num = 0;

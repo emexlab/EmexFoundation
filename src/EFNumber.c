@@ -31,6 +31,7 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFNumber.h>
+#include <EmexFoundation/EFString.h>
 
 typedef __int128_t SInt128;
 
@@ -45,7 +46,7 @@ static Boolean __EFNumberEqual(EFObjectRef ref1,
 {
     __EVNumber a = (__EVNumber)ref1;
     __EVNumber b = (__EVNumber)ref2;
-    
+
     if(a->type != b->type)
     {
         /* not the same type of number =3 */
@@ -56,13 +57,43 @@ static Boolean __EFNumberEqual(EFObjectRef ref1,
     return a->s128 == b->s128;
 }
 
+
+static EFStringRef __EFNumberCopyDescription(EFObjectRef numberRef)
+{
+    /* since it is not a string we need to still somehow display it lol */
+    __EVNumber number = (__EVNumber)numberRef;
+    switch(number->type)
+    {
+        case kEFNumberTypeOverflow:
+            return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("overflown"));
+        case kEFNumberTypeUInt8:
+        case kEFNumberTypeUInt16:
+        case kEFNumberTypeUInt32:
+        case kEFNumberTypeUInt64:
+        case kEFNumberTypeSInt8:
+        case kEFNumberTypeSInt16:
+        case kEFNumberTypeSInt32:
+        case kEFNumberTypeSInt64:
+            if(number->s128 > SINT64_MAX)
+            {
+                return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("%llu"), (UInt64)number->s128);
+            }
+            else
+            {
+                return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("%lld"), (SInt64)number->s128);
+            }
+        default:
+            return NULL;
+    }
+}
+
 static EFClass EFNumberClass = {
     .name = "EFNumber",
     .typeID = kEFNotATypeID,
     .init = NULL,
     .deinit = NULL,
     .equal = __EFNumberEqual,
-    .copyDescription = NULL,
+    .copyDescription = __EFNumberCopyDescription,
 };
 
 static void EFNumberRegisterClass(void)
@@ -81,7 +112,7 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
                            EFNumberType type,
                            const void *value)
 {
-    if(value == NULL)
+    if(value == NULL && type != kEFNumberTypeOverflow)
     {
         return NULL;
     }
@@ -94,6 +125,9 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
 
     switch(type)
     {
+        case kEFNumberTypeOverflow:
+            /* as a error marker */
+            break;
         case kEFNumberTypeSInt8:
             num->s128 = (SInt128)*(const SInt8 *)value;
             break;
@@ -139,6 +173,8 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
     __EVNumber num = (__EVNumber)numberRef;
     switch(num->type)
     {
+        case kEFNumberTypeOverflow:
+            return 0;
         case kEFNumberTypeSInt8:
         case kEFNumberTypeUInt8:
             return sizeof(SInt8);
@@ -160,7 +196,7 @@ EFNumberType EFNumberGetType(EFNumberRef numberRef)
 {
     if(numberRef == NULL)
     {
-        return kEFNumberTypeSInt8;
+        return kEFNumberTypeOverflow;
     }
 
     __EVNumber num = (__EVNumber)numberRef;
@@ -179,6 +215,8 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
     __EVNumber num = (__EVNumber)numberRef;
     switch(num->type)
     {
+        case kEFNumberTypeOverflow:
+            return false;
         case kEFNumberTypeSInt8:
             *(SInt8 *)value = (SInt8)num->s128;
             return true;
@@ -214,7 +252,7 @@ EFComparisonResult EFNumberCompare(EFNumberRef numberRef,
     __EVNumber num = (__EVNumber)numberRef;
     __EVNumber otherNum = (__EVNumber)otherNumberRef;
 
-    if(num == NULL || otherNum == NULL)
+    if(num == NULL || otherNum == NULL || num->type == kEFNumberTypeOverflow || otherNum->type == kEFNumberTypeOverflow)
     {
         /* nothing to compare */
         return kEFComparisonResultEqualTo;
