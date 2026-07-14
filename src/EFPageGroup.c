@@ -49,7 +49,7 @@ static EFStringRef __EFPageGroupCopyDescription(EFObjectRef groupRef)
     __EFPageGroup group = (__EFPageGroup)groupRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(groupRef);
     EFClass *cls = EFClassGetByID(group->header.typeID);
-    return EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{pagesArray = %@, length = %zu}"), cls->name, groupRef, group->pagesArrayRef, EFPageGroupGetLength(groupRef));
+    return EFStringCreateWithFormat(allocatorRef, EFSTR("<%s %p>{pagesArray = %@, length = %zu}"), cls->name, groupRef, group->pagesArrayRef, EFPageGroupGetLength(groupRef));
 }
 
 static EFClass EFPageGroupClass = {

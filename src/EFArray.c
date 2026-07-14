@@ -71,7 +71,7 @@ static Boolean __EFArrayEqualObjectCallback(void *ptr1,
 static EFStringRef __EFArrayCopyDescriptionObjectCallback(EFAllocatorRef allocatorRef,
                                                           void *ptr)
 {
-    return EFStringCreateWithFormat(allocatorRef, EF_STR("%@"), (EFObjectRef)ptr);
+    return EFStringCreateWithFormat(allocatorRef, EFSTR("%@"), (EFObjectRef)ptr);
 }
 
 EFArrayCallbacks kEFArrayCallbacksObjectCallbacks = &(struct EFArrayCallbacks){
@@ -129,7 +129,7 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
     EFClass *cls = EFClassGetByID(array->header.typeID);
 
-    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
+    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
     if(baseStringRef == NULL)
     {
         return NULL;
@@ -146,7 +146,7 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
     {
         if(index > 0)
         {
-            if(!EFStringAppendString(mutableStringRef, EF_STR(", ")))
+            if(!EFStringAppendString(mutableStringRef, EFSTR(", ")))
             {
                 EFRelease(mutableStringRef);
                 return NULL;
@@ -162,7 +162,7 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
 
         if(stringRef == NULL)
         {
-            stringRef = EFStringCreateWithFormat(allocatorRef, EF_STR("%p"), ptr);
+            stringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("%p"), ptr);
         }
 
         if(stringRef == NULL)
@@ -180,10 +180,10 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
         }
     }
 
-    if(!EFStringAppendString(mutableStringRef, EF_STR("}}")))
+    if(!EFStringAppendString(mutableStringRef, EFSTR("}}")))
     {
         EFRelease(mutableStringRef);
-        return NULL;   
+        return NULL;
     }
 
     return mutableStringRef;

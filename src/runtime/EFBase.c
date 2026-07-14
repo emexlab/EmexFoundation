@@ -162,13 +162,13 @@ EFStringRef EFCopyDescription(EFObjectRef ref)
     EFObject *object = (EFObject*)ref;
     if(object == NULL)
     {
-        return EF_STR("<nil>");
+        return EFSTR("<nil>");
     }
 
     EFClass *cls = EFClassGetByID(object->typeID);
     if(cls == NULL)
     {
-        return EF_STR("<nil>");
+        return EFSTR("<nil>");
     }
 
     if(cls->copyDescription)
@@ -180,10 +180,10 @@ EFStringRef EFCopyDescription(EFObjectRef ref)
         }
     }
 
-    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocatorRef, EF_STR("<%s %p>"), cls->name, ref);
+    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocatorRef, EFSTR("<%s %p>"), cls->name, ref);
     if(descriptionFallbackRef == NULL)
     {
-        return EF_STR("<nil>");
+        return EFSTR("<nil>");
     }
 
     return descriptionFallbackRef;

@@ -53,19 +53,19 @@ static EFStringRef __EFDataCopyDescription(EFObjectRef dataRef)
 {
     __EFData data = (__EFData)dataRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(dataRef);
-    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EF_STR("<"));
+    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EFSTR("<"));
     if(mutableStringRef == NULL)
     {
         return NULL;
     }
 
-    if(!EFStringAppendString(mutableStringRef, data->isMutable ? EF_STR("EFMutableData") : EF_STR("EFData")))
+    if(!EFStringAppendString(mutableStringRef, data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData")))
     {
         EFRelease(mutableStringRef);
         return NULL;
     }
 
-    if(!EFStringAppendFormat(mutableStringRef, EF_STR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
+    if(!EFStringAppendFormat(mutableStringRef, EFSTR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
     {
         EFRelease(mutableStringRef);
         return NULL;

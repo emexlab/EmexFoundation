@@ -53,9 +53,9 @@ typedef struct __EFString {
     EFIndex length;
 } *__EFString;
 
-#define EF_STR(cStr) EF_STR_ENC(cStr, kEFStringEncodingUTF8)
+#define EFSTR(cStr) EFSTR_ENC(cStr, kEFStringEncodingUTF8)
 
-#define EF_STR_ENC(cStr, enc) (__extension__ ({ \
+#define EFSTR_ENC(cStr, enc) (__extension__ ({ \
     static struct __EFString _evk = { \
         .encoding = (enc), \
         .isMutable = false, \
@@ -67,6 +67,10 @@ typedef struct __EFString {
     _evk.header.typeID = EFStringGetTypeID(), \
     (EFStringRef)&_evk; \
 }))
+
+#define EF_STR(cStr) _Pragma("GCC warning \"EF_STR is deprecated, use EFSTR instead\"") EFSTR(cStr)
+
+#define EF_STR_ENC(cStr, enc) _Pragma("GCC warning \"EF_STR_ENC is deprecated, use EFSTR_ENC instead\"") EFSTR_ENC(cStr, (enc))
 
 EFTypeID EFStringGetTypeID(void);
 

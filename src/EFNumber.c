@@ -65,7 +65,7 @@ static EFStringRef __EFNumberCopyDescription(EFObjectRef numberRef)
     switch(number->type)
     {
         case kEFNumberTypeOverflow:
-            return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("overflown"));
+            return EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("overflown"));
         case kEFNumberTypeUInt8:
         case kEFNumberTypeUInt16:
         case kEFNumberTypeUInt32:
@@ -76,11 +76,11 @@ static EFStringRef __EFNumberCopyDescription(EFObjectRef numberRef)
         case kEFNumberTypeSInt64:
             if(number->s128 > SINT64_MAX)
             {
-                return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("%llu"), (UInt64)number->s128);
+                return EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("%llu"), (UInt64)number->s128);
             }
             else
             {
-                return EFStringCreateWithFormat(kEFAllocatorDefault, EF_STR("%lld"), (SInt64)number->s128);
+                return EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("%lld"), (SInt64)number->s128);
             }
         default:
             return NULL;
