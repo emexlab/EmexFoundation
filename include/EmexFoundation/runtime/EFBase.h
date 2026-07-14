@@ -118,11 +118,11 @@ typedef void *EFAllocatorRef;
 
 typedef struct __EFString *EFStringRef;
 
-typedef void (*evobject_init_handler_t)(EFObjectRef ref);
-typedef void (*evobject_deinit_handler_t)(EFObjectRef ref);
-typedef EFObjectRef (*evobject_copy_handler_t)(EFObjectRef ref);
-typedef Boolean (*evobject_equal_handler_t)(EFObjectRef ref1, EFObjectRef ref2);
-typedef EFStringRef (*evobject_copy_description_handler_t)(EFObjectRef ref);
+typedef void (*EFObjectInitCallback)(EFObjectRef ref);
+typedef void (*EFObjectDeinitCallback)(EFObjectRef ref);
+typedef Boolean (*EFObjectEqualCallback)(EFObjectRef ref1, EFObjectRef ref2);
+typedef EFStringRef (*EFObjectCopyDescriptionCallback)(EFObjectRef ref);
+typedef EFHashCode (*EFObjectHashCallback)(EFObjectRef ref);
 
 typedef EFObjectRef (*evallocator_alloc_handler_t)(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
 typedef void (*evallocator_dealloc_handler_t)(EFAllocatorRef allocatorRef, EFObjectRef ref);

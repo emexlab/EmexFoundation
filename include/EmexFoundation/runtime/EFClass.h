@@ -35,10 +35,11 @@ typedef struct {
     EFTypeID typeID;
 
     /* handlers */
-    evobject_init_handler_t init;
-    evobject_deinit_handler_t deinit;
-    evobject_equal_handler_t equal;
-    evobject_copy_description_handler_t copyDescription;
+    EFObjectInitCallback init;
+    EFObjectDeinitCallback deinit;
+    EFObjectEqualCallback equal;
+    EFObjectCopyDescriptionCallback copyDescription;
+    EFObjectHashCallback hash;
 } EFClass;
 
 #endif /* EFCLASS_H */
