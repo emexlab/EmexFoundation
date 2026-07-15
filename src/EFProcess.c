@@ -26,8 +26,11 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <sys/sysctl.h>
 #include <string.h>
+#include <sys/sysctl.h>
+#ifdef __FreeBSD__
+#include <sys/user.h>
+#endif /* __FreeBSD__ */
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -104,24 +107,54 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    /* need it's bsd information (please be portable, otherwise I cry, I don't know if Linux and FreeBSD have those MIB's bwaa) */
     EFMutableArrayRef mutableArguments = NULL;
     EFStringRef executablePath = NULL;
-    int procMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, processIdentifier };
-    int argMaxMib[2] = { CTL_KERN, KERN_ARGMAX };
-    int argsMib[3] = { CTL_KERN, KERN_PROCARGS2, processIdentifier };
+    EFStringRef commandRef = NULL;
+    EFArrayRef arguments = NULL;
 
-    /* the main informations */
+    SInt32 pid = 0;
+    SInt32 ppid = 0;
+    SInt32 uid = 0;
+    SInt32 gid = 0;
+
+    char const *commandCString = NULL;
+
+#ifdef __APPLE__
+    int procMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, processIdentifier };
     struct kinfo_proc proc;
     size_t oldlen = sizeof(struct kinfo_proc);
     if(sysctl(procMib, 4, &proc, &oldlen, NULL, 0) != 0)
     {
         return NULL;
     }
+    pid = proc.kp_proc.p_pid;
+    ppid = proc.kp_eproc.e_ppid;
+    uid = proc.kp_eproc.e_ucred.cr_uid;
+    gid = proc.kp_eproc.e_ucred.cr_gid;
+    commandCString = proc.kp_proc.p_comm;
+#elifdef __FreeBSD__
+    int procMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, processIdentifier };
+    struct kinfo_proc proc;
+    size_t oldlen = sizeof(struct kinfo_proc);
+    if(sysctl(procMib, 4, &proc, &oldlen, NULL, 0) != 0)
+    {
+        return NULL;
+    }
+    pid = proc.ki_pid;
+    ppid = proc.ki_ppid;
+    uid = proc.ki_uid;
+    gid = proc.ki_groups[0];
+    commandCString = proc.ki_comm;
+#else
+#error "EFProcess is not supported"
+#endif /* __APPLE__ || __FreeBSD__ */
 
-    size_t size = 0;
+#ifdef __APPLE__
+    int argMaxMib[2] = { CTL_KERN, KERN_ARGMAX };
+    int argsMib[3] = { CTL_KERN, KERN_PROCARGS2, processIdentifier };
+
     int argMax = 0;
-    size = sizeof(argMax);
+    size_t size = sizeof(argMax);
     if(sysctl(argMaxMib, 2, &argMax, &size, NULL, 0) != 0)
     {
         return NULL;
@@ -214,68 +247,111 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                 return NULL;
             }
         }
-
         cp += strlen(cp) + 1;
         arg_count++;
     }
     free(procArgs);
-
-skip_arg_copy:
+#elifdef __FreeBSD__
+    int pathMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, processIdentifier };
+    char pathBuf[1024];
+    size_t pathLen = sizeof(pathBuf);
+    if(sysctl(pathMib, 4, pathBuf, &pathLen, NULL, 0) == 0 && pathLen > 0)
     {
-        /* the command is already part of the KERN_PROC_PID thingy */
-        EFStringRef commandRef = EFStringCreateWithCString(allocatorRef, proc.kp_proc.p_comm, kEFStringEncodingUTF8);
-        if(commandRef == NULL)
-        {
-            if(executablePath != NULL)
-            {
-                    EFRelease(executablePath);
-            }
-            return NULL;
-        }
+        executablePath = EFStringCreateWithCString(allocatorRef, pathBuf, kEFStringEncodingUTF8);
+    }
 
-        EFArrayRef arguments = NULL;
+    int argsMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_ARGS, processIdentifier };
+    size_t argsSize = 0;
+
+    if(sysctl(argsMib, 4, NULL, &argsSize, NULL, 0) == 0 && argsSize > 0)
+    {
+        char *argsBuf = malloc(argsSize);
+        if(argsBuf != NULL)
+        {
+            if(sysctl(argsMib, 4, argsBuf, &argsSize, NULL, 0) == 0)
+            {
+                mutableArguments = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, 0);
+                if(mutableArguments != NULL)
+                {
+                    char *cp = argsBuf;
+                    char *end = argsBuf + argsSize;
+                    if(cp < end)
+                    {
+                        cp += strlen(cp) + 1;
+                    }
+                    while(cp < end && *cp != '\0')
+                    {
+                        EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
+                        if(argument != NULL)
+                        {
+                            EFArrayAppendValue(mutableArguments, argument);
+                            EFRelease(argument);
+                        }
+                        cp += strlen(cp) + 1;
+                    }
+                }
+            }
+            free(argsBuf);
+        }
+    }
+#endif /* __APPLE__ || __FreeBSD__ */
+
+#ifdef __APPLE__
+skip_arg_copy:
+#endif /* __APPLE__ */
+    commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+    if(commandRef == NULL)
+    {
+        if(executablePath != NULL)
+        {
+            EFRelease(executablePath);
+        }
         if(mutableArguments != NULL)
         {
-            arguments = EFArrayCreateCopy(allocatorRef, mutableArguments);
             EFRelease(mutableArguments);
-            if(arguments == NULL)
-            {
-                /* this is a failure, because it usually would have been possible */
-                if(executablePath != NULL)
-                {
-                    EFRelease(executablePath);
-                }
-                EFRelease(commandRef);
-                return NULL;
-            }
         }
+        return NULL;
+    }
 
-        __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
-        if(process == NULL)
+    if(mutableArguments != NULL)
+    {
+        arguments = EFArrayCreateCopy(allocatorRef, mutableArguments);
+        EFRelease(mutableArguments);
+        if(arguments == NULL)
         {
             if(executablePath != NULL)
             {
                 EFRelease(executablePath);
             }
-            if(arguments != NULL)
-            {
-                EFRelease(arguments);
-            }
             EFRelease(commandRef);
             return NULL;
         }
-
-        /* TODO: collecting info about processes comes later  */
-        process->executablePath = executablePath;
-        process->command = commandRef;
-        process->arguments = arguments;
-        process->processIdentifier = proc.kp_proc.p_pid;
-        process->parentProcessIdentifier = proc.kp_eproc.e_ppid;
-        process->userIdentifier = proc.kp_eproc.e_ucred.cr_uid;
-        process->groupIdentifier = proc.kp_eproc.e_ucred.cr_gid;
-
-        return (EFProcessRef)process;
     }
+
+    __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
+    if(process == NULL)
+    {
+        if(executablePath != NULL)
+        {
+            EFRelease(executablePath);
+        }
+        if(arguments != NULL)
+        {
+            EFRelease(arguments);
+        }
+        EFRelease(commandRef);
+        return NULL;
+    }
+
+    process->executablePath = executablePath;
+    process->command = commandRef;
+    process->arguments = arguments;
+    process->processIdentifier = pid;
+    process->parentProcessIdentifier = ppid;
+    process->userIdentifier = uid;
+    process->groupIdentifier = gid;
+
+    return (EFProcessRef)process;
 }
 
 SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef)
