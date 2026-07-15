@@ -35,10 +35,16 @@
 
 typedef struct __EFProcess {
     EFObject header;
+
+    /* basic information */
     SInt32 processIdentifier;
     SInt32 parentProcessIdentifier;
     SInt32 userIdentifier;
     SInt32 groupIdentifier;
+
+    /* nice to have ^^ */
+    EFStringRef command;
+    EFStringRef executablePath;
     EFArrayRef arguments;
 } *__EFProcess;
 
@@ -55,7 +61,7 @@ static EFStringRef __EFProcessCopyDescription(EFObjectRef processRef)
 {
     __EFProcess process = (__EFProcess)processRef;
     EFAllocatorRef allocator = EFGetAllocator(processRef);
-    return EFStringCreateWithFormat(allocator, EFSTR("<EFProcess %p>{processIdentifier = %ld, parentProcessIdentifier = %ld, userIdentifier = %ld, groupIdentifier = %ld, arguments = %@}"), processRef, process->processIdentifier, process->parentProcessIdentifier, process->userIdentifier, process->groupIdentifier, process->arguments);
+    return EFStringCreateWithFormat(allocator, EFSTR("<EFProcess %p>{processIdentifier = %ld, parentProcessIdentifier = %ld, userIdentifier = %ld, groupIdentifier = %ld, command = %@, executablePath = %@, arguments = %@}"), processRef, process->processIdentifier, process->parentProcessIdentifier, process->userIdentifier, process->groupIdentifier, process->command, process->executablePath, process->arguments);
 }
 
 static EFClass EFProcessClass = {
@@ -95,11 +101,13 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     }
 
     /* TODO: collecting info about processes comes later  */
-    EFProcessCurrent->arguments = NULL;
-    EFProcessCurrent->processIdentifier = processIdentifier;
-    EFProcessCurrent->parentProcessIdentifier = 0;
-    EFProcessCurrent->userIdentifier = 0;
-    EFProcessCurrent->groupIdentifier = 0;
+    process->executablePath = NULL;
+    process->command = NULL;
+    process->arguments = NULL;
+    process->processIdentifier = processIdentifier;
+    process->parentProcessIdentifier = 0;
+    process->userIdentifier = 0;
+    process->groupIdentifier = 0;
 
     return (EFProcessRef)process;
 }
@@ -207,6 +215,8 @@ void EFProcessConstructor(int argc, const char *argv[])
         exit(1);
     }
 
+    EFProcessCurrent->command = NULL;
+    EFProcessCurrent->executablePath = NULL;
     EFProcessCurrent->arguments = arguments;
     EFProcessCurrent->processIdentifier = getpid();
     EFProcessCurrent->parentProcessIdentifier = getppid();

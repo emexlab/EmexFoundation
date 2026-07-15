@@ -35,6 +35,8 @@ extern EFProcessRef EFProcessCurrent;
 
 EFTypeID EFProcessGetTypeID(void);
 
+EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
+EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
 EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
 
 SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
