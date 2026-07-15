@@ -447,12 +447,83 @@ EFArrayRef EFProcessGetArguments(EFProcessRef processRef)
 EFProcessRef EFProcessCurrent;
 
 __attribute__((constructor))
-void EFProcessConstructor(void)
+void EFProcessConstructor(int argc, const char *argv[])
 {
+#if defined(__APPLE__) || defined(__FreeBSD__)
     EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
     if(EFProcessCurrent == NULL)
     {
         fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
         exit(1);
     }
+#elifdef __linux__
+    EFProcessCurrent = (__EFProcess)EFObjectAlloc(kEFAllocatorDefault, EFProcessGetTypeID(), sizeof(struct __EFProcess));
+    if(EFProcessCurrent == NULL)
+    {
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        exit(1);
+    }
+
+    EFProcessCurrent->processIdentifier = getpid();
+    EFProcessCurrent->parentProcessIdentifier = getppid();
+    EFProcessCurrent->userIdentifier = getuid();
+    EFProcessCurrent->groupIdentifier = getgid();
+
+    EFProcessCurrent->command = EFStringCreateWithCString(kEFAllocatorDefault, argv[0], kEFStringEncodingUTF8);
+    if(EFProcessCurrent->command == NULL)
+    {
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        EFRelease(EFProcessCurrent);
+        exit(1);
+    }
+
+    EFProcessCurrent->executablePath = EFRetain(EFProcessCurrent->command);
+    if(EFProcessCurrent->executablePath == NULL)
+    {
+        /* releases EFProcessCurrent->command too */
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        EFRelease(EFProcessCurrent);
+        exit(1);
+    }
+
+    EFMutableArrayRef mutableArguments = EFArrayCreateMutable(kEFAllocatorDefault, kEFArrayCallbacksObjectCallbacks, argc);
+    if(mutableArguments == NULL)
+    {
+        /* releases EFProcessCurrent->command too */
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        EFRelease(EFProcessCurrent);
+        exit(1);
+    }
+
+    for(EFIndex index = 1; index < (EFIndex)argc; index++)
+    {
+        EFStringRef argument = EFStringCreateWithCString(kEFAllocatorDefault, argv[(int)index], kEFStringEncodingUTF8);
+        if(argument == NULL)
+        {
+            fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+            EFRelease(mutableArguments);
+            EFRelease(EFProcessCurrent);
+            exit(1);
+        }
+
+        Boolean success = EFArrayAppendValue(mutableArguments, argument);
+        EFRelease(argument);
+        if(!success)
+        {
+            fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+            EFRelease(mutableArguments);
+            EFRelease(EFProcessCurrent);
+            exit(1);
+        }
+    }
+
+    EFProcessCurrent->arguments = EFArrayCreateCopy(kEFAllocatorDefault, mutableArguments);
+    EFRelease(mutableArguments);
+    if(EFProcessCurrent->arguments == NULL)
+    {
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        EFRelease(EFProcessCurrent);
+        exit(1);
+    }
+#endif /* __linux__ */
 }
