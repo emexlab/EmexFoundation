@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/sysctl.h>
+#include <string.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -51,6 +53,14 @@ typedef struct __EFProcess {
 static void __EFProcessDeinit(EFObjectRef processRef)
 {
     __EFProcess process = (__EFProcess)processRef;
+    if(process->command != NULL)
+    {
+        EFRelease(process->command);
+    }
+    if(process->executablePath != NULL)
+    {
+        EFRelease(process->executablePath);
+    }
     if(process->arguments != NULL)
     {
         EFRelease(process->arguments);
@@ -94,22 +104,178 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
-    if(process == NULL)
+    /* need it's bsd information (please be portable, otherwise I cry, I don't know if Linux and FreeBSD have those MIB's bwaa) */
+    EFMutableArrayRef mutableArguments = NULL;
+    EFStringRef executablePath = NULL;
+    int procMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, processIdentifier };
+    int argMaxMib[2] = { CTL_KERN, KERN_ARGMAX };
+    int argsMib[3] = { CTL_KERN, KERN_PROCARGS2, processIdentifier };
+
+    /* the main informations */
+    struct kinfo_proc proc;
+    size_t oldlen = sizeof(struct kinfo_proc);
+    if(sysctl(procMib, 4, &proc, &oldlen, NULL, 0) != 0)
     {
         return NULL;
     }
 
-    /* TODO: collecting info about processes comes later  */
-    process->executablePath = NULL;
-    process->command = NULL;
-    process->arguments = NULL;
-    process->processIdentifier = processIdentifier;
-    process->parentProcessIdentifier = 0;
-    process->userIdentifier = 0;
-    process->groupIdentifier = 0;
+    size_t size = 0;
+    int argMax = 0;
+    size = sizeof(argMax);
+    if(sysctl(argMaxMib, 2, &argMax, &size, NULL, 0) != 0)
+    {
+        return NULL;
+    }
 
-    return (EFProcessRef)process;
+    char *procArgs = malloc(argMax);
+    if(procArgs == NULL)
+    {
+        return NULL;
+    }
+
+    size = (size_t)argMax;
+    if(sysctl(argsMib, 3, procArgs, &size, NULL, 0) == -1)
+    {
+        free(procArgs);
+        goto skip_arg_copy;
+    }
+
+    /* now extracting the information like arguments */
+    int argc = 0;
+    memcpy(&argc, procArgs, sizeof(argc));
+    char *cp = procArgs + sizeof(argc);
+
+    /* NOTE: in this is the executable path! */
+    executablePath = EFStringCreateWithCString(kEFAllocatorDefault, cp, kEFStringEncodingUTF8);
+    for(; cp < &procArgs[size]; cp++)
+    {
+        if(*cp == '\0')
+        {
+            break;
+        }
+    }
+
+    for(; cp < &procArgs[size]; cp++)
+    {
+        if(*cp != '\0')
+        {
+            break;
+        }
+    }
+
+    if(cp >= &procArgs[size] || argc <= 0)
+    {
+        if(executablePath != NULL)
+        {
+            EFRelease(executablePath);
+        }
+        free(procArgs);
+        return NULL;
+    }
+
+    mutableArguments = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, argc);
+    if(mutableArguments == NULL)
+    {
+        if(executablePath != NULL)
+        {
+            EFRelease(executablePath);
+        }
+        free(procArgs);
+        return NULL;
+    }
+
+    int arg_count = 0;
+    while(arg_count < argc && cp < &procArgs[size])
+    {
+        if(arg_count > 0)
+        {
+            EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
+            if(argument == NULL)
+            {
+                EFRelease(mutableArguments);
+                if(executablePath != NULL)
+                {
+                    EFRelease(executablePath);
+                }
+                free(procArgs);
+                return NULL;
+            }
+
+            Boolean success = EFArrayAppendValue(mutableArguments, argument);
+            EFRelease(argument);
+            if(!success)
+            {
+                EFRelease(mutableArguments);
+                if(executablePath != NULL)
+                {
+                    EFRelease(executablePath);
+                }
+                free(procArgs);
+                return NULL;
+            }
+        }
+
+        cp += strlen(cp) + 1;
+        arg_count++;
+    }
+    free(procArgs);
+
+skip_arg_copy:
+    {
+        /* the command is already part of the KERN_PROC_PID thingy */
+        EFStringRef commandRef = EFStringCreateWithCString(allocatorRef, proc.kp_proc.p_comm, kEFStringEncodingUTF8);
+        if(commandRef == NULL)
+        {
+            if(executablePath != NULL)
+            {
+                    EFRelease(executablePath);
+            }
+            return NULL;
+        }
+
+        EFArrayRef arguments = NULL;
+        if(mutableArguments != NULL)
+        {
+            arguments = EFArrayCreateCopy(allocatorRef, mutableArguments);
+            EFRelease(mutableArguments);
+            if(arguments == NULL)
+            {
+                /* this is a failure, because it usually would have been possible */
+                if(executablePath != NULL)
+                {
+                    EFRelease(executablePath);
+                }
+                EFRelease(commandRef);
+                return NULL;
+            }
+        }
+
+        __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
+        if(process == NULL)
+        {
+            if(executablePath != NULL)
+            {
+                EFRelease(executablePath);
+            }
+            if(arguments != NULL)
+            {
+                EFRelease(arguments);
+            }
+            EFRelease(commandRef);
+            return NULL;
+        }
+
+        /* TODO: collecting info about processes comes later  */
+        process->executablePath = executablePath;
+        process->command = commandRef;
+        process->arguments = arguments;
+        process->processIdentifier = proc.kp_proc.p_pid;
+        process->parentProcessIdentifier = proc.kp_eproc.e_ppid;
+        process->userIdentifier = proc.kp_eproc.e_ucred.cr_uid;
+        process->groupIdentifier = proc.kp_eproc.e_ucred.cr_gid;
+
+        return (EFProcessRef)process;
+    }
 }
 
 SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef)
@@ -170,56 +336,12 @@ EFArrayRef EFProcessGetArguments(EFProcessRef processRef)
 EFProcessRef EFProcessCurrent;
 
 __attribute__((constructor))
-void EFProcessConstructor(int argc, const char *argv[])
+void EFProcessConstructor(void)
 {
-    EFMutableArrayRef mutableArguments = EFArrayCreateMutable(kEFAllocatorDefault, kEFArrayCallbacksObjectCallbacks, argc);
-    if(mutableArguments == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: couldn't allocate memory for current processes argument's\n");
-        exit(1);
-    }
-
-    for(EFIndex index = 0; index < (EFIndex)argc; index++)
-    {
-        EFStringRef argument = EFStringCreateWithCString(kEFAllocatorDefault, argv[index], kEFStringEncodingUTF8);
-        if(argument == NULL)
-        {
-            fprintf(stderr, "EFProcessConstructor: couldn't allocate memory for current processes argument's\n");
-            EFRelease(mutableArguments);
-            exit(1);
-        }
-
-        Boolean success = EFArrayAppendValue(mutableArguments, argument);
-        EFRelease(argument);
-        if(!success)
-        {
-            fprintf(stderr, "EFProcessConstructor: couldn't allocate memory for current processes argument's\n");
-            EFRelease(mutableArguments);
-            exit(1);
-        }
-    }
-
-    EFArrayRef arguments = EFArrayCreateCopy(kEFAllocatorDefault, mutableArguments);
-    EFRelease(mutableArguments);
-    if(arguments == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: couldn't allocate memory for current processes argument's\n");
-        exit(1);
-    }
-
-    EFProcessCurrent = (__EFProcess)EFObjectAlloc(kEFAllocatorDefault, EFProcessGetTypeID(), sizeof(struct __EFProcess));
+    EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
     if(EFProcessCurrent == NULL)
     {
-        fprintf(stderr, "EFProcessConstructor: couldn't allocate memory for current process\n");
-        EFRelease(mutableArguments);
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
         exit(1);
     }
-
-    EFProcessCurrent->command = NULL;
-    EFProcessCurrent->executablePath = NULL;
-    EFProcessCurrent->arguments = arguments;
-    EFProcessCurrent->processIdentifier = getpid();
-    EFProcessCurrent->parentProcessIdentifier = getppid();
-    EFProcessCurrent->userIdentifier = getuid();
-    EFProcessCurrent->groupIdentifier = getgid();
 }
