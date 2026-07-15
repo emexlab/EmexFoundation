@@ -35,8 +35,8 @@ extern EFProcessRef EFProcessCurrent;
 
 EFTypeID EFProcessGetTypeID(void);
 
-EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
-EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
+EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments); /* unimplemented */
+EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);       /* unimplemented  */
 EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
 
 SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
@@ -44,6 +44,8 @@ SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 
+EFStringRef EFProcessGetCommand(EFProcessRef processRef);           /* unimplemented */
+EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);    /* unimplemented */
 EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
 
 #endif /* EFPROCESS_H */
