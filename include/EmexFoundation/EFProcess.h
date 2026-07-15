@@ -44,6 +44,13 @@ SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 
+Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);    /* unimplemented */
+Boolean EFProcessSuspend(EFProcessRef processRef);                      /* unimplemented */
+Boolean EFProcessResume(EFProcessRef processRef);                       /* unimplemented */
+Boolean EFProcessTerminate(EFProcessRef processRef);                    /* unimplemented */
+
+Boolean EFProcessIsAlive(EFProcessRef processRef);                      /* unimplemented */
+
 EFStringRef EFProcessGetCommand(EFProcessRef processRef);           /* unimplemented */
 EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);    /* unimplemented */
 EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
