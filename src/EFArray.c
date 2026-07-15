@@ -196,6 +196,7 @@ static EFClass EFArrayClass = {
     .deinit = __EFArrayClassDeinit,
     .equal = __EFArrayClassEqual,
     .copyDescription = __EFArrayCopyDescription,
+    .hash = NULL,
 };
 
 static void EFArrayRegisterClass(void)

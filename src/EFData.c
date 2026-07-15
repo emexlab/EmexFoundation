@@ -81,6 +81,7 @@ static EFClass EFDataClass = {
     .deinit = __EFDataDeinit,
     .equal = NULL,
     .copyDescription = __EFDataCopyDescription,
+    .hash = NULL,
 };
 
 static void EFDataRegisterClass(void)

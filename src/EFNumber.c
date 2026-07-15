@@ -57,7 +57,6 @@ static Boolean __EFNumberEqual(EFObjectRef ref1,
     return a->s128 == b->s128;
 }
 
-
 static EFStringRef __EFNumberCopyDescription(EFObjectRef numberRef)
 {
     /* since it is not a string we need to still somehow display it lol */

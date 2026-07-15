@@ -18,6 +18,7 @@ add_library(EmexFoundation STATIC
     src/EFPageGroup.c
     src/EFData.c
     src/EFFileHandle.c
+    src/EFProcess.c
 )
 
 target_include_directories(EmexFoundation

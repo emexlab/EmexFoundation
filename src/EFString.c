@@ -208,6 +208,7 @@ static EFClass EFStringClass = {
     .deinit = __EFStringDeinit,
     .equal = __EFStringEqual,
     .copyDescription = __EFStringCopyDescription,
+    .hash = NULL,
 };
 
 static void EFStringRegisterClass(void)

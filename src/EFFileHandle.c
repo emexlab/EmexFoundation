@@ -76,6 +76,7 @@ static EFClass EFFileHandleClass = {
     .deinit = __EVFileHandleDeinit,
     .equal = NULL,
     .copyDescription = NULL,
+    .hash = NULL,
 };
 
 static void EFFileHandleRegisterClass(void)

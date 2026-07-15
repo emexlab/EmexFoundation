@@ -19,20 +19,29 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EMEXFOUNDATION_H
-#define EMEXFOUNDATION_H
+#ifndef EFPROCESS_H
+#define EFPROCESS_H
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
-#include <EmexFoundation/EFNumber.h>
-#include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/EFPage.h>
-#include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/EFData.h>
-#include <EmexFoundation/EFFileHandle.h>
-#include <EmexFoundation/EFProcess.h>
+#include <EmexFoundation/EFString.h>
 
-#endif /* EMEXFOUNDATION_H */
+typedef struct __EFProcess *EFProcessRef;
+
+extern EFProcessRef EFProcessCurrent;
+
+EFTypeID EFProcessGetTypeID(void);
+
+EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
+
+SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
+SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
+SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
+SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
+
+EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
+
+#endif /* EFPROCESS_H */

@@ -91,6 +91,7 @@ static EFClass EFPageClass = {
     .deinit = __EFPageDeinit,
     .equal = NULL,
     .copyDescription = __EFPageCopyDescription,
+    .hash = NULL,
 };
 
 static void EFPageRegisterClass(void)
