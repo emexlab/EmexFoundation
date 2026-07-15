@@ -85,7 +85,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 {
     if(processIdentifier < 0)
     {
-        return 0;
+        return NULL;
     }
 
     __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
