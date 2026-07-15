@@ -40,7 +40,7 @@ typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,
     kEFFileHandleSeekTypeCur,
     kEFFileHandleSeekTypeEnd,
-    /* fuck darwin no SEEK_HOLE */
+    /* fuck darwin no SEEK_HOLE (only Torvalds should seek the hole of his mom right back into the birth canal he came out of) */
 } EFFileHandleSeekType;
 
 typedef struct __EFFileHandle *EFFileHandleRef;
@@ -65,5 +65,7 @@ Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
 EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
 
 EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
+
+char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n);
 
 #endif /* EFFILEHANDLE_H */

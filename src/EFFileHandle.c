@@ -244,7 +244,6 @@ EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
         if(vret < 0)
         {
             return vret;
-        
         }
 
         fileHandle->virtualFileDescriptor.offset = start + vret;
@@ -470,7 +469,7 @@ EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef,
         EFRelease(mutableDataRef);
         goto out_failed_restore_position;
     }
-    
+
     EFFileHandleSeek(fileHandleRef, backupPosition, kEFFileHandleSeekTypeSet);
 
     EFDataRef dataRef = EFDataCreateCopy(allocatorRef, mutableDataRef);
@@ -520,4 +519,48 @@ EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
     {
         return EFPageGroupCreateCopy(allocatorRef, fileHandle->virtualFileDescriptor.pageGroupRef);
     }
+}
+
+char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n)
+{
+    if(s == NULL || n <= 0)
+    {
+        return NULL;
+    }
+
+    if(n == 1)
+    {
+        s[0] = '\0';
+        return s;
+    }
+
+    int i = 0;
+    while(i < n - 1)
+    {
+        char c;
+        ssize_t r = EFFileHandleRead(fileHandle, (UInt8*)&c, (EFIndex)1);
+
+        if(r < 0)
+        {
+
+            return NULL;
+        }
+        if(r == 0)
+        {
+            if(i == 0)
+            {
+                return NULL;
+            }
+            break;
+        }
+
+        s[i++] = c;
+        if(c == '\n')
+        {
+            break;
+        }
+    }
+
+    s[i] = '\0';
+    return s;
 }

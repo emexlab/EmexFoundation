@@ -27,16 +27,21 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
+#ifdef __linux__
+#include <limits.h>
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/sysctl.h>
 #ifdef __FreeBSD__
 #include <sys/user.h>
 #endif /* __FreeBSD__ */
+#endif /* __linux__ || __APPLE__ || __FreeBSD__ */
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 #include <EmexFoundation/EFProcess.h>
+#include <EmexFoundation/EFFileHandle.h>
 
 typedef struct __EFProcess {
     EFObject header;
@@ -145,9 +150,15 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     uid = proc.ki_uid;
     gid = proc.ki_groups[0];
     commandCString = proc.ki_comm;
+#elifdef __linux__
+    /* I wanna have time, no sugar treatment this time, maybe later */
+    pid = processIdentifier;
+    ppid = -1;
+    uid = -1;
+    gid = -1;
 #else
 #error "EFProcess is not supported"
-#endif /* __APPLE__ || __FreeBSD__ */
+#endif /* __APPLE__ || __FreeBSD__ || __linux__ */
 
 #ifdef __APPLE__
     int argMaxMib[2] = { CTL_KERN, KERN_ARGMAX };
@@ -294,7 +305,9 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
             free(argsBuf);
         }
     }
-#endif /* __APPLE__ || __FreeBSD__ */
+#elifdef __linux__
+    /* fuck you torvalds, fucking retard, stick your /proc file system into your asshole like a anal plug >:3 */
+#endif /* __APPLE__ || __FreeBSD__ || __linux__ */
 
 #ifdef __APPLE__
 skip_arg_copy:
