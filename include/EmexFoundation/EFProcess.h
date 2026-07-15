@@ -51,8 +51,8 @@ Boolean EFProcessTerminate(EFProcessRef processRef);                    /* unimp
 
 Boolean EFProcessIsAlive(EFProcessRef processRef);                      /* unimplemented */
 
-EFStringRef EFProcessGetCommand(EFProcessRef processRef);           /* unimplemented */
-EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);    /* unimplemented */
+EFStringRef EFProcessGetCommand(EFProcessRef processRef);
+EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
 EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
 
 #endif /* EFPROCESS_H */

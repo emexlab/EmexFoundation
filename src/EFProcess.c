@@ -411,6 +411,28 @@ SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef)
     return process->groupIdentifier;
 }
 
+EFStringRef EFProcessGetCommand(EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return NULL;
+    }
+
+    return process->command;
+}
+
+EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return NULL;
+    }
+
+    return process->executablePath;
+}
+
 EFArrayRef EFProcessGetArguments(EFProcessRef processRef)
 {
     __EFProcess process = (__EFProcess)processRef;
