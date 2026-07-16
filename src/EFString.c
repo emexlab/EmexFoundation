@@ -1139,6 +1139,28 @@ Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef,
     return success;
 }
 
+Boolean EFStringDelete(EFMutableStringRef mutableStringRef,
+                       EFRange range)
+{
+    EFString mutableString = (EFString)mutableStringRef;
+    if(mutableString == NULL || range.location < 0 || range.length < 0)
+    {
+        return false;
+    }
+
+    /* need to find out if the range is valid */
+    if(mutableString->length < (range.location + range.length))
+    {
+        return false;
+    }
+
+    /* perform the collapse */
+    memmove(mutableString->buffer + range.location, mutableString->buffer + range.location + range.length, (mutableString->length - (range.location + range.length) + 1) * sizeof(char));
+    mutableString->length -= range.length;
+
+    return true;
+}
+
 static _Thread_local jmp_buf OverflowJmpBuf;
 
 static Boolean __EFStringExtractNumberParseBase(const char *digits,

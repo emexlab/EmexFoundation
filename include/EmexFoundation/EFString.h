@@ -99,6 +99,7 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef
 Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
 Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
 Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
+Boolean EFStringDelete(EFMutableStringRef mutableStringRef, EFRange range);
 
 Boolean EFStringIsNumber(EFStringRef stringRef);
 EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
