@@ -116,6 +116,25 @@ void EFRelease(EFObjectRef ref)
     }
 }
 
+EFObjectRef EFRetainTry(EFObjectRef ref)
+{
+    if(ref == NULL)
+    {
+        return NULL;
+    }
+    return EFRetain(ref);
+}
+
+Boolean EFReleaseTry(EFObjectRef ref)
+{
+    if(ref == NULL)
+    {
+        return false;
+    }
+    EFRelease(ref);
+    return true;
+}
+
 EFIndex EFGetRetainCount(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;

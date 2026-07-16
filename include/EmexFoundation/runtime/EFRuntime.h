@@ -38,6 +38,8 @@ Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
 EFObjectRef EFRetain(EFObjectRef ref);
 void EFRelease(EFObjectRef ref);
+EFObjectRef EFRetainTry(EFObjectRef ref);
+Boolean EFReleaseTry(EFObjectRef ref);
 EFIndex EFGetRetainCount(EFObjectRef ref);
 
 EFAllocatorRef EFGetAllocator(EFObjectRef ref);
