@@ -32,11 +32,12 @@
 
 /* releases the object when it's out of scope */
 #define EFAUTOREL __attribute__((cleanup(EFReleaseTryHelper)))
-#define EFAUTOTRANSFER(var) ({ \
-    __typeof__(var) _temp = (var); \
-    (var) = NULL; \
-    _temp; \
-})
+#define EFAUTOTRANSFER(var) \
+    __extension__ ({ \
+        __typeof__(var) _temp = (var); \
+        (var) = NULL; \
+        _temp; \
+    })
 
 EFTypeID EFClassRegister(EFClass *cls);
 EFClass *EFClassGetByID(EFTypeID id);
