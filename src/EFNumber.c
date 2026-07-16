@@ -35,32 +35,32 @@
 
 typedef __int128_t SInt128;
 
-typedef struct __EVNumber {
+typedef struct __EFNumber {
     EFObject header;
     EFNumberType type;
     SInt128 s128;
-} *__EVNumber;
+} *__EFNumber;
 
 static Boolean __EFNumberEqual(EFObjectRef ref1,
                                EFObjectRef ref2)
 {
-    __EVNumber a = (__EVNumber)ref1;
-    __EVNumber b = (__EVNumber)ref2;
+    __EFNumber number1 = (__EFNumber)ref1;
+    __EFNumber number2 = (__EFNumber)ref2;
 
-    if(a->type != b->type)
+    if(number1->type != number2->type)
     {
         /* not the same type of number =3 */
         return false;
     }
 
     /* comparing the number it self */
-    return a->s128 == b->s128;
+    return number1->s128 == number2->s128;
 }
 
 static EFStringRef __EFNumberCopyDescription(EFObjectRef numberRef)
 {
     /* since it is not a string we need to still somehow display it lol */
-    __EVNumber number = (__EVNumber)numberRef;
+    __EFNumber number = (__EFNumber)numberRef;
     switch(number->type)
     {
         case kEFNumberTypeOverflow:
@@ -116,8 +116,8 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    __EVNumber num = (__EVNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EVNumber));
-    if(num == NULL)
+    __EFNumber number = (__EFNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EFNumber));
+    if(number == NULL)
     {
         return NULL;
     }
@@ -128,49 +128,49 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
             /* as a error marker */
             break;
         case kEFNumberTypeSInt8:
-            num->s128 = (SInt128)*(const SInt8 *)value;
+            number->s128 = (SInt128)*(const SInt8 *)value;
             break;
         case kEFNumberTypeSInt16:
-            num->s128 = (SInt128)*(const SInt16 *)value;
+            number->s128 = (SInt128)*(const SInt16 *)value;
             break;
         case kEFNumberTypeSInt32:
-            num->s128 = (SInt128)*(const SInt32 *)value;
+            number->s128 = (SInt128)*(const SInt32 *)value;
             break;
         case kEFNumberTypeSInt64:
-            num->s128 = (SInt128)*(const SInt64 *)value;
+            number->s128 = (SInt128)*(const SInt64 *)value;
             break;
         case kEFNumberTypeUInt8:
-            num->s128 =(SInt128)*(const UInt8 *)value;
+            number->s128 =(SInt128)*(const UInt8 *)value;
             break;
         case kEFNumberTypeUInt16:
-            num->s128 = (SInt128)*(const UInt16 *)value;
+            number->s128 = (SInt128)*(const UInt16 *)value;
             break;
         case kEFNumberTypeUInt32:
-            num->s128 = (SInt128)*(const UInt32 *)value;
+            number->s128 = (SInt128)*(const UInt32 *)value;
             break;
         case kEFNumberTypeUInt64:
-            num->s128 = (SInt128)*(const UInt64 *)value;
+            number->s128 = (SInt128)*(const UInt64 *)value;
             break;
         default:
             /* possibly bad type */
-            EFRelease(num);
+            EFRelease(number);
             return NULL;
     }
 
-    num->type = type;
+    number->type = type;
 
-    return num;
+    return (EFNumberRef)number;
 }
 
 EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
 {
-    if(numberRef == NULL)
+    __EFNumber number = (__EFNumber)numberRef;
+    if(number == NULL)
     {
         return 0;
     }
 
-    __EVNumber num = (__EVNumber)numberRef;
-    switch(num->type)
+    switch(number->type)
     {
         case kEFNumberTypeOverflow:
             return 0;
@@ -193,52 +193,52 @@ EFIndex EFNumberGetByteSize(EFNumberRef numberRef)
 
 EFNumberType EFNumberGetType(EFNumberRef numberRef)
 {
-    if(numberRef == NULL)
+    __EFNumber number = (__EFNumber)numberRef;
+    if(number == NULL)
     {
         return kEFNumberTypeOverflow;
     }
 
-    __EVNumber num = (__EVNumber)numberRef;
-    return num->type;
+    return number->type;
 }
 
 Boolean EFNumberGetValue(EFNumberRef numberRef,
                          EFNumberType type,
                          void *value)
 {
-    if(numberRef == NULL || value == NULL)
+    __EFNumber number = (__EFNumber)numberRef;
+    if(number == NULL || value == NULL)
     {
         return false;
     }
 
-    __EVNumber num = (__EVNumber)numberRef;
-    switch(num->type)
+    switch(number->type)
     {
         case kEFNumberTypeOverflow:
             return false;
         case kEFNumberTypeSInt8:
-            *(SInt8 *)value = (SInt8)num->s128;
+            *(SInt8 *)value = (SInt8)number->s128;
             return true;
         case kEFNumberTypeSInt16:
-            *(SInt16 *)value = (SInt16)num->s128;
+            *(SInt16 *)value = (SInt16)number->s128;
             return true;
         case kEFNumberTypeSInt32:
-            *(SInt32 *)value = (SInt32)num->s128;
+            *(SInt32 *)value = (SInt32)number->s128;
             return true;
         case kEFNumberTypeSInt64:
-            *(SInt64 *)value = (SInt64)num->s128;
+            *(SInt64 *)value = (SInt64)number->s128;
             return true;
         case kEFNumberTypeUInt8:
-            *(UInt8 *)value = (UInt8)num->s128;
+            *(UInt8 *)value = (UInt8)number->s128;
             return true;
         case kEFNumberTypeUInt16:
-            *(UInt16 *)value = (UInt16)num->s128;
+            *(UInt16 *)value = (UInt16)number->s128;
             return true;
         case kEFNumberTypeUInt32:
-            *(UInt32 *)value = (UInt32)num->s128;
+            *(UInt32 *)value = (UInt32)number->s128;
             return true;
         case kEFNumberTypeUInt64:
-            *(UInt64 *)value = (UInt64)num->s128;
+            *(UInt64 *)value = (UInt64)number->s128;
             return true;
         default:
             return false;
@@ -248,14 +248,14 @@ Boolean EFNumberGetValue(EFNumberRef numberRef,
 EFComparisonResult EFNumberCompare(EFNumberRef numberRef,
                                    EFNumberRef otherNumberRef)
 {
-    __EVNumber num = (__EVNumber)numberRef;
-    __EVNumber otherNum = (__EVNumber)otherNumberRef;
+    __EFNumber number = (__EFNumber)numberRef;
+    __EFNumber otherNumber = (__EFNumber)otherNumberRef;
 
-    if(num == NULL || otherNum == NULL || num->type == kEFNumberTypeOverflow || otherNum->type == kEFNumberTypeOverflow)
+    if(number == NULL || otherNumber == NULL || number->type == kEFNumberTypeOverflow || otherNumber->type == kEFNumberTypeOverflow)
     {
         /* nothing to compare */
         return kEFComparisonResultEqualTo;
     }
 
-    return (num->s128 == otherNum->s128) ? kEFComparisonResultEqualTo : (num->s128 > otherNum->s128) ? kEFComparisonResultGreaterThan : kEFComparisonResultLessThan;
+    return (number->s128 == otherNumber->s128) ? kEFComparisonResultEqualTo : (number->s128 > otherNumber->s128) ? kEFComparisonResultGreaterThan : kEFComparisonResultLessThan;
 }

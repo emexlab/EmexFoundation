@@ -41,7 +41,7 @@ typedef enum: UInt8 {
     kEFNumberTypeUInt64,
 } EFNumberType;
 
-typedef struct __EVNumber *EFNumberRef;
+typedef struct __EFNumber *EFNumberRef;
 
 EFTypeID EFNumberGetTypeID(void);
 

@@ -68,10 +68,6 @@ typedef struct __EFString {
     (EFStringRef)&_evk; \
 }))
 
-#define EF_STR(cStr) _Pragma("GCC warning \"EF_STR is deprecated, use EFSTR instead\"") EFSTR(cStr)
-
-#define EF_STR_ENC(cStr, enc) _Pragma("GCC warning \"EF_STR_ENC is deprecated, use EFSTR_ENC instead\"") EFSTR_ENC(cStr, (enc))
-
 EFTypeID EFStringGetTypeID(void);
 
 EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
