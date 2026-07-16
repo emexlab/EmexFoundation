@@ -41,6 +41,16 @@ typedef enum: UInt8 {
     kEFStringEncodingUTF8,
 } EFStringEncoding;
 
+typedef enum: UInt8 {
+    kEFStringCompareCaseInsensitive     = 1 << 0,
+    kEFStringCompareBackwards           = 1 << 1,
+    kEFStringCompareAnchored            = 1 << 2,
+    kEFStringCompareNonliteral          = 1 << 3,
+    kEFStringCompareLocalized           = 1 << 4,
+    kEFStringCompareNumerically         = 1 << 5,
+    kEFStringCompareWidthInsensitive    = 1 << 6,
+} EFStringCompareFlags;
+
 typedef struct __EFString *EFStringRef;
 typedef struct __EFString *EFMutableStringRef;
 
@@ -103,5 +113,7 @@ Boolean EFStringDelete(EFMutableStringRef mutableStringRef, EFRange range);
 
 Boolean EFStringIsNumber(EFStringRef stringRef);
 EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
+
+EFRange EFStringFind(EFStringRef stringRef,  EFStringRef findStringRef,  EFStringCompareFlags compareOptions);  /* unimplemented (later for torvalds dick ass linux proc fs to find fields like UID/GID and so on) */
 
 #endif /* EFSTRING_H */

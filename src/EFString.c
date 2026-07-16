@@ -1377,3 +1377,17 @@ EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
 
     return NULL;
 }
+
+EFRange EFStringFind(EFStringRef stringRef,
+                     EFStringRef findStringRef,
+                     EFStringCompareFlags compareOptions)
+{
+    __EFString string = (__EFString)stringRef;
+    __EFString findString = (__EFString)findStringRef;
+    if(string == NULL || findString == NULL)
+    {
+        return EFRangeZero;
+    }
+
+    return EFRangeZero;
+}
