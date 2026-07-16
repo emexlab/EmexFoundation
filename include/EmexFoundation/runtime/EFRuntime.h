@@ -30,6 +30,9 @@
 #include <EmexFoundation/runtime/EFClass.h>
 #include <EmexFoundation/runtime/EFObject.h>
 
+/* releases the object when it's out of scope */
+#define EFAUTOREL __attribute__((cleanup(EFReleaseTryHelper)))
+
 EFTypeID EFClassRegister(EFClass *cls);
 EFClass *EFClassGetByID(EFTypeID id);
 
@@ -40,6 +43,7 @@ EFObjectRef EFRetain(EFObjectRef ref);
 void EFRelease(EFObjectRef ref);
 EFObjectRef EFRetainTry(EFObjectRef ref);
 Boolean EFReleaseTry(EFObjectRef ref);
+Boolean EFReleaseTryHelper(void *ref);
 EFIndex EFGetRetainCount(EFObjectRef ref);
 
 EFAllocatorRef EFGetAllocator(EFObjectRef ref);
