@@ -29,6 +29,10 @@ target_include_directories(EmexFoundation
 
 target_compile_features(EmexFoundation PUBLIC c_std_23)
 
+set_target_properties(EmexFoundation PROPERTIES
+    C_EXTENSIONS ON
+)
+
 if (MSVC)
     # Fuck MSVC nobody likes you
     message(FATAL_ERROR "MSVC is not supported. Switch to Linux moron, microslop sheep!")
