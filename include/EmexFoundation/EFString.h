@@ -58,8 +58,8 @@ typedef struct __EFString {
     EFObject header;
     EFStringEncoding encoding;
     Boolean isMutable;
-    Boolean isInlined; /* meaning the buffer pointer points to after the string object */
-    char *buffer;          /* it is neither inlined nor undeallocatable if mutable */
+    Boolean isInlined;  /* meaning the buffer pointer points to after the string object */
+    char *buffer;       /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
 } *__EFString;
 

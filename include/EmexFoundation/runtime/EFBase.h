@@ -136,6 +136,12 @@ static inline EFRange EFRangeMake(EFIndex location,
     };
 }
 
+static inline Boolean EFRangeIsEqual(EFRange range1,
+                                     EFRange range2)
+{
+    return (range1.location == range2.location && range1.length == range2.length);
+}
+
 extern EFRange EFRangeZero;
 
 #endif /* EFBASE_H */
