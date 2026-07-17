@@ -555,7 +555,7 @@ skip_arg_copy:
         }
     }
 
-    __EFProcess process = (__EFProcess)EFObjectAlloc(allocatorRef, EFProcessGetTypeID(), sizeof(struct __EFProcess));
+    __EFProcess process = (__EFProcess)EFObjectCreate(allocatorRef, EFProcessGetTypeID(), (EFIndex)sizeof(struct __EFProcess));
     if(process == NULL)
     {
         if(executablePath != NULL)

@@ -38,11 +38,15 @@ typedef struct EFAllocator {
     void *info; /* a more complex allocator in the future will need this */
 
     /* handlers */
-    EFAllocatorAllocCallback allocate;
-    EFAllocatorDeallocCallback deallocate;
+    EFAllocatorAllocateCallback allocate;
+    EFAllocatorDeallocateCallback deallocate;
+    EFAllocatorReallocateCallback reallocate;
 } EFAllocator;
 
-extern EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
-extern void EFObjectDealloc(EFObjectRef ref);
+extern EFObjectRef EFObjectCreate(EFAllocatorRef allocatorRef, EFTypeID typeID, EFIndex size);
+
+extern void *EFAllocatorAllocate(EFAllocatorRef allocatorRef, EFIndex size, EFOptionFlags hint);
+extern void *EFAllocatorReallocate(EFAllocatorRef allocatorRef, void *ptr, EFIndex newSize, EFOptionFlags hint);
+extern void EFAllocatorDeallocate(EFAllocatorRef allocatorRef, void *ptr);
 
 #endif /* EFALLOCATOR_H */

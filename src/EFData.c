@@ -88,7 +88,7 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFAUTOREL __EFData data = (__EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct __EFData) + (isInlined ? length : 0));
+    EFAUTOREL __EFData data = (__EFData)EFObjectCreate(allocatorRef, EFDataGetTypeID(), (EFIndex)(sizeof(struct __EFData) + (isInlined ? length : 0)));
     if(data == NULL)
     {
         return NULL;

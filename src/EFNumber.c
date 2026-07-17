@@ -116,7 +116,7 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFAUTOREL __EFNumber number = (__EFNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EFNumber));
+    EFAUTOREL __EFNumber number = (__EFNumber)EFObjectCreate(allocatorRef, EFNumberGetTypeID(), (EFIndex)sizeof(struct __EFNumber));
     if(number == NULL)
     {
         return NULL;

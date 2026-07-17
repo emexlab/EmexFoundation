@@ -119,7 +119,7 @@ EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
                                   int fd,
                                   off_t offset)
 {
-    EFAUTOREL __EFPage page = (__EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct __EFPage));
+    EFAUTOREL __EFPage page = (__EFPage)EFObjectCreate(allocatorRef, EFPageGetTypeID(), (EFIndex)sizeof(struct __EFPage));
     if(page == NULL)
     {
         return NULL;

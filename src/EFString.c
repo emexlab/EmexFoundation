@@ -241,7 +241,7 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFString string = EFObjectAlloc(allocatorRef, EFStringGetTypeID(), sizeof(struct __EFString) + (isInlined ? (size_t)(length + 1) : 0));
+    EFString string = EFObjectCreate(allocatorRef, EFStringGetTypeID(), (EFIndex)(sizeof(struct __EFString) + (isInlined ? (length + 1) : 0)));
     if(string == NULL)
     {
         return NULL;

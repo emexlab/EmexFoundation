@@ -31,42 +31,25 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/runtime/EFRuntime.h>
 
-static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
-                                                EFTypeID typeID,
-                                                size_t size)
+static void *__EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
+                                          EFIndex size,
+                                          EFOptionFlags hint)
 {
-    /*
-     * gotta need the class for the typeid
-     * and the init handler.
-     */
-    EFClass *class = EFClassGetByID(typeID);
+    return calloc(1, (size_t)size);
+}
 
-    /* validating class and passed size */
-    assert(class != NULL && size >= sizeof(EFObject));
-
-    EFObject *object = calloc(1, size);
-    if(object == NULL)
-    {
-        return NULL;
-    }
-    object->_rt = kEFRootTypeObject;
-    object->refcount = 1;
-    object->typeID = class->typeID;
-    object->allocatorRef = allocatorRef;
-
-    /* initilizing when applicable */
-    if(class->init != NULL)
-    {
-        class->init(object);
-    }
-
-    return (EFObjectRef)object;
+static void *__EFAllocatorDefaultReallocate(EFAllocatorRef allocatorRef,
+                                            void *ptr,
+                                            EFIndex newSize,
+                                            EFOptionFlags hint)
+{
+    return realloc(ptr, (size_t)newSize);
 }
 
 static void __EFAllocatorDefaultDeallocate(EFAllocatorRef allocatorRef,
-                                           EFObjectRef ref)
+                                           void *ptr)
 {
-    free(ref);
+    free(ptr);
 }
 
 EFAllocatorRef kEFAllocatorMalloc = (EFAllocatorRef)&(EFAllocator){
@@ -75,32 +58,75 @@ EFAllocatorRef kEFAllocatorMalloc = (EFAllocatorRef)&(EFAllocator){
     .info = NULL,
 
     .allocate = __EFAllocatorDefaultAllocate,
+    .reallocate = __EFAllocatorDefaultReallocate,
     .deallocate = __EFAllocatorDefaultDeallocate,
 };
 
 EFAllocatorRef kEFAllocatorDefault = NULL;
 
-EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef,
-                          EFTypeID typeID,
-                          size_t size)
+EFObjectRef EFObjectCreate(EFAllocatorRef allocatorRef,
+                           EFTypeID typeID,
+                           EFIndex size)
 {
     if(allocatorRef == NULL)
     {
         allocatorRef = kEFAllocatorDefault;
     }
 
-    /* checking if allocator is correctly configured (it must) */
-    EFAllocator *allocator = (EFAllocator*)allocatorRef;
-    assert(allocator->allocate != NULL && allocator->deallocate != NULL);
+    /*
+     * gotta need the class for the typeid
+     * and the init handler.
+     */
+    EFClass *class = EFClassGetByID(typeID);
 
-    return allocator->allocate(allocator, typeID, size);
+    /* validating class and passed size */
+    assert(class != NULL && (size_t)size >= sizeof(EFObject));
+
+    EFObject *object = EFAllocatorAllocate(allocatorRef, size, 0);
+    if(object == NULL)
+    {
+        return NULL;
+    }
+
+    object->_rt = kEFRootTypeObject;
+    object->refcount = 1;
+    object->typeID = class->typeID;
+    object->allocatorRef = allocatorRef;
+
+    /* initializing when applicable */
+    if(class->init != NULL)
+    {
+        class->init(object);
+    }
+
+    return (EFObjectRef)object;
 }
 
-void EFObjectDealloc(EFObjectRef ref)
+extern void *EFAllocatorAllocate(EFAllocatorRef allocatorRef,
+                                 EFIndex size,
+                                 EFOptionFlags hint)
 {
-    EFObject *object = (EFObject*)ref;
-    assert(object != NULL);
-    ((EFAllocator*)(object->allocatorRef))->deallocate(object->allocatorRef, object);
+    EFAllocator *allocator = (EFAllocator*)(allocatorRef?: kEFAllocatorDefault);
+    assert(allocator->allocate != NULL);
+    return allocator->allocate(allocatorRef, size, hint);
+}
+
+extern void *EFAllocatorReallocate(EFAllocatorRef allocatorRef,
+                                   void *ptr,
+                                   EFIndex newSize,
+                                   EFOptionFlags hint)
+{
+    EFAllocator *allocator = (EFAllocator*)(allocatorRef?: kEFAllocatorDefault);
+    assert(allocator->reallocate != NULL);
+    return allocator->reallocate(allocatorRef, ptr, newSize, hint);
+}
+
+extern void EFAllocatorDeallocate(EFAllocatorRef allocatorRef,
+                                  void *ptr)
+{
+    EFAllocator *allocator = (EFAllocator*)(allocatorRef?: kEFAllocatorDefault);
+    assert(allocator->deallocate != NULL);
+    allocator->deallocate(allocatorRef, ptr);
 }
 
 __attribute__((constructor(101)))

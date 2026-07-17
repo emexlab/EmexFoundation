@@ -248,7 +248,7 @@ EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
         }
     }
 
-    __EFArray array = (__EFArray)EFObjectAlloc(allocatorRef, EFArrayGetTypeID(), sizeof(struct __EFArray));
+    __EFArray array = (__EFArray)EFObjectCreate(allocatorRef, EFArrayGetTypeID(), (EFIndex)sizeof(struct __EFArray));
     if(array == NULL)
     {
         free(items);

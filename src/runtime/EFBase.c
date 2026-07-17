@@ -122,7 +122,8 @@ void EFRelease(EFObjectRef ref)
         {
             class->deinit(ref);
         }
-        EFObjectDealloc(object);
+        EFAllocator *allocator = object->allocatorRef;
+        allocator->deallocate((EFAllocatorRef)allocator, (void*)ref);
     }
     else if(old <= 0)
     {

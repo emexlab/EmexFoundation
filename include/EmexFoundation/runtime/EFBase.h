@@ -131,8 +131,9 @@ typedef Boolean (*EFObjectEqualCallback)(EFObjectRef ref1, EFObjectRef ref2);
 typedef EFStringRef (*EFObjectCopyDescriptionCallback)(EFObjectRef ref);
 typedef EFHashCode (*EFObjectHashCallback)(EFObjectRef ref);
 
-typedef EFObjectRef (*EFAllocatorAllocCallback)(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
-typedef void (*EFAllocatorDeallocCallback)(EFAllocatorRef allocatorRef, EFObjectRef ref);
+typedef void *(*EFAllocatorAllocateCallback)(EFAllocatorRef allocatorRef, EFIndex size, EFOptionFlags hint);
+typedef void *(*EFAllocatorReallocateCallback)(EFAllocatorRef allocatorRef, void *ptr, EFIndex newSize, EFOptionFlags hint);
+typedef void (*EFAllocatorDeallocateCallback)(EFAllocatorRef allocatorRef, void *ptr);
 
 static inline EFRange EFRangeMake(EFIndex location,
                                   EFIndex length)

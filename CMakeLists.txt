@@ -39,7 +39,7 @@ if (MSVC)
 else()
 
     # Setting up compiler flags
-    set(_EF_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter)
+    set(_EF_WARN_FLAGS -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-gnu-conditional-omitted-operand)
     set(_EF_OPT_FLAGS -fPIC)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")

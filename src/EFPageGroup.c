@@ -160,7 +160,7 @@ EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef,
     }
 
     /* now we gotta create the object it self */
-    __EFPageGroup group = (__EFPageGroup)EFObjectAlloc(allocatorRef, EFPageGroupGetTypeID(), sizeof(struct __EFPageGroup));
+    __EFPageGroup group = (__EFPageGroup)EFObjectCreate(allocatorRef, EFPageGroupGetTypeID(), (EFIndex)sizeof(struct __EFPageGroup));
     if(group == NULL)
     {
         EFRelease(ownedPagesArrayRef);

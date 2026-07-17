@@ -93,7 +93,7 @@ EFTypeID EFFileHandleGetTypeID(void)
 
 EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
 {
-    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
+    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectCreate(allocatorRef, EFFileHandleGetTypeID(), (EFIndex)sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
@@ -125,7 +125,7 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
         return NULL;
     }
 
-    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
+    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectCreate(allocatorRef, EFFileHandleGetTypeID(), (EFIndex)sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
