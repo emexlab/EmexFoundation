@@ -31,9 +31,9 @@
 
 typedef struct __EFProcess *EFProcessRef;
 
-extern EFProcessRef EFProcessCurrent;
-
 extern EFTypeID EFProcessGetTypeID(void);
+
+extern EFProcessRef EFProcessGetCurrentProcess(void);
 
 extern EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
 extern EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);

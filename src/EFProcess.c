@@ -704,6 +704,11 @@ Boolean EFProcessIsAlive(EFProcessRef processRef)
 
 EFProcessRef EFProcessCurrent;
 
+extern EFProcessRef EFProcessGetCurrentProcess(void)
+{
+    return EFProcessCurrent;
+}
+
 __attribute__((constructor))
 void EFProcessConstructor(void)
 {
