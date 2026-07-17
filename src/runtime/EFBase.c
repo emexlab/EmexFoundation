@@ -42,7 +42,12 @@ static _Atomic(uint64_t) ev_class_next = 1;
 
 EFTypeID EFGetTypeID(EFObjectRef ref)
 {
-    return ((EFObject*)ref)->typeID;
+    EFObject *object = (EFObject*)ref;
+    if(object == NULL)
+    {
+        return kEFNotATypeID;
+    }
+    return object->typeID;
 }
 
 extern EFRootType EFGetRootType(EFObjectRef ref)
