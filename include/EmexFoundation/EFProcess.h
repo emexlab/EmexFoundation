@@ -33,29 +33,29 @@ typedef struct __EFProcess *EFProcessRef;
 
 extern EFProcessRef EFProcessCurrent;
 
-EFTypeID EFProcessGetTypeID(void);
+extern EFTypeID EFProcessGetTypeID(void);
 
-EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
-EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
-EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
+extern EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
+extern EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
+extern EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
 
-SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
-SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
-SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
-SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
+extern SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
+extern SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
+extern SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
+extern SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 
-Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
-Boolean EFProcessSuspend(EFProcessRef processRef);
-Boolean EFProcessResume(EFProcessRef processRef);
-Boolean EFProcessTerminate(EFProcessRef processRef);
-Boolean EFProcessForceKill(EFProcessRef processRef);
+extern Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
+extern Boolean EFProcessSuspend(EFProcessRef processRef);
+extern Boolean EFProcessResume(EFProcessRef processRef);
+extern Boolean EFProcessTerminate(EFProcessRef processRef);
+extern Boolean EFProcessForceKill(EFProcessRef processRef);
 
-Boolean EFProcessIsAlive(EFProcessRef processRef);
+extern Boolean EFProcessIsAlive(EFProcessRef processRef);
 
-EFStringRef EFProcessGetCommand(EFProcessRef processRef);
-EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
-EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
+extern EFStringRef EFProcessGetCommand(EFProcessRef processRef);
+extern EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
+extern EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
 
-SInt32 EFProcessWaitPID(EFProcessRef processRef, int *status, int options);
+extern SInt32 EFProcessWaitPID(EFProcessRef processRef, int *status, int options);
 
 #endif /* EFPROCESS_H */

@@ -39,23 +39,23 @@
         _temp; \
     })
 
-EFTypeID EFClassRegister(EFClass *cls);
-EFClass *EFClassGetByID(EFTypeID id);
+extern EFTypeID EFClassRegister(EFClass *cls);
+extern EFClass *EFClassGetByID(EFTypeID id);
 
-EFTypeID EFGetTypeID(EFObjectRef ref);
-Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
+extern EFTypeID EFGetTypeID(EFObjectRef ref);
+extern Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
-EFObjectRef EFRetain(EFObjectRef ref);
-void EFRelease(EFObjectRef ref);
-EFObjectRef EFRetainTry(EFObjectRef ref);
-Boolean EFReleaseTry(EFObjectRef ref);
-Boolean EFReleaseTryHelper(void *ref);
-EFIndex EFGetRetainCount(EFObjectRef ref);
+extern EFObjectRef EFRetain(EFObjectRef ref);
+extern void EFRelease(EFObjectRef ref);
+extern EFObjectRef EFRetainTry(EFObjectRef ref);
+extern Boolean EFReleaseTry(EFObjectRef ref);
+extern Boolean EFReleaseTryHelper(void *ref);
+extern EFIndex EFGetRetainCount(EFObjectRef ref);
 
-EFAllocatorRef EFGetAllocator(EFObjectRef ref);
+extern EFAllocatorRef EFGetAllocator(EFObjectRef ref);
 
-EFStringRef EFCopyDescription(EFObjectRef ref);
+extern EFStringRef EFCopyDescription(EFObjectRef ref);
 
-void EFLog(EFStringRef formatStringRef, ...);
+extern void EFLog(EFStringRef formatStringRef, ...);
 
 #endif /* EFRUNTIME_H */

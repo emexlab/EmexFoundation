@@ -45,27 +45,27 @@ typedef enum: UInt8 {
 
 typedef struct __EFFileHandle *EFFileHandleRef;
 
-EFTypeID EFFileHandleGetTypeID(void);
+extern EFTypeID EFFileHandleGetTypeID(void);
 
-EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
-EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
-EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
+extern EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
+extern EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
+extern EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
 
-EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
-EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
-EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);
+extern EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
+extern EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
+extern EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);
 
-EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, EFFileHandleSeekType seekType);
-void EFFileHandleSync(EFFileHandleRef fileHandleRef);
+extern EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, EFFileHandleSeekType seekType);
+extern void EFFileHandleSync(EFFileHandleRef fileHandleRef);
 
-EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
-Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
-Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
+extern EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
+extern Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
+extern Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
 
-EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
+extern EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
 
-EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
+extern EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
-char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n);
+extern char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n);
 
 #endif /* EFFILEHANDLE_H */

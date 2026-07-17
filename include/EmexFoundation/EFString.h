@@ -78,42 +78,42 @@ typedef struct __EFString {
     (EFStringRef)&_evk; \
 }))
 
-EFTypeID EFStringGetTypeID(void);
+extern EFTypeID EFStringGetTypeID(void);
 
-EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
-EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
-EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
-EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
-EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);
-EFStringRef EFStringCreateWithFormat(EFAllocatorRef allocatorRef, EFStringRef format, ...);
-EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
-EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
-EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
-EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
+extern EFStringRef EFStringCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
+extern EFStringRef EFStringCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length, EFStringEncoding encoding);
+extern EFStringRef EFStringCreateWithCString(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
+extern EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef, const char *str, EFStringEncoding encoding);
+extern EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef, EFStringRef format, va_list arguments);
+extern EFStringRef EFStringCreateWithFormat(EFAllocatorRef allocatorRef, EFStringRef format, ...);
+extern EFStringRef EFStringCreateCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
+extern EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
+extern EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
+extern EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
 
-EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFStringEncoding encoding);
-EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef, EFDataRef dataRef, EFStringEncoding encoding);
+extern EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFStringEncoding encoding);
+extern EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef, EFDataRef dataRef, EFStringEncoding encoding);
 
-const char *EFStringGetCStringPtr(EFStringRef stringRef, EFStringEncoding encoding);
-EFIndex EFStringGetLength(EFStringRef stringRef);
-Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, EFStringEncoding encoding);
+extern const char *EFStringGetCStringPtr(EFStringRef stringRef, EFStringEncoding encoding);
+extern EFIndex EFStringGetLength(EFStringRef stringRef);
+extern Boolean EFStringGetCString(EFStringRef stringRef, char *str, EFIndex length, EFStringEncoding encoding);
 
-Boolean EFStringHasPrefix(EFStringRef stringRef, EFStringRef prefixRef);
-Boolean EFStringHasSuffix(EFStringRef stringRef, EFStringRef suffixRef);
+extern Boolean EFStringHasPrefix(EFStringRef stringRef, EFStringRef prefixRef);
+extern Boolean EFStringHasSuffix(EFStringRef stringRef, EFStringRef suffixRef);
 
-Boolean EFStringEqual(EFStringRef stringRef1, EFStringRef stringRef2);
-Boolean EFStringEqualRange(EFStringRef stringRef1, EFStringRef stringRef2, EFRange range);  /* range applies to the first string */
+extern Boolean EFStringEqual(EFStringRef stringRef1, EFStringRef stringRef2);
+extern Boolean EFStringEqualRange(EFStringRef stringRef1, EFStringRef stringRef2, EFRange range);  /* range applies to the first string */
 
-EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
+extern EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef, EFStringRef separatorStringRef);
 
-Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
-Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
-Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
-Boolean EFStringDelete(EFMutableStringRef mutableStringRef, EFRange range);
+extern Boolean EFStringTrimWhitespace(EFMutableStringRef mutableStringRef);
+extern Boolean EFStringAppendString(EFMutableStringRef mutableStringRef, EFStringRef stringRef);
+extern Boolean EFStringAppendFormat(EFMutableStringRef mutableStringRef, EFStringRef format, ...);
+extern Boolean EFStringDelete(EFMutableStringRef mutableStringRef, EFRange range);
 
-Boolean EFStringIsNumber(EFStringRef stringRef);
-EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
+extern Boolean EFStringIsNumber(EFStringRef stringRef);
+extern EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef stringRef);
 
-EFRange EFStringFind(EFStringRef stringRef,  EFStringRef findStringRef,  EFStringCompareFlags compareOptions);  /* unimplemented (later for torvalds dick ass linux proc fs to find fields like UID/GID and so on) */
+extern EFRange EFStringFind(EFStringRef stringRef,  EFStringRef findStringRef,  EFStringCompareFlags compareOptions);  /* unimplemented (later for torvalds dick ass linux proc fs to find fields like UID/GID and so on) */
 
 #endif /* EFSTRING_H */

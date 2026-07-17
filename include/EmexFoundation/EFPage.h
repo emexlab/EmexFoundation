@@ -35,14 +35,14 @@
 
 typedef struct __EFPage *EFPageRef;
 
-EFIndex __EFPageGetPageLength(void);
+extern EFIndex __EFPageGetPageLength(void);
 
-EFTypeID EFPageGetTypeID(void);
+extern EFTypeID EFPageGetTypeID(void);
 
-EFPageRef EFPageCreate(EFAllocatorRef allocatorRef);
-EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef, void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+extern EFPageRef EFPageCreate(EFAllocatorRef allocatorRef);
+extern EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef, void *addr, size_t length, int prot, int flags, int fd, off_t offset);
 
-EFIndex EFPageGetLength(EFPageRef pageRef);
-void *EFPageGetPtr(EFPageRef pageRef);
+extern EFIndex EFPageGetLength(EFPageRef pageRef);
+extern void *EFPageGetPtr(EFPageRef pageRef);
 
 #endif /* EFPAGE_H */

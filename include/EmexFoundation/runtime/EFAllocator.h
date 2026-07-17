@@ -39,7 +39,7 @@ typedef struct EFAllocator {
     EVAllocatorDeallocCallback deallocate;
 } EFAllocator;
 
-EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
-void EFObjectDealloc(EFObjectRef ref);
+extern EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
+extern void EFObjectDealloc(EFObjectRef ref);
 
 #endif /* EFALLOCATOR_H */
