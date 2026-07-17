@@ -151,11 +151,137 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     gid = proc.ki_groups[0];
     commandCString = proc.ki_comm;
 #elifdef __linux__
-    /* I wanna have time, no sugar treatment this time, maybe later */
+    /* linus, seriously?? kill your self */
     pid = processIdentifier;
-    ppid = -1;
-    uid = -1;
-    gid = -1;
+    char backupName[256] = {0};
+
+    char statusPath[64];
+    snprintf(statusPath, sizeof(statusPath), "/proc/%ld/status", (long)processIdentifier);
+    FILE *statusFile = fopen(statusPath, "r");
+    if(statusFile != NULL)
+    {
+        char line[256];
+        while(fgets(line, sizeof(line), statusFile))
+        {
+            if(strncmp(line, "Name:", 5) == 0)
+            {
+                sscanf(line + 5, "%255s", backupName);
+            }
+            else if(strncmp(line, "PPid:", 5) == 0)
+            {
+                sscanf(line + 5, "%ld", (long *)&ppid);
+            }
+            else if(strncmp(line, "Uid:", 4) == 0)
+            {
+                sscanf(line + 4, "%ld", (long *)&uid);
+            }
+            else if(strncmp(line, "Gid:", 4) == 0)
+            {
+                sscanf(line + 4, "%ld", (long *)&gid);
+            }
+        }
+        fclose(statusFile);
+    }
+
+    char exePath[64];
+    snprintf(exePath, sizeof(exePath), "/proc/%ld/exe", (long)processIdentifier);
+    char linkTarget[PATH_MAX];
+    ssize_t linkLen = readlink(exePath, linkTarget, sizeof(linkTarget) - 1);
+    if(linkLen != -1)
+    {
+        linkTarget[linkLen] = '\0';
+        executablePath = EFStringCreateWithCString(allocatorRef, linkTarget, kEFStringEncodingUTF8);
+    }
+
+    char cmdlinePath[64];
+    snprintf(cmdlinePath, sizeof(cmdlinePath), "/proc/%ld/cmdline", (long)processIdentifier);
+    FILE *cmdFile = fopen(cmdlinePath, "rb");
+    if(cmdFile != NULL)
+    {
+        size_t capacity = 4096;
+        char *cmdBuffer = malloc(capacity);
+        size_t readBytes = 0;
+
+        if(cmdBuffer != NULL)
+        {
+            while(1)
+            {
+                size_t readNow = fread(cmdBuffer + readBytes, 1, capacity - readBytes - 1, cmdFile);
+                if(readNow == 0)
+                {
+                    break;
+                }
+                readBytes += readNow;
+                if(readBytes >= capacity - 1)
+                {
+                    capacity *= 2;
+                    char *newBuf = realloc(cmdBuffer, capacity);
+                    if(newBuf == NULL)
+                    {
+                        break;
+                    }
+                    cmdBuffer = newBuf;
+                }
+            }
+            cmdBuffer[readBytes] = '\0';
+
+            if(readBytes > 0)
+            {
+                int linuxArgc = 0;
+                for(size_t i = 0; i < readBytes; i++)
+                {
+                    if(cmdBuffer[i] == '\0')
+                    {
+                        linuxArgc++;
+                    }
+                }
+                if(cmdBuffer[readBytes - 1] != '\0')
+                {
+                    linuxArgc++;
+                }
+
+                if(linuxArgc > 0)
+                {
+                    commandCString = cmdBuffer;
+
+                    mutableArguments = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, linuxArgc);
+                    if(mutableArguments != NULL)
+                    {
+                        char *cp = cmdBuffer;
+                        int argIndex = 0;
+                        while(argIndex < linuxArgc && cp < (cmdBuffer + readBytes))
+                        {
+                            if(argIndex > 0)
+                            {
+                                EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
+                                if(argument != NULL)
+                                {
+                                    EFArrayAppendValue(mutableArguments, argument);
+                                    EFRelease(argument);
+                                }
+                            }
+                            cp += strlen(cp) + 1;
+                            argIndex++;
+                        }
+                    }
+                }
+                else
+                {
+                    free(cmdBuffer);
+                }
+            }
+            else
+            {
+                free(cmdBuffer);
+            }
+        }
+        fclose(cmdFile);
+    }
+
+    if(commandCString == NULL && backupName[0] != '\0')
+    {
+        commandCString = strdup(backupName);
+    }
 #else
 #error "EFProcess is not supported"
 #endif /* __APPLE__ || __FreeBSD__ || __linux__ */
@@ -305,14 +431,20 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
             free(argsBuf);
         }
     }
-#elifdef __linux__
-    /* fuck you torvalds, fucking retard, stick your /proc file system into your asshole like a anal plug >:3 */
 #endif /* __APPLE__ || __FreeBSD__ || __linux__ */
 
 #ifdef __APPLE__
 skip_arg_copy:
 #endif /* __APPLE__ */
     commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+
+#ifdef __linux__
+    if(commandCString != NULL)
+    {
+        free((void *)commandCString);
+    }
+#endif
+
     if(commandRef == NULL)
     {
         if(executablePath != NULL)
@@ -447,83 +579,12 @@ EFArrayRef EFProcessGetArguments(EFProcessRef processRef)
 EFProcessRef EFProcessCurrent;
 
 __attribute__((constructor))
-void EFProcessConstructor(int argc, const char *argv[])
+void EFProcessConstructor(void)
 {
-#if defined(__APPLE__) || defined(__FreeBSD__)
     EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
     if(EFProcessCurrent == NULL)
     {
         fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
         exit(1);
     }
-#elifdef __linux__
-    EFProcessCurrent = (__EFProcess)EFObjectAlloc(kEFAllocatorDefault, EFProcessGetTypeID(), sizeof(struct __EFProcess));
-    if(EFProcessCurrent == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        exit(1);
-    }
-
-    EFProcessCurrent->processIdentifier = getpid();
-    EFProcessCurrent->parentProcessIdentifier = getppid();
-    EFProcessCurrent->userIdentifier = getuid();
-    EFProcessCurrent->groupIdentifier = getgid();
-
-    EFProcessCurrent->command = EFStringCreateWithCString(kEFAllocatorDefault, argv[0], kEFStringEncodingUTF8);
-    if(EFProcessCurrent->command == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        EFRelease(EFProcessCurrent);
-        exit(1);
-    }
-
-    EFProcessCurrent->executablePath = EFRetain(EFProcessCurrent->command);
-    if(EFProcessCurrent->executablePath == NULL)
-    {
-        /* releases EFProcessCurrent->command too */
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        EFRelease(EFProcessCurrent);
-        exit(1);
-    }
-
-    EFMutableArrayRef mutableArguments = EFArrayCreateMutable(kEFAllocatorDefault, kEFArrayCallbacksObjectCallbacks, argc);
-    if(mutableArguments == NULL)
-    {
-        /* releases EFProcessCurrent->command too */
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        EFRelease(EFProcessCurrent);
-        exit(1);
-    }
-
-    for(EFIndex index = 1; index < (EFIndex)argc; index++)
-    {
-        EFStringRef argument = EFStringCreateWithCString(kEFAllocatorDefault, argv[(int)index], kEFStringEncodingUTF8);
-        if(argument == NULL)
-        {
-            fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-            EFRelease(mutableArguments);
-            EFRelease(EFProcessCurrent);
-            exit(1);
-        }
-
-        Boolean success = EFArrayAppendValue(mutableArguments, argument);
-        EFRelease(argument);
-        if(!success)
-        {
-            fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-            EFRelease(mutableArguments);
-            EFRelease(EFProcessCurrent);
-            exit(1);
-        }
-    }
-
-    EFProcessCurrent->arguments = EFArrayCreateCopy(kEFAllocatorDefault, mutableArguments);
-    EFRelease(mutableArguments);
-    if(EFProcessCurrent->arguments == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        EFRelease(EFProcessCurrent);
-        exit(1);
-    }
-#endif /* __linux__ */
 }
