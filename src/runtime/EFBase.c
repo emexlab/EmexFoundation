@@ -223,7 +223,7 @@ void EFLog(EFStringRef formatStringRef, ...)
 {
     va_list arguments;
     va_start(arguments, formatStringRef);
-    EFStringRef resultRef = EFStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
+    EFAUTOREL EFStringRef resultRef = EFStringCreateWithFormatAndArguments(NULL, formatStringRef, arguments);
     va_end(arguments);
     if(resultRef == NULL)
     {
@@ -235,6 +235,4 @@ void EFLog(EFStringRef formatStringRef, ...)
     {
         fprintf(stderr, "%s", resultCptr);
     }
-
-    EFRelease(resultRef);
 }

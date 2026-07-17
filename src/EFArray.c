@@ -129,14 +129,8 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
     EFClass *cls = EFClassGetByID(array->header.typeID);
 
-    EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
-    if(baseStringRef == NULL)
-    {
-        return NULL;
-    }
-
-    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, baseStringRef);
-    EFRelease(baseStringRef);
+    EFAUTOREL EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
+    EFAUTOREL EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, baseStringRef);
     if(mutableStringRef == NULL)
     {
         return NULL;
@@ -144,17 +138,13 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
 
     for(EFIndex index = 0; index < array->items_cnt; index++)
     {
-        if(index > 0)
+        if(index > 0 && !EFStringAppendString(mutableStringRef, EFSTR(", ")))
         {
-            if(!EFStringAppendString(mutableStringRef, EFSTR(", ")))
-            {
-                EFRelease(mutableStringRef);
-                return NULL;
-            }
+            return NULL;
         }
 
         void *ptr = EFArrayGetValueAtIndex(arrayRef, index);
-        EFStringRef stringRef = NULL;
+        EFAUTOREL EFStringRef stringRef = NULL;
         if(array->callbacks->copyDescription)
         {
             stringRef = array->callbacks->copyDescription(allocatorRef, ptr);
@@ -165,28 +155,18 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
             stringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("%p"), ptr);
         }
 
-        if(stringRef == NULL)
+        if(stringRef == NULL || !EFStringAppendString(mutableStringRef, stringRef))
         {
-            EFRelease(mutableStringRef);
-            return NULL;
-        }
-
-        Boolean success = EFStringAppendString(mutableStringRef, stringRef);
-        EFRelease(stringRef);
-        if(!success)
-        {
-            EFRelease(mutableStringRef);
             return NULL;
         }
     }
 
     if(!EFStringAppendString(mutableStringRef, EFSTR("}}")))
     {
-        EFRelease(mutableStringRef);
         return NULL;
     }
 
-    return mutableStringRef;
+    return EFAUTOTRANSFER(mutableStringRef);
 }
 
 static EFClass EFArrayClass = {
@@ -227,7 +207,7 @@ EFArrayRef EFArrayCreate(EFAllocatorRef allocatorRef,
     }
 
     /* for now not its own creator, meaning it hacks around */
-    EFMutableArrayRef mutableArrayRef = EFArrayCreateMutable(allocatorRef, callbacks, valuesCount);
+    EFAUTOREL EFMutableArrayRef mutableArrayRef = EFArrayCreateMutable(allocatorRef, callbacks, valuesCount);
     if(mutableArrayRef == NULL)
     {
         return NULL;
@@ -237,7 +217,6 @@ EFArrayRef EFArrayCreate(EFAllocatorRef allocatorRef,
     {
         if(!EFArrayAppendValue(mutableArrayRef, values[index]))
         {
-            EFRelease(mutableArrayRef);
             return NULL;
         }
     }
@@ -247,7 +226,7 @@ EFArrayRef EFArrayCreate(EFAllocatorRef allocatorRef,
     /* immutabilize the array */
     mutableArray->isMutable = false;
 
-    return (EFArrayRef)mutableArrayRef;
+    return (EFArrayRef)EFAUTOTRANSFER(mutableArrayRef);
 }
 
 EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
@@ -295,7 +274,7 @@ static EFArrayRef __EFArrayCreateCopy(EFAllocatorRef allocatorRef,
     }
 
     __EFArray srcArray = (__EFArray)arrayRef;
-    EFMutableArrayRef copyArrayRef = EFArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
+    EFAUTOREL EFMutableArrayRef copyArrayRef = EFArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
     if(copyArrayRef == NULL)
     {
         return NULL;
@@ -305,14 +284,13 @@ static EFArrayRef __EFArrayCreateCopy(EFAllocatorRef allocatorRef,
     {
         if(!EFArrayAppendValue(copyArrayRef, srcArray->items[index]))
         {
-            EFRelease((EFObjectRef)copyArrayRef);
             return NULL;
         }
     }
 
     ((__EFArray)copyArrayRef)->isMutable = isMutable;
 
-    return (EFArrayRef)copyArrayRef;
+    return (EFArrayRef)EFAUTOTRANSFER(copyArrayRef);
 }
 
 EFMutableArrayRef EFArrayCreateMutableCopy(EFAllocatorRef allocatorRef,
@@ -393,12 +371,9 @@ Boolean EFArrayAppendValue(EFMutableArrayRef mutableArrayRef,
         return false;
     }
 
-    if(mutableArray->callbacks->append != NULL)
+    if(mutableArray->callbacks->append != NULL && !mutableArray->callbacks->append(ptr))
     {
-        if(!mutableArray->callbacks->append(ptr))
-        {
-            return false;
-        }
+        return false;
     }
 
     /* append */
@@ -418,12 +393,9 @@ Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef mutableArrayRef,
         return false;
     }
 
-    if(mutableArray->callbacks->append != NULL)
+    if(mutableArray->callbacks->append != NULL && !mutableArray->callbacks->append(ptr))
     {
-        if(!mutableArray->callbacks->append(ptr))
-        {
-            return false;
-        }
+        return false;
     }
 
     /* insert */

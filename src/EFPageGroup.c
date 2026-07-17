@@ -59,7 +59,6 @@ static EFClass EFPageGroupClass = {
     .deinit = __EFPageGroupDeinit,
     .equal = NULL,
     .copyDescription = __EFPageGroupCopyDescription,
-    .hash = NULL,
 };
 
 static void EFPageGroupRegisterClass(void)

@@ -116,7 +116,7 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    __EFNumber number = (__EFNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EFNumber));
+    EFAUTOREL __EFNumber number = (__EFNumber)EFObjectAlloc(allocatorRef, EFNumberGetTypeID(), sizeof(struct __EFNumber));
     if(number == NULL)
     {
         return NULL;
@@ -153,13 +153,12 @@ EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef,
             break;
         default:
             /* possibly bad type */
-            EFRelease(number);
             return NULL;
     }
 
     number->type = type;
 
-    return (EFNumberRef)number;
+    return (EFNumberRef)EFAUTOTRANSFER(number);
 }
 
 EFIndex EFNumberGetByteSize(EFNumberRef numberRef)

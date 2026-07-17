@@ -119,7 +119,7 @@ EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
                                   int fd,
                                   off_t offset)
 {
-    __EFPage page = (__EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct __EFPage));
+    EFAUTOREL __EFPage page = (__EFPage)EFObjectAlloc(allocatorRef, EFPageGetTypeID(), sizeof(struct __EFPage));
     if(page == NULL)
     {
         return NULL;
@@ -129,11 +129,10 @@ EFPageRef EFPageCreateWithOptions(EFAllocatorRef allocatorRef,
     page->mem = mmap(addr, length, prot, flags, fd, offset);
     if(page->mem == MAP_FAILED)
     {
-        EFRelease(page);
         return NULL;
     }
 
-    return (EFPageRef)page;
+    return (EFPageRef)EFAUTOTRANSFER(page);
 }
 
 EFIndex EFPageGetLength(EFPageRef pageRef)

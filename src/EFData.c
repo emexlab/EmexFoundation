@@ -53,25 +53,16 @@ static EFStringRef __EFDataCopyDescription(EFObjectRef dataRef)
 {
     __EFData data = (__EFData)dataRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(dataRef);
-    EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EFSTR("<"));
-    if(mutableStringRef == NULL)
+    EFAUTOREL EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EFSTR("<"));
+
+    if(mutableStringRef == NULL ||
+       !EFStringAppendString(mutableStringRef, data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData")) ||
+       !EFStringAppendFormat(mutableStringRef, EFSTR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
     {
         return NULL;
     }
 
-    if(!EFStringAppendString(mutableStringRef, data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData")))
-    {
-        EFRelease(mutableStringRef);
-        return NULL;
-    }
-
-    if(!EFStringAppendFormat(mutableStringRef, EFSTR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
-    {
-        EFRelease(mutableStringRef);
-        return NULL;
-    }
-
-    return mutableStringRef;
+    return EFAUTOTRANSFER(mutableStringRef);
 }
 
 static EFClass EFDataClass = {
@@ -107,7 +98,7 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    __EFData data = (__EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct __EFData) + (isInlined ? length : 0));
+    EFAUTOREL __EFData data = (__EFData)EFObjectAlloc(allocatorRef, EFDataGetTypeID(), sizeof(struct __EFData) + (isInlined ? length : 0));
     if(data == NULL)
     {
         return NULL;
@@ -118,7 +109,6 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
         data->buffer = malloc((size_t)length);
         if(data->buffer == NULL)
         {
-            EFRelease((EFDataRef)data);
             return NULL;
         }
 
@@ -144,7 +134,7 @@ needs_copy:
     data->isInlined = !isMutable && isInlined;  /* isInlined is only possible when isMutable is not enabled */
     data->isMutable = isMutable;
 
-    return (EFDataRef)data;
+    return (EFDataRef)EFAUTOTRANSFER(data);
 }
 
 static inline EFDataRef __EFDataCreateCopy(EFAllocatorRef allocatorRef,

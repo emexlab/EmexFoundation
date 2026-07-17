@@ -93,7 +93,7 @@ EFTypeID EFFileHandleGetTypeID(void)
 
 EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
 {
-    __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
+    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
@@ -106,7 +106,6 @@ EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
     fileHandle->virtualFileDescriptor.pageGroupRef = EFPageGroupCreate(allocatorRef);
     if(fileHandle->virtualFileDescriptor.pageGroupRef == NULL)
     {
-        EFRelease(fileHandle);
         return NULL;
     }
 
@@ -114,7 +113,7 @@ EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
     fileHandle->readable = true;
     fileHandle->writable = true;
 
-    return fileHandle;
+    return (EFFileHandleRef)EFAUTOTRANSFER(fileHandle);
 }
 
 EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef,
@@ -126,7 +125,7 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
         return NULL;
     }
 
-    __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
+    EFAUTOREL __EFFileHandle fileHandle = (__EFFileHandle)EFObjectAlloc(allocatorRef, EFFileHandleGetTypeID(), sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;
@@ -138,7 +137,6 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
     fileHandle->flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
     if(fileHandle->flg == -1)
     {
-        EFRelease(fileHandle);
         return NULL;
     }
 
@@ -146,7 +144,7 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
     fileHandle->readable = access_mode == O_RDONLY || access_mode == O_RDWR;
     fileHandle->writable = access_mode == O_WRONLY || access_mode == O_RDWR;
 
-    return fileHandle;
+    return (EFFileHandleRef)EFAUTOTRANSFER(fileHandle);
 }
 
 EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef,
