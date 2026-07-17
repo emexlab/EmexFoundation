@@ -38,8 +38,8 @@ typedef struct EFAllocator {
     void *info; /* a more complex allocator in the future will need this */
 
     /* handlers */
-    EVAllocatorAllocCallback allocate;
-    EVAllocatorDeallocCallback deallocate;
+    EFAllocatorAllocCallback allocate;
+    EFAllocatorDeallocCallback deallocate;
 } EFAllocator;
 
 extern EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef, EFTypeID typeID, size_t size);
