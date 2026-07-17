@@ -43,6 +43,8 @@ extern EFTypeID EFClassRegister(EFClass *cls);
 extern EFClass *EFClassGetByID(EFTypeID id);
 
 extern EFTypeID EFGetTypeID(EFObjectRef ref);
+extern EFRootType EFGetRootType(EFObjectRef ref);
+
 extern Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
 extern EFObjectRef EFRetain(EFObjectRef ref);

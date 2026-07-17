@@ -50,7 +50,6 @@ static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
         return NULL;
     }
     object->_rt = kEFRootTypeObject;
-    object->isStatic = false;
     object->refcount = 1;
     object->typeID = class->typeID;
     object->allocatorRef = allocatorRef;

@@ -113,8 +113,10 @@ typedef enum: UInt8 {
 
 /* special types */
 typedef enum: UInt8 {
+    kEFRootTypeNotARootType,
     kEFRootTypeAllocator,
-    kEFRootTypeObject
+    kEFRootTypeObject,
+    kEFRootTypeStaticObject,
 } EFRootType;
 
 typedef unsigned long EFTypeID;

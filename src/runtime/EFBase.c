@@ -45,6 +45,16 @@ EFTypeID EFGetTypeID(EFObjectRef ref)
     return ((EFObject*)ref)->typeID;
 }
 
+extern EFRootType EFGetRootType(EFObjectRef ref)
+{
+    EFObject *object = (EFObject*)ref;
+    if(object == NULL)
+    {
+        return kEFRootTypeNotARootType;
+    }
+    return object->_rt;
+}
+
 Boolean EFEqual(EFObjectRef ref1,
                 EFObjectRef ref2)
 {
@@ -78,7 +88,7 @@ EFObjectRef EFRetain(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    if(object->isStatic)
+    if(object->_rt == kEFRootTypeStaticObject)
     {
         return ref;
     }
@@ -90,7 +100,7 @@ void EFRelease(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    if(object->isStatic)
+    if(object->_rt == kEFRootTypeStaticObject)
     {
         return;
     }
@@ -150,7 +160,7 @@ EFIndex EFGetRetainCount(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
-    if(object->isStatic)
+    if(object->_rt == kEFRootTypeStaticObject)
     {
         return 1;   /* static.. */
     }
@@ -205,7 +215,7 @@ EFStringRef EFCopyDescription(EFObjectRef ref)
         }
         return string;
     }
-    else if(object->_rt == kEFRootTypeObject)
+    else if(object->_rt == kEFRootTypeObject || object->_rt == kEFRootTypeStaticObject)
     {
         EFClass *cls = EFClassGetByID(object->typeID);
         if(cls == NULL)

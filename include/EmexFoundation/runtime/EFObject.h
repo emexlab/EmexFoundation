@@ -28,8 +28,12 @@
 #include <EmexFoundation/runtime/EFBase.h>
 
 typedef struct {
+    /*
+     * the root type telling the runtime
+     * what flavour the object is.
+     */
     EFRootType _rt;
-    
+
     /*
      * the typeID of the class of that
      * object, similar to CFRuntime.
@@ -38,9 +42,6 @@ typedef struct {
 
     /* self explainatory */
     EFAllocatorRef allocatorRef;
-
-    /* is not allocated by a allocator for example */
-    Boolean isStatic;
 
     /*
      * reference count of an object if
