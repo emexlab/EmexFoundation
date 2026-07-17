@@ -194,10 +194,8 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFMutableArrayRef mutableArguments = NULL;
-    EFStringRef executablePath = NULL;
-    EFStringRef commandRef = NULL;
-    EFArrayRef arguments = NULL;
+    EFAUTOREL EFMutableArrayRef mutableArguments = NULL;
+    EFAUTOREL EFStringRef executablePath = NULL;
 
     SInt32 pid = 0;
     SInt32 ppid = 0;
@@ -417,10 +415,6 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 
     if(cp >= &procArgs[size] || argc <= 0)
     {
-        if(executablePath != NULL)
-        {
-            EFRelease(executablePath);
-        }
         free(procArgs);
         return NULL;
     }
@@ -428,10 +422,6 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     mutableArguments = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, argc);
     if(mutableArguments == NULL)
     {
-        if(executablePath != NULL)
-        {
-            EFRelease(executablePath);
-        }
         free(procArgs);
         return NULL;
     }
@@ -441,27 +431,9 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     {
         if(arg_count > 0)
         {
-            EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
-            if(argument == NULL)
+            EFAUTOREL EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
+            if(argument == NULL || !EFArrayAppendValue(mutableArguments, argument))
             {
-                EFRelease(mutableArguments);
-                if(executablePath != NULL)
-                {
-                    EFRelease(executablePath);
-                }
-                free(procArgs);
-                return NULL;
-            }
-
-            Boolean success = EFArrayAppendValue(mutableArguments, argument);
-            EFRelease(argument);
-            if(!success)
-            {
-                EFRelease(mutableArguments);
-                if(executablePath != NULL)
-                {
-                    EFRelease(executablePath);
-                }
                 free(procArgs);
                 return NULL;
             }
@@ -500,11 +472,11 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                     }
                     while(cp < end && *cp != '\0')
                     {
-                        EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
-                        if(argument != NULL)
+                        EFAUTOREL EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
+                        if(argument == NULL || !EFArrayAppendValue(mutableArguments, argument))
                         {
-                            EFArrayAppendValue(mutableArguments, argument);
-                            EFRelease(argument);
+                            free(argsBuf);
+                            return NULL;
                         }
                         cp += strlen(cp) + 1;
                     }
@@ -519,15 +491,12 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 skip_arg_copy:
     if(mutableArguments == NULL && (mutableArguments = EFArrayCreate(allocatorRef, kEFArrayCallbacksObjectCallbacks, NULL, 0)) == NULL)
     {
-        EFReleaseTry(executablePath);
         return NULL;
     }
 
-    commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+    EFAUTOREL EFStringRef commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
     if(executablePath == NULL && (executablePath = EFRetainTry(commandRef)) == NULL)
     {
-        EFReleaseTry(commandRef);
-        EFReleaseTry(mutableArguments);
         return NULL;
     }
 #else
@@ -543,28 +512,15 @@ skip_arg_copy:
 
     if(commandRef == NULL)
     {
-        if(executablePath != NULL)
-        {
-            EFRelease(executablePath);
-        }
-        if(mutableArguments != NULL)
-        {
-            EFRelease(mutableArguments);
-        }
         return NULL;
     }
 
+    EFAUTOREL EFArrayRef arguments = NULL;
     if(mutableArguments != NULL)
     {
         arguments = EFArrayCreateCopy(allocatorRef, mutableArguments);
-        EFRelease(mutableArguments);
         if(arguments == NULL)
         {
-            if(executablePath != NULL)
-            {
-                EFRelease(executablePath);
-            }
-            EFRelease(commandRef);
             return NULL;
         }
     }
@@ -572,21 +528,12 @@ skip_arg_copy:
     __EFProcess process = (__EFProcess)EFObjectCreate(allocatorRef, EFProcessGetTypeID(), (EFIndex)sizeof(struct __EFProcess));
     if(process == NULL)
     {
-        if(executablePath != NULL)
-        {
-            EFRelease(executablePath);
-        }
-        if(arguments != NULL)
-        {
-            EFRelease(arguments);
-        }
-        EFRelease(commandRef);
         return NULL;
     }
 
-    process->executablePath = executablePath;
-    process->command = commandRef;
-    process->arguments = arguments;
+    process->executablePath = EFAUTOTRANSFER(executablePath);
+    process->command = EFAUTOTRANSFER(commandRef);
+    process->arguments = EFAUTOTRANSFER(arguments);
     process->processIdentifier = pid;
     process->parentProcessIdentifier = ppid;
     process->userIdentifier = uid;
