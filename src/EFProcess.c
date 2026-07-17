@@ -517,8 +517,22 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 
 #ifdef __APPLE__
 skip_arg_copy:
-#endif /* __APPLE__ */
+    if(mutableArguments == NULL && (mutableArguments = EFArrayCreate(allocatorRef, kEFArrayCallbacksObjectCallbacks, NULL, 0)) == NULL)
+    {
+        EFReleaseTry(executablePath);
+        return NULL;
+    }
+
     commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+    if(executablePath == NULL && (executablePath = EFRetainTry(commandRef)) == NULL)
+    {
+        EFReleaseTry(commandRef);
+        EFReleaseTry(mutableArguments);
+        return NULL;
+    }
+#else
+    commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+#endif /* __APPLE__ */
 
 #ifdef __linux__
     if(commandCString != NULL)
