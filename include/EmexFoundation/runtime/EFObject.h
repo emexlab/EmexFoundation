@@ -28,6 +28,8 @@
 #include <EmexFoundation/runtime/EFBase.h>
 
 typedef struct {
+    EFRootType _rt;
+    
     /*
      * the typeID of the class of that
      * object, similar to CFRuntime.

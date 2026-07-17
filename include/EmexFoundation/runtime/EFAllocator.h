@@ -28,8 +28,11 @@
 #include <EmexFoundation/runtime/EFBase.h>
 
 extern EFAllocatorRef kEFAllocatorDefault;
+extern EFAllocatorRef kEFAllocatorMalloc;
 
 typedef struct EFAllocator {
+    EFRootType _rt;
+
     /* properties  */
     const char *name;
     void *info; /* a more complex allocator in the future will need this */

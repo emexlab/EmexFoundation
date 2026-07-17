@@ -49,6 +49,7 @@ static EFObjectRef __EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
     {
         return NULL;
     }
+    object->_rt = kEFRootTypeObject;
     object->isStatic = false;
     object->refcount = 1;
     object->typeID = class->typeID;
@@ -69,13 +70,16 @@ static void __EFAllocatorDefaultDeallocate(EFAllocatorRef allocatorRef,
     free(ref);
 }
 
-EFAllocatorRef kEFAllocatorDefault = (EFAllocatorRef)&(EFAllocator){
-    .name = "EFAllocatorDefault",
+EFAllocatorRef kEFAllocatorMalloc = (EFAllocatorRef)&(EFAllocator){
+    ._rt = kEFRootTypeAllocator,
+    .name = "EFAllocatorMalloc",
     .info = NULL,
 
     .allocate = __EFAllocatorDefaultAllocate,
     .deallocate = __EFAllocatorDefaultDeallocate,
 };
+
+EFAllocatorRef kEFAllocatorDefault = NULL;
 
 EFObjectRef EFObjectAlloc(EFAllocatorRef allocatorRef,
                           EFTypeID typeID,
@@ -98,4 +102,11 @@ void EFObjectDealloc(EFObjectRef ref)
     EFObject *object = (EFObject*)ref;
     assert(object != NULL);
     ((EFAllocator*)(object->allocatorRef))->deallocate(object->allocatorRef, object);
+}
+
+__attribute__((constructor(101)))
+static void EFAllocatorConstructor(void)
+{
+    /* default is malloc */
+    kEFAllocatorDefault = kEFAllocatorMalloc;
 }

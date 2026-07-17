@@ -52,17 +52,7 @@ static void __EFDataDeinit(EFObjectRef dataRef)
 static EFStringRef __EFDataCopyDescription(EFObjectRef dataRef)
 {
     __EFData data = (__EFData)dataRef;
-    EFAllocatorRef allocatorRef = EFGetAllocator(dataRef);
-    EFAUTOREL EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, EFSTR("<"));
-
-    if(mutableStringRef == NULL ||
-       !EFStringAppendString(mutableStringRef, data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData")) ||
-       !EFStringAppendFormat(mutableStringRef, EFSTR(" %p>{buffer = %p, length = %ld}"), dataRef, data->buffer, data->length))
-    {
-        return NULL;
-    }
-
-    return EFAUTOTRANSFER(mutableStringRef);
+    return EFStringCreateWithFormat(EFGetAllocator(dataRef), EFSTR("<%@ %p>{buffer = %p, length = %ld}"), data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData"), dataRef, data->buffer, data->length);
 }
 
 static EFClass EFDataClass = {

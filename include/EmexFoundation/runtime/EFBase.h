@@ -112,6 +112,11 @@ typedef enum: UInt8 {
 } EFComparisonResult;
 
 /* special types */
+typedef enum: UInt8 {
+    kEFRootTypeAllocator,
+    kEFRootTypeObject
+} EFRootType;
+
 typedef unsigned long EFTypeID;
 typedef void *EFObjectRef;      /* so the compiler shuts up */
 typedef void *EFAllocatorRef;

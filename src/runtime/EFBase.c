@@ -195,28 +195,42 @@ EFStringRef EFCopyDescription(EFObjectRef ref)
         return EFSTR("<nil>");
     }
 
-    EFClass *cls = EFClassGetByID(object->typeID);
-    if(cls == NULL)
+    if(object->_rt == kEFRootTypeAllocator)
     {
-        return EFSTR("<nil>");
-    }
-
-    if(cls->copyDescription)
-    {
-        EFStringRef descriptionRef = cls->copyDescription(ref);
-        if(descriptionRef != NULL)
+        EFAllocator *allocator = (EFAllocator*)ref;
+        EFStringRef string = EFStringCreateWithFormat(object->allocatorRef, EFSTR("<%s %p>"), allocator->name, ref);
+        if(string == NULL)
         {
-            return descriptionRef;
+            return EFSTR("<unknown>");
         }
+        return string;
     }
-
-    EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocatorRef, EFSTR("<%s %p>"), cls->name, ref);
-    if(descriptionFallbackRef == NULL)
+    else if(object->_rt == kEFRootTypeObject)
     {
-        return EFSTR("<nil>");
+        EFClass *cls = EFClassGetByID(object->typeID);
+        if(cls == NULL)
+        {
+            return EFSTR("<nil>");
+        }
+
+        if(cls->copyDescription)
+        {
+            EFStringRef descriptionRef = cls->copyDescription(ref);
+            if(descriptionRef != NULL)
+            {
+                return descriptionRef;
+            }
+        }
+
+        EFStringRef descriptionFallbackRef = EFStringCreateWithFormat(object->allocatorRef, EFSTR("<%s %p>"), cls->name, ref);
+        if(descriptionFallbackRef == NULL)
+        {
+            return EFSTR("<nil>");
+        }
+        return descriptionFallbackRef;
     }
 
-    return descriptionFallbackRef;
+    return EFSTR("<unknown>");
 }
 
 void EFLog(EFStringRef formatStringRef, ...)

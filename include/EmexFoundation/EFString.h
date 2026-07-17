@@ -73,6 +73,7 @@ typedef struct __EFString {
         .buffer = (char *)("" cStr ""), \
         .length = (EFIndex)(sizeof("" cStr "") - 1), \
         .header.isStatic = true, \
+        .header._rt = kEFRootTypeObject \
     }; \
     _evk.header.typeID = EFStringGetTypeID(), \
     (EFStringRef)&_evk; \

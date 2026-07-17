@@ -709,7 +709,7 @@ extern EFProcessRef EFProcessGetCurrentProcess(void)
     return EFProcessCurrent;
 }
 
-__attribute__((constructor))
+__attribute__((constructor(102)))
 void EFProcessConstructor(void)
 {
     EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
