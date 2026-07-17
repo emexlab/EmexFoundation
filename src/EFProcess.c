@@ -196,6 +196,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 
     EFAUTOREL EFMutableArrayRef mutableArguments = NULL;
     EFAUTOREL EFStringRef executablePath = NULL;
+    EFAUTOREL EFStringRef commandRef = NULL;
 
     SInt32 pid = 0;
     SInt32 ppid = 0;
@@ -494,7 +495,7 @@ skip_arg_copy:
         return NULL;
     }
 
-    EFAUTOREL EFStringRef commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
+    commandRef = EFStringCreateWithCString(allocatorRef, commandCString, kEFStringEncodingUTF8);
     if(executablePath == NULL && (executablePath = EFRetainTry(commandRef)) == NULL)
     {
         return NULL;
