@@ -70,18 +70,9 @@ static void __EFProcessDeinit(EFObjectRef processRef)
         EFProcessForceKill(processRef);
     }
 
-    if(process->command != NULL)
-    {
-        EFRelease(process->command);
-    }
-    if(process->executablePath != NULL)
-    {
-        EFRelease(process->executablePath);
-    }
-    if(process->arguments != NULL)
-    {
-        EFRelease(process->arguments);
-    }
+    EFReleaseTry(process->command);
+    EFReleaseTry(process->executablePath);
+    EFReleaseTry(process->arguments);
 }
 
 static EFStringRef __EFProcessCopyDescription(EFObjectRef processRef)
