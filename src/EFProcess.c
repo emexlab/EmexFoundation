@@ -27,6 +27,9 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
+#include <signal.h>
+#include <spawn.h>
+#include <sys/wait.h>
 #ifdef __linux__
 #include <limits.h>
 #elif defined(__APPLE__) || defined(__FreeBSD__)
@@ -45,6 +48,7 @@
 
 typedef struct __EFProcess {
     EFObject header;
+    Boolean weSpawnedThis;
 
     /* basic information */
     SInt32 processIdentifier;
@@ -61,6 +65,11 @@ typedef struct __EFProcess {
 static void __EFProcessDeinit(EFObjectRef processRef)
 {
     __EFProcess process = (__EFProcess)processRef;
+    if(process->weSpawnedThis)
+    {
+        EFProcessForceKill(processRef);
+    }
+
     if(process->command != NULL)
     {
         EFRelease(process->command);
@@ -102,6 +111,88 @@ EFTypeID EFProcessGetTypeID(void)
     static pthread_once_t once = PTHREAD_ONCE_INIT;
     pthread_once(&once, EFProcessRegisterClass);
     return EFProcessClass.typeID;
+}
+
+extern char *const *environ;
+
+EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef,
+                                        EFStringRef commandRef,
+                                        EFArrayRef arguments)
+{
+    if(commandRef == NULL || arguments == NULL)
+    {
+        return NULL;
+    }
+
+    const char *commandPtr = EFStringGetCStringPtr(commandRef, kEFStringEncodingUTF8);
+    if(commandPtr == NULL)
+    {
+        return NULL;
+    }
+
+    EFIndex argumentsCount = EFArrayGetCount(arguments) + 1;
+    const char *argv[argumentsCount + 1];
+    argv[0] = commandPtr;
+    for(EFIndex argumentsIndex = 0; argumentsIndex < (argumentsCount - 1); argumentsIndex++)
+    {
+        const char *cptr = EFStringGetCStringPtr(EFArrayGetValueAtIndex(arguments, argumentsIndex), kEFStringEncodingUTF8);
+        if(cptr == NULL)
+        {
+            return NULL;
+        }
+        argv[argumentsIndex + 1] = cptr;
+    }
+    argv[argumentsCount] = NULL;
+
+    pid_t pid = 0;
+    if(posix_spawnp(&pid, commandPtr, NULL, NULL, (char *const *)argv, environ) != 0)
+    {
+        return NULL;
+    }
+
+    __EFProcess process = (__EFProcess)EFProcessCreateWithProcessIdentifier(allocatorRef, pid);
+    process->weSpawnedThis = true;
+    return (EFProcessRef)process;
+}
+
+EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef,
+                                     EFStringRef pathRef,
+                                     EFArrayRef arguments)
+{
+    if(pathRef == NULL || arguments == NULL)
+    {
+        return NULL;
+    }
+
+    const char *pathPtr = EFStringGetCStringPtr(pathRef, kEFStringEncodingUTF8);
+    if(pathPtr == NULL)
+    {
+        return NULL;
+    }
+
+    EFIndex argumentsCount = EFArrayGetCount(arguments) + 1;
+    const char *argv[argumentsCount + 1];
+    argv[0] = pathPtr;
+    for(EFIndex argumentsIndex = 0; argumentsIndex < (argumentsCount - 1); argumentsIndex++)
+    {
+        const char *cptr = EFStringGetCStringPtr(EFArrayGetValueAtIndex(arguments, argumentsIndex), kEFStringEncodingUTF8);
+        if(cptr == NULL)
+        {
+            return NULL;
+        }
+        argv[argumentsIndex + 1] = cptr;
+    }
+    argv[argumentsCount] = NULL;
+
+    pid_t pid = 0;
+    if(posix_spawn(&pid, pathPtr, NULL, NULL, (char *const *)argv, environ) != 0)
+    {
+        return NULL;
+    }
+
+    __EFProcess process = (__EFProcess)EFProcessCreateWithProcessIdentifier(allocatorRef, pid);
+    process->weSpawnedThis = true;
+    return (EFProcessRef)process;
 }
 
 EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
@@ -495,6 +586,7 @@ skip_arg_copy:
     process->parentProcessIdentifier = ppid;
     process->userIdentifier = uid;
     process->groupIdentifier = gid;
+    process->weSpawnedThis = false;
 
     return (EFProcessRef)process;
 }
@@ -576,6 +668,49 @@ EFArrayRef EFProcessGetArguments(EFProcessRef processRef)
     return process->arguments;
 }
 
+Boolean EFProcessSendSignal(EFProcessRef processRef,
+                            SInt32 signal)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return false;
+    }
+
+    return kill(process->processIdentifier, signal) == 0;
+}
+
+Boolean EFProcessSuspend(EFProcessRef processRef)
+{
+    return EFProcessSendSignal(processRef, SIGSTOP);
+}
+
+Boolean EFProcessResume(EFProcessRef processRef)
+{
+    return EFProcessSendSignal(processRef, SIGCONT);
+}
+
+Boolean EFProcessTerminate(EFProcessRef processRef)
+{
+    return EFProcessSendSignal(processRef, SIGTERM);
+}
+
+Boolean EFProcessForceKill(EFProcessRef processRef)
+{
+    return EFProcessSendSignal(processRef, SIGKILL);
+}
+
+Boolean EFProcessIsAlive(EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return false;
+    }
+
+    return getpgid(process->processIdentifier) != -1;
+}
+
 EFProcessRef EFProcessCurrent;
 
 __attribute__((constructor))
@@ -587,4 +722,17 @@ void EFProcessConstructor(void)
         fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
         exit(1);
     }
+}
+
+SInt32 EFProcessWaitPID(EFProcessRef processRef,
+                        int *status,
+                        int options)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return -1;
+    }
+
+    return waitpid(process->processIdentifier, status, options);
 }

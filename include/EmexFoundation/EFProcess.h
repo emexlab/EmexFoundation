@@ -35,8 +35,8 @@ extern EFProcessRef EFProcessCurrent;
 
 EFTypeID EFProcessGetTypeID(void);
 
-EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments); /* unimplemented */
-EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);       /* unimplemented  */
+EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
+EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
 EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
 
 SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
@@ -44,15 +44,18 @@ SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
 SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 
-Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);    /* unimplemented */
-Boolean EFProcessSuspend(EFProcessRef processRef);                      /* unimplemented */
-Boolean EFProcessResume(EFProcessRef processRef);                       /* unimplemented */
-Boolean EFProcessTerminate(EFProcessRef processRef);                    /* unimplemented */
+Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
+Boolean EFProcessSuspend(EFProcessRef processRef);
+Boolean EFProcessResume(EFProcessRef processRef);
+Boolean EFProcessTerminate(EFProcessRef processRef);
+Boolean EFProcessForceKill(EFProcessRef processRef);
 
-Boolean EFProcessIsAlive(EFProcessRef processRef);                      /* unimplemented */
+Boolean EFProcessIsAlive(EFProcessRef processRef);
 
 EFStringRef EFProcessGetCommand(EFProcessRef processRef);
 EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
 EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
+
+SInt32 EFProcessWaitPID(EFProcessRef processRef, int *status, int options);
 
 #endif /* EFPROCESS_H */
