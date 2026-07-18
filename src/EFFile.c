@@ -355,3 +355,13 @@ extension_validation:
     /* couldn't resolve file type lol */
     return kEFFileTypeUnknown;
 }
+
+EFURLRef EFFileGetURL(EFFileRef fileRef)
+{
+    __EFFile file = (__EFFile)fileRef;
+    if(file == NULL)
+    {
+        return NULL;
+    }
+    return file->url;
+}

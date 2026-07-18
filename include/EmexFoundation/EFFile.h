@@ -79,4 +79,6 @@ extern EFFileType EFFileGetType(EFFileRef fileRef);
 
 extern EFFileType EFFileTypeForPath(EFStringRef path, Boolean mustExist);
 
+extern EFURLRef EFFileGetURL(EFFileRef fileRef);
+
 #endif /* EFFILE_H */
