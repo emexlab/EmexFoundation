@@ -20,6 +20,8 @@ add_library(EmexFoundation STATIC
     src/EFFileHandle.c
     src/EFProcess.c
     src/EFURL.c
+    src/EFFile.c
+    src/EFBitWalker.c
 )
 
 target_include_directories(EmexFoundation

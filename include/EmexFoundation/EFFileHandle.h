@@ -57,6 +57,7 @@ extern EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
 extern EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
 extern EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
 extern EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef, EFURLRef urlRef, int flg, ...);
+extern EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
 extern EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
 extern EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);

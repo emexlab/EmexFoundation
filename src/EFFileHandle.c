@@ -375,6 +375,49 @@ EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef,
     return fileHandleRef;
 }
 
+extern EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef,
+                                              EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL __EFFileHandle newFileHandle = (__EFFileHandle)EFObjectCreate(allocatorRef, EFFileHandleGetTypeID(), (EFIndex)sizeof(struct __EFFileHandle));
+    if(fileHandle == NULL)
+    {
+        return NULL;
+    }
+
+    newFileHandle->flg = fileHandle->flg;
+    newFileHandle->readable = fileHandle->readable;
+    newFileHandle->writable = fileHandle->writable;
+    newFileHandle->type = fileHandle->type;
+
+    switch(fileHandle->type)
+    {
+        case kEFFileHandleTypeBSD:
+            newFileHandle->fileDescriptor = dup(fileHandle->fileDescriptor);
+            if(newFileHandle->fileDescriptor < 0)
+            {
+                return NULL;
+            }
+            break;
+        case kEFFileHandleTypeVirtual:
+            newFileHandle->virtualFileDescriptor = fileHandle->virtualFileDescriptor;
+            if(EFRetain(newFileHandle->virtualFileDescriptor.pageGroupRef) == NULL)
+            {
+                return NULL;
+            }
+            break;
+        default:
+            return NULL;
+    }
+
+    return (EFFileHandleRef)EFAUTOTRANSFER(newFileHandle);
+}
+
 EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,
                          UInt8 *buffer,
                          EFIndex length)

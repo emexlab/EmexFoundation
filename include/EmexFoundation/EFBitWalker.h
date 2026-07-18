@@ -19,23 +19,33 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EMEXFOUNDATION_H
-#define EMEXFOUNDATION_H
+#ifndef EFBITWALKER_H
+#define EFBITWALKER_H
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
-#include <EmexFoundation/EFNumber.h>
-#include <EmexFoundation/EFString.h>
-#include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/EFPage.h>
-#include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFFileHandle.h>
-#include <EmexFoundation/EFProcess.h>
-#include <EmexFoundation/EFURL.h>
-#include <EmexFoundation/EFFile.h>
-#include <EmexFoundation/EFBitWalker.h>
 
-#endif /* EMEXFOUNDATION_H */
+typedef struct __EFBitWalker *EFBitWalkerRef;
+
+extern EFTypeID EFBitWalkerGetTypeID(void);
+
+extern EFBitWalkerRef EFBitWalkerCreateWithHandle(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFEndian endian);
+
+extern void EFBitWalkerReset(EFBitWalkerRef walkerRef);
+
+extern Boolean EFBitWalkerWrite(EFBitWalkerRef walkerRef, UInt64 value, UInt8 numBits);
+extern UInt64 EFBitWalkerRead(EFBitWalkerRef walkerRef, UInt8 numBits);
+extern EFIndex EFBitWalkerWriteBuffer(EFBitWalkerRef walkerRef, const char *buffer, EFIndex length);
+extern EFIndex EFBitWalkerReadBuffer(EFBitWalkerRef walkerRef, char *buffer, EFIndex length);
+
+extern void EFBitWalkerSeek(EFBitWalkerRef walkerRef, EFIndex bytePos, UInt8 bitIndex);
+extern void EFBitWalkerSkip(EFBitWalkerRef walkerRef, EFIndex numBits);
+
+extern EFIndex EFBitWalkerBytesUsed(EFBitWalkerRef walkerRef);
+extern void EFBitWalkerAlignByte(EFBitWalkerRef walkerRef);
+extern void EFBitWalkerSync(EFBitWalkerRef walkerRef);
+
+#endif /* EFBITWALKER_H */

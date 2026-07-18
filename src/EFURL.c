@@ -23,6 +23,8 @@
  *  System Headers
  * -------------------------------------------------------------------- */
 #include <pthread.h>
+#include <limits.h>
+#include <stdlib.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -36,7 +38,6 @@ typedef struct __EFURL {
     EFObject header;
     EFURLType type;
     EFArrayRef pathComponents;
-    Boolean isRelative;
 } *__EFURL;
 
 static void __EFURLDeinit(EFObjectRef urlRef)
@@ -73,8 +74,14 @@ EFTypeID EFURLGetTypeID(void)
 }
 
 EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
-                               EFStringRef stringRef)
+                               EFStringRef stringRefRaw)
 {
+    if(stringRefRaw == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFStringRef stringRef = EFRetainTry(stringRefRaw);
     if(stringRef == NULL)
     {
         return NULL;
@@ -103,9 +110,22 @@ EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
     {
         url->type = kEFURLTypePOSIX;
         pathString = EFRetain(stringRef);
+
+        char *tmpPath = malloc(PATH_MAX);
+        if(realpath(EFStringGetCStringPtr(stringRef, kEFStringEncodingUTF8), tmpPath) == NULL)
+        {
+            free(tmpPath);
+        }
+        else
+        {
+            EFStringRef newStringRef = EFStringCreateWithCString(kEFAllocatorDefault, tmpPath, kEFStringEncodingUTF8);
+            if(newStringRef != NULL)
+            {
+                stringRef = newStringRef;
+            }
+        }
     }
 
-    url->isRelative = url->type == kEFURLTypePOSIX && !EFStringHasPrefix(pathString, EFSTR("/"));
     url->pathComponents = EFStringComponentsSplitBySeparator(pathString, EFSTR("/"));
     if(url->pathComponents == NULL)
     {
@@ -135,16 +155,6 @@ EFArrayRef EFURLGetPathComponents(EFURLRef urlRef)
     return url->pathComponents;
 }
 
-Boolean EFURLIsRelative(EFURLRef urlRef)
-{
-    __EFURL url = (__EFURL)urlRef;
-    if(url == NULL)
-    {
-        return false;
-    }
-    return url->isRelative;
-}
-
 EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef,
                           EFURLRef urlRef)
 {
@@ -165,8 +175,6 @@ EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef,
             prefix = EFSTR("http://");
             break;
         case kEFURLTypePOSIX:
-            prefix = url->isRelative ? EFSTR("") : EFSTR("/");
-            [[fallthrough]];
         default:
             break;
     }

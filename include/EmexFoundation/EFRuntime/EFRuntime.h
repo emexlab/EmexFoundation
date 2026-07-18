@@ -25,6 +25,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/EFRuntime/EFEndian.h>
 #include <EmexFoundation/EFRuntime/EFBase.h>
 #include <EmexFoundation/EFRuntime/EFAllocator.h>
 #include <EmexFoundation/EFRuntime/EFClass.h>
