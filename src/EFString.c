@@ -960,8 +960,7 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
     }
 
     /* the separator has to comply to the encoding of the string */
-    if(string->encoding != separatorString->encoding &&
-        !__EFStringValidateEncoding(string->encoding, separatorString->buffer, separatorString->length))
+    if(string->encoding != separatorString->encoding && !__EFStringValidateEncoding(string->encoding, separatorString->buffer, separatorString->length))
     {
         return NULL;
     }
@@ -997,6 +996,13 @@ EFArrayRef EFStringComponentsSplitBySeparator(EFStringRef stringRef,
         if(strncmp(&string->buffer[i], separatorString->buffer, separatorString->length) == 0)
         {
             EFIndex length = i - lastLengthMatch;
+            if(length <= 0)
+            {
+                lastLengthMatch = i + separatorString->length;
+                i += separatorString->length - 1;
+                continue;
+            }
+
             EFStringRef componentRef = EFStringCreateWithBuffer(allocatorRef, (const UInt8 *)&string->buffer[lastLengthMatch], length, string->encoding);
             if(componentRef == NULL)
             {

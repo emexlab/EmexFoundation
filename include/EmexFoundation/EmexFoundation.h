@@ -34,5 +34,6 @@
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFProcess.h>
+#include <EmexFoundation/EFURL.h>
 
 #endif /* EMEXFOUNDATION_H */
