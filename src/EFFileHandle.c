@@ -34,7 +34,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFPageGroup.h>
 

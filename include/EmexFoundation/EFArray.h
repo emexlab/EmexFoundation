@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 typedef struct __EFArray *EFArrayRef;
 typedef struct __EFArray *EFMutableArrayRef;

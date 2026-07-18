@@ -30,7 +30,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 typedef struct __EFData *EFDataRef;
 typedef struct __EFData *EFMutableDataRef;

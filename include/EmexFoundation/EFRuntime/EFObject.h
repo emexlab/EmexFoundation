@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/EFRuntime/EFBase.h>
 
 typedef struct {
     /*

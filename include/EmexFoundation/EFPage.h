@@ -31,7 +31,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 typedef struct __EFPage *EFPageRef;
 

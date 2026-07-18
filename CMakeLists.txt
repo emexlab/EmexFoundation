@@ -8,8 +8,8 @@ project(EmexFoundation
 find_package(Threads REQUIRED)
 
 add_library(EmexFoundation STATIC
-    src/runtime/EFBase.c
-    src/runtime/EFAllocator.c
+    src/EFRuntime/EFBase.c
+    src/EFRuntime/EFAllocator.c
 
     src/EFNumber.c
     src/EFString.c

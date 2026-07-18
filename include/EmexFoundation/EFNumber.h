@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 typedef enum: UInt8 {
     kEFNumberTypeOverflow,  /* so that other APIs can indicate that as a error */

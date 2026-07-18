@@ -25,7 +25,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFNumber.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>

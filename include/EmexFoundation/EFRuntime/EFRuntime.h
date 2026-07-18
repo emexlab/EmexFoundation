@@ -25,10 +25,10 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFBase.h>
-#include <EmexFoundation/runtime/EFAllocator.h>
-#include <EmexFoundation/runtime/EFClass.h>
-#include <EmexFoundation/runtime/EFObject.h>
+#include <EmexFoundation/EFRuntime/EFBase.h>
+#include <EmexFoundation/EFRuntime/EFAllocator.h>
+#include <EmexFoundation/EFRuntime/EFClass.h>
+#include <EmexFoundation/EFRuntime/EFObject.h>
 
 /* releases the object when it's out of scope */
 #define EFAUTOREL __attribute__((cleanup(EFReleaseTryHelper)))

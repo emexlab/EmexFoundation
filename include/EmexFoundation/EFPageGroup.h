@@ -25,9 +25,9 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFPage.h>
 #include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef struct __EFPageGroup *EFPageGroupRef;
 

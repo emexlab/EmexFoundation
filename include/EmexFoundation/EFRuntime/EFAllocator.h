@@ -19,27 +19,34 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EFCLASS_H
-#define EFCLASS_H
+#ifndef EFALLOCATOR_H
+#define EFALLOCATOR_H
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFBase.h>
+#include <EmexFoundation/EFRuntime/EFBase.h>
 
-#define EF_MAX_CLASSES  1024
+extern EFAllocatorRef kEFAllocatorDefault;
+extern EFAllocatorRef kEFAllocatorMalloc;
 
-typedef struct {
+typedef struct EFAllocator {
+    EFRootType _rt;
+
     /* properties  */
     const char *name;
-    EFTypeID typeID;
+    void *info; /* a more complex allocator in the future will need this */
 
     /* handlers */
-    EFObjectInitCallback init;
-    EFObjectDeinitCallback deinit;
-    EFObjectEqualCallback equal;
-    EFObjectCopyDescriptionCallback copyDescription;
-    EFObjectHashCallback hash;
-} EFClass;
+    EFAllocatorAllocateCallback allocate;
+    EFAllocatorDeallocateCallback deallocate;
+    EFAllocatorReallocateCallback reallocate;
+} EFAllocator;
 
-#endif /* EFCLASS_H */
+extern EFObjectRef EFObjectCreate(EFAllocatorRef allocatorRef, EFTypeID typeID, EFIndex size);
+
+extern void *EFAllocatorAllocate(EFAllocatorRef allocatorRef, EFIndex size, EFOptionFlags hint);
+extern void *EFAllocatorReallocate(EFAllocatorRef allocatorRef, void *ptr, EFIndex newSize, EFOptionFlags hint);
+extern void EFAllocatorDeallocate(EFAllocatorRef allocatorRef, void *ptr);
+
+#endif /* EFALLOCATOR_H */

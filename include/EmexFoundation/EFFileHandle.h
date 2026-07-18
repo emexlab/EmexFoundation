@@ -31,10 +31,10 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFPageGroup.h>
-#include <EmexFoundation/runtime/EFRuntime.h>
 
 typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,

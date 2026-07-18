@@ -29,7 +29,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/runtime/EFRuntime.h>
+#include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 static void *__EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
                                           EFIndex size,
