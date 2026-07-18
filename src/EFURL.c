@@ -47,8 +47,7 @@ static void __EFURLDeinit(EFObjectRef urlRef)
 
 static EFStringRef __EFURLCopyDescription(EFObjectRef urlRef)
 {
-    __EFURL url = (__EFURL)urlRef;
-    return EFStringCreateWithFormat(EFGetAllocator(urlRef), EFSTR("<EFURL %p>{type = %d, pathComponents = %@, isRelative = %d}"), urlRef, url->type, url->pathComponents, url->isRelative);
+    return EFURLCopyPath(EFGetAllocator(urlRef), urlRef);
 }
 
 EFClass EFURLClass = {
