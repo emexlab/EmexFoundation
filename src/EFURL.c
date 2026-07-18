@@ -189,3 +189,59 @@ EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef,
 
     return EFAUTOTRANSFER(mutableString);
 }
+
+EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef,
+                                       EFURLRef urlRef)
+{
+    __EFURL url = (__EFURL)urlRef;
+    if(url == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(kEFAllocatorDefault, EFSTR(""));
+
+    EFIndex pathComponentCount = EFArrayGetCount(url->pathComponents);
+    for(EFIndex index = 0; index < pathComponentCount; index++)
+    {
+        if(index > 0 && !EFStringAppendString(mutableString, EFSTR("/")))
+        {
+            return NULL;
+        }
+
+        if(!EFStringAppendString(mutableString, EFArrayGetValueAtIndex(url->pathComponents, index)))
+        {
+            return NULL;
+        }
+    }
+
+    return EFAUTOTRANSFER(mutableString);
+}
+
+EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef,
+                                         EFURLRef urlRef)
+{
+    __EFURL url = (__EFURL)urlRef;
+    if(url == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(kEFAllocatorDefault, EFSTR(""));
+
+    EFIndex pathComponentCount = EFArrayGetCount(url->pathComponents);
+    for(EFIndex index = 1; index < pathComponentCount; index++)
+    {
+        if(index > 1 && !EFStringAppendString(mutableString, EFSTR("/")))
+        {
+            return NULL;
+        }
+
+        if(!EFStringAppendString(mutableString, EFArrayGetValueAtIndex(url->pathComponents, index)))
+        {
+            return NULL;
+        }
+    }
+
+    return EFAUTOTRANSFER(mutableString);
+}

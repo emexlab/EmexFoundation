@@ -46,5 +46,7 @@ extern EFArrayRef EFURLGetPathComponents(EFURLRef urlRef);
 extern Boolean EFURLIsRelative(EFURLRef urlRef);
 
 extern EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+extern EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+extern EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef, EFURLRef urlRef);
 
 #endif /* EFURL_H */

@@ -22,6 +22,7 @@
 /* ----------------------------------------------------------------------
  *  System Headers
  * -------------------------------------------------------------------- */
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +31,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -43,11 +46,10 @@ typedef struct __EFFileHandle {
     int flg;
     Boolean readable;
     Boolean writable;
-    Boolean isBackedByFileDescriptor;
+    EFFileHandleType type;
 
     union {
         int fileDescriptor;
-
         struct {
             EFIndex offset;
             EFIndex endOffset;  /* last offset written to */
@@ -59,13 +61,16 @@ typedef struct __EFFileHandle {
 static void __EVFileHandleDeinit(EFObjectRef fileHandleRef)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        close(fileHandle->fileDescriptor);
-    }
-    else if(fileHandle->virtualFileDescriptor.pageGroupRef != NULL)
-    {
-        EFRelease(fileHandle->virtualFileDescriptor.pageGroupRef);
+        case kEFFileHandleTypeBSD:
+            close(fileHandle->fileDescriptor);
+            break;
+        case kEFFileHandleTypeVirtual:
+            EFRelease(fileHandle->virtualFileDescriptor.pageGroupRef);
+            [[fallthrough]];
+        default:
+            break;
     }
 }
 
@@ -100,7 +105,7 @@ EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef)
     }
 
     fileHandle->fileDescriptor = -1;
-    fileHandle->isBackedByFileDescriptor = false;
+    fileHandle->type = kEFFileHandleTypeVirtual;
     fileHandle->virtualFileDescriptor.offset = 0;
     fileHandle->virtualFileDescriptor.endOffset = 0;
     fileHandle->virtualFileDescriptor.pageGroupRef = EFPageGroupCreate(allocatorRef);
@@ -132,7 +137,7 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
     }
 
     fileHandle->fileDescriptor = fd;
-    fileHandle->isBackedByFileDescriptor = true;
+    fileHandle->type = kEFFileHandleTypeBSD;
 
     fileHandle->flg = fcntl(fileHandle->fileDescriptor, F_GETFL);
     if(fileHandle->flg == -1)
@@ -185,14 +190,159 @@ EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef
     return fileHandleRef;
 }
 
+static EFFileHandleRef __EFFileHandleCreateNetDesc(EFAllocatorRef allocatorRef,
+                                                   EFURLRef urlRef)
+{
+    EFArrayRef pathComponents = EFURLGetPathComponents(urlRef);
+    if(pathComponents == NULL || EFArrayGetCount(pathComponents) <= 0)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFStringRef path = EFURLCopyPathWithoutHostname(allocatorRef, urlRef);
+    const char *pathCPtr = EFStringGetCStringPtr(path, kEFStringEncodingUTF8);
+    const char *hostNameCPtr = EFStringGetCStringPtr(EFArrayGetValueAtIndex(pathComponents, 0), kEFStringEncodingUTF8);
+    if(pathCPtr == NULL || hostNameCPtr == NULL)
+    {
+        return NULL;
+    }
+
+    FILE *sslPipe = NULL;
+    int sockfd = -1;
+    EFURLType urlType = EFURLGetType(urlRef);
+    switch(urlType)
+    {
+        case kEFURLTypeHTTP:
+            struct addrinfo hints, *res;
+
+            memset(&hints, 0, sizeof(hints));
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_socktype = SOCK_STREAM;
+            if(getaddrinfo(hostNameCPtr, "80", &hints, &res) != 0)
+            {
+                return NULL;
+            }
+
+            sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+            if(sockfd != -1)
+            {
+                if(connect(sockfd, res->ai_addr, res->ai_addrlen) == -1)
+                {
+                    close(sockfd);
+                    sockfd = -1;
+                }
+            }
+
+            freeaddrinfo(res);
+            if(sockfd == -1)
+            {
+                return NULL;
+            }
+
+            char request[512];
+            snprintf(request, sizeof(request),
+                "GET /%s HTTP/1.1\r\n"
+                "Host: %s\r\n"
+                "Connection: close\r\n\r\n",
+                pathCPtr, hostNameCPtr);
+
+            if(write(sockfd, request, strlen(request)) < 0)
+            {
+                close(sockfd);
+                return NULL;
+            }
+            break;
+        case kEFURLTypeHTTPS:
+            char cmd[1024];
+            snprintf(cmd, sizeof(cmd), "curl -s -i \"https://%s/%s\"", hostNameCPtr, pathCPtr);
+
+            sslPipe = popen(cmd, "r");
+            if(sslPipe == NULL)
+            {
+                return NULL;
+            }
+
+            sockfd = fileno(sslPipe);
+            break;
+        case kEFURLTypePOSIX:
+        default:
+            return NULL;
+    }
+
+    char c;
+    int state = 0;
+    while(read(sockfd, &c, 1) == 1)
+    {
+        if(c == '\r' && state == 0)
+        {
+            state = 1;
+        }
+        else if(c == '\n' && state == 1)
+        {
+            state = 2;
+        }
+        else if(c == '\r' && state == 2)
+        {
+            state = 3;
+        }
+        else if(c == '\n' && state == 3)
+        {
+            break;
+        }
+        else
+        {
+            state = 0;
+        }
+    }
+
+    EFFileHandleRef virtualHandle = EFFileHandleCreate(allocatorRef);
+    if(!virtualHandle)
+    {
+        if(sslPipe)
+        {
+            pclose(sslPipe);
+        }
+        else
+        {
+            close(sockfd);
+        }
+        return NULL;
+    }
+
+    /* need a run-loop later! */
+    UInt8 downloadBuffer[4096];
+    ssize_t networkBytesRead;
+    while((networkBytesRead = read(sockfd, downloadBuffer, sizeof(downloadBuffer))) > 0)
+    {
+        EFFileHandleWrite(virtualHandle, downloadBuffer, (EFIndex)networkBytesRead);
+    }
+
+    if(sslPipe)
+    {
+        pclose(sslPipe);
+    }
+    else
+    {
+        close(sockfd);
+    }
+    EFFileHandleSeek(virtualHandle, 0, kEFFileHandleSeekTypeSet);
+
+    return virtualHandle;
+}
+
 EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef,
                                                     EFURLRef urlRef,
                                                     int flg,
                                                     ...)
 {
-    if(urlRef == NULL || EFURLGetType(urlRef) != kEFURLTypePOSIX)
+    if(urlRef == NULL)
     {
         return NULL;
+    }
+
+    if(EFURLGetType(urlRef) == kEFURLTypeHTTP || EFURLGetType(urlRef) == kEFURLTypeHTTPS)
+    {
+        return __EFFileHandleCreateNetDesc(allocatorRef, urlRef);
     }
 
     EFStringRef string = EFURLCopyPath(allocatorRef, urlRef);
@@ -235,20 +385,20 @@ EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        return (EFIndex)read(fileHandle->fileDescriptor, buffer, (size_t)length);
+        case kEFFileHandleTypeBSD:
+            return (EFIndex)read(fileHandle->fileDescriptor, buffer, (size_t)length);
+        case kEFFileHandleTypeVirtual:
+            EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, (size_t)fileHandle->virtualFileDescriptor.offset, buffer, length);
+            if(vret > 0)
+            {
+                fileHandle->virtualFileDescriptor.offset += vret;
+            }
+            return vret;
+        default:
+            return -1;
     }
-    else
-    {
-        EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, (size_t)fileHandle->virtualFileDescriptor.offset, buffer, length);
-        if(vret > 0)
-        {
-            fileHandle->virtualFileDescriptor.offset += vret;
-        }
-        return vret;
-    }
-    return -1;
 }
 
 EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
@@ -261,37 +411,37 @@ EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+     switch(fileHandle->type)
     {
-        return (EFIndex)write(fileHandle->fileDescriptor, buffer, (size_t)length);
-    }
-    else
-    {
-        EFIndex start = fileHandle->virtualFileDescriptor.offset;
-        EFIndex endOffset = start + length;
+        case kEFFileHandleTypeBSD:
+            return (EFIndex)write(fileHandle->fileDescriptor, buffer, (size_t)length);
+        case kEFFileHandleTypeVirtual:
+            EFIndex start = fileHandle->virtualFileDescriptor.offset;
+            EFIndex endOffset = start + length;
 
-        while(endOffset > EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef))
-        {
-            if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
+            while(endOffset > EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef))
             {
-                return -1;
+                if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
+                {
+                    return -1;
+                }
             }
-        }
 
-        EFIndex vret = EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, start, buffer, length);
-        if(vret < 0)
-        {
+            EFIndex vret = EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, start, buffer, length);
+            if(vret < 0)
+            {
+                return vret;
+            }
+
+            fileHandle->virtualFileDescriptor.offset = start + vret;
+            if(fileHandle->virtualFileDescriptor.offset > fileHandle->virtualFileDescriptor.endOffset)
+            {
+                fileHandle->virtualFileDescriptor.endOffset = fileHandle->virtualFileDescriptor.offset;
+            }
             return vret;
-        }
-
-        fileHandle->virtualFileDescriptor.offset = start + vret;
-        if(fileHandle->virtualFileDescriptor.offset > fileHandle->virtualFileDescriptor.endOffset)
-        {
-            fileHandle->virtualFileDescriptor.endOffset = fileHandle->virtualFileDescriptor.offset;
-        }
-        return vret;
+        default:
+            return -1;
     }
-    return -1;
 }
 
 EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
@@ -303,49 +453,51 @@ EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef,
         return -1;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        return (EFIndex)ftruncate(fileHandle->fileDescriptor, length);
-    }
-    else
-    {
-        if(length < 0)
-        {
-
-            return -1;
-        }
-
-        EFIndex newlen = length;
-        EFIndex oldlen = fileHandle->virtualFileDescriptor.endOffset;
-
-        /* make sure the backing store can hold the new lenght */
-        while(EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef) < newlen)
-        {
-            if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
+        case kEFFileHandleTypeBSD:
+            return (EFIndex)ftruncate(fileHandle->fileDescriptor, length);
+        case kEFFileHandleTypeVirtual:
+            if(length < 0)
             {
                 return -1;
             }
-        }
 
-        if(newlen < oldlen)
-        {
-            EFIndex pageSize = __EFPageGetPageLength();
-            uint8_t zeros[pageSize];
-            memset(zeros, 0, pageSize);
-            EFIndex pos = newlen;
-            while(pos < oldlen)
+            EFIndex newlen = length;
+            EFIndex oldlen = fileHandle->virtualFileDescriptor.endOffset;
+
+            /* make sure the backing store can hold the new lenght */
+            while(EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef) < newlen)
             {
-                EFIndex chunk = oldlen - pos;
-                if(chunk > (EFIndex)sizeof(zeros))
+                if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
                 {
-                    chunk = (EFIndex)sizeof(zeros);
+                    return -1;
                 }
-                EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, pos, zeros, chunk);
-                pos += chunk;
             }
-        }
+
+            if(newlen < oldlen)
+            {
+                EFIndex pageSize = __EFPageGetPageLength();
+                uint8_t zeros[pageSize];
+                memset(zeros, 0, pageSize);
+                EFIndex pos = newlen;
+                while(pos < oldlen)
+                {
+                    EFIndex chunk = oldlen - pos;
+                    if(chunk > (EFIndex)sizeof(zeros))
+                    {
+                        chunk = (EFIndex)sizeof(zeros);
+                    }
+                    EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, pos, zeros, chunk);
+                    pos += chunk;
+                }
+            }
+
+            fileHandle->virtualFileDescriptor.endOffset = newlen;
+            return 0;
+        default:
+            return -1;
     }
-    return -1;
 }
 
 EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
@@ -374,43 +526,42 @@ EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef,
             return -1;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        return (EFIndex)lseek(fileHandle->fileDescriptor, offset, a);
-    }
-    else
-    {
-        EFIndex base;
-        switch(a)
-        {
-            case SEEK_SET:
-                base = 0;
-                break;
-            case SEEK_CUR:
-                base = fileHandle->virtualFileDescriptor.offset;
-                break;
-            case SEEK_END:
-                base = fileHandle->virtualFileDescriptor.endOffset;
-                break;
-            default:
+        case kEFFileHandleTypeBSD:
+            return (EFIndex)lseek(fileHandle->fileDescriptor, offset, a);
+        case kEFFileHandleTypeVirtual:
+            EFIndex base;
+            switch(a)
+            {
+                case SEEK_SET:
+                    base = 0;
+                    break;
+                case SEEK_CUR:
+                    base = fileHandle->virtualFileDescriptor.offset;
+                    break;
+                case SEEK_END:
+                    base = fileHandle->virtualFileDescriptor.endOffset;
+                    break;
+                default:
+                    return -1;
+            }
+
+            EFIndex newOffset;
+            if(__builtin_add_overflow(base, offset, &newOffset))
+            {
                 return -1;
-        }
+            }
+            if(newOffset < 0)
+            {
+                return -1;
+            }
 
-        EFIndex newOffset;
-        if(__builtin_add_overflow(base, offset, &newOffset))
-        {
+            fileHandle->virtualFileDescriptor.offset = newOffset;
+            return newOffset;
+        default:
             return -1;
-        }
-        if(newOffset < 0)
-        {
-            return -1;
-        }
-
-        fileHandle->virtualFileDescriptor.offset = newOffset;
-        return newOffset;
     }
-
-    return -1;
 }
 
 void EFFileHandleSync(EFFileHandleRef fileHandleRef)
@@ -421,7 +572,7 @@ void EFFileHandleSync(EFFileHandleRef fileHandleRef)
         return;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    if(fileHandle->type == kEFFileHandleTypeBSD)
     {
         fsync(fileHandle->fileDescriptor);
     }
@@ -435,18 +586,19 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
         return -1;
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        struct stat fdstat;
-        if(fstat(fileHandle->fileDescriptor, &fdstat) != 0)
-        {
+        case kEFFileHandleTypeBSD:
+            struct stat fdstat;
+            if(fstat(fileHandle->fileDescriptor, &fdstat) != 0)
+            {
+                return -1;
+            }
+            return fdstat.st_size;
+        case kEFFileHandleTypeVirtual:
+            return fileHandle->virtualFileDescriptor.endOffset;
+        default:
             return -1;
-        }
-        return fdstat.st_size;
-    }
-    else
-    {
-        return fileHandle->virtualFileDescriptor.endOffset;
     }
 }
 
@@ -533,29 +685,30 @@ EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
         allocatorRef = EFGetAllocator(fileHandleRef);
     }
 
-    if(fileHandle->isBackedByFileDescriptor)
+    switch(fileHandle->type)
     {
-        int prot_flg = PROT_NONE;
-        prot_flg |= (fileHandle->readable ? PROT_READ : PROT_NONE);
-        prot_flg |= (fileHandle->writable ? PROT_WRITE : PROT_NONE);
+        case kEFFileHandleTypeBSD:
+            int prot_flg = PROT_NONE;
+            prot_flg |= (fileHandle->readable ? PROT_READ : PROT_NONE);
+            prot_flg |= (fileHandle->writable ? PROT_WRITE : PROT_NONE);
 
-        EFPageRef pageRef = EFPageCreateWithOptions(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), prot_flg, MAP_SHARED, fileHandle->fileDescriptor, 0);
-        if(pageRef == NULL)
-        {
-            return NULL;
-        }
+            EFPageRef pageRef = EFPageCreateWithOptions(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), prot_flg, MAP_SHARED, fileHandle->fileDescriptor, 0);
+            if(pageRef == NULL)
+            {
+                return NULL;
+            }
 
-        EFPageGroupRef groupRef = EFPageGroupCreateWithPage(allocatorRef, pageRef);
-        EFRelease(pageRef);
-        if(groupRef == NULL)
-        {
+            EFPageGroupRef groupRef = EFPageGroupCreateWithPage(allocatorRef, pageRef);
+            EFRelease(pageRef);
+            if(groupRef == NULL)
+            {
+                return NULL;
+            }
+            return groupRef;
+        case kEFFileHandleTypeVirtual:
+            return EFPageGroupCreateCopy(allocatorRef, fileHandle->virtualFileDescriptor.pageGroupRef);
+        default:
             return NULL;
-        }
-        return groupRef;
-    }
-    else
-    {
-        return EFPageGroupCreateCopy(allocatorRef, fileHandle->virtualFileDescriptor.pageGroupRef);
     }
 }
 

@@ -38,6 +38,11 @@
 #include <EmexFoundation/EFURL.h>
 
 typedef enum: UInt8 {
+    kEFFileHandleTypeBSD,
+    kEFFileHandleTypeVirtual,
+} EFFileHandleType;
+
+typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,
     kEFFileHandleSeekTypeCur,
     kEFFileHandleSeekTypeEnd,
