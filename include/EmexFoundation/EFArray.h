@@ -55,9 +55,13 @@ extern EFArrayRef EFArrayCreateCopy(EFAllocatorRef allocatorRef, EFArrayRef arra
 extern EFIndex EFArrayGetCount(EFArrayRef arrayRef);
 extern void *EFArrayGetValueAtIndex(EFArrayRef arrayRef, EFIndex index);
 
-extern Boolean EFArrayAppendValue(EFMutableArrayRef arrayRef, void *value);
+extern Boolean EFArrayAppendValue(EFMutableArrayRef mutableArrayRef, void *value);
 
-extern Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef arrayRef, EFIndex index, void *ptr);
-extern void EFArrayRemoveValueAtIndex(EFMutableArrayRef arrayRef, EFIndex index);
+extern Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef mutableArrayRef, EFIndex index, void *ptr);
+extern void EFArrayRemoveValueAtIndex(EFMutableArrayRef mutableArrayRef, EFIndex index);
+
+extern Boolean EFArrayAppendValuesOfArray(EFMutableArrayRef mutableArrayRef, EFArrayRef otherArrayRef);
+extern Boolean EFArrayInsertValuesOfArrayAtIndex(EFMutableArrayRef mutableArrayRef, EFIndex index, EFArrayRef otherArrayRef);   /* unimplemented */
+extern Boolean EFArrayRemoveValuesInRange(EFMutableArrayRef mutableArrayRef, EFRange range);                                    /* unimplemented */
 
 #endif /* EFARRAY_H */

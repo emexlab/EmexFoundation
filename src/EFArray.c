@@ -127,9 +127,8 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
 {
     __EFArray array = (__EFArray)arrayRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
-    EFClass *cls = EFClassGetByID(array->header.typeID);
 
-    EFAUTOREL EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%s %p>{count = %ld, items = {"), cls->name, arrayRef, array->items_cnt);
+    EFAUTOREL EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%@ %p>{count = %ld, items = {"), array->isMutable ? EFSTR("EFMutableArray") : EFSTR("EFArray"), arrayRef, array->items_cnt);
     EFAUTOREL EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, baseStringRef);
     if(mutableStringRef == NULL)
     {
@@ -422,4 +421,56 @@ void EFArrayRemoveValueAtIndex(EFMutableArrayRef mutableArrayRef,
 
     memmove(&mutableArray->items[index], &mutableArray->items[index + 1], (size_t)((mutableArray->items_cnt - index - 1) * sizeof(void*)));
     mutableArray->items_cnt--;
+}
+
+Boolean EFArrayAppendValuesOfArray(EFMutableArrayRef mutableArrayRef,
+                                   EFArrayRef otherArrayRef)
+{
+    __EFArray mutableArray = (__EFArray)mutableArrayRef;
+    __EFArray otherArray = (__EFArray)otherArrayRef;
+    if(mutableArray == NULL || otherArray == NULL || !mutableArray->isMutable || mutableArray->callbacks != otherArray->callbacks)
+    {
+        return false;
+    }
+
+    EFIndex currentMutableCount = mutableArray->items_cnt;
+    EFIndex remaining = otherArray->items_cnt;
+    for(; remaining > 0; remaining -= 5)
+    {
+        if(!__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
+        {
+            mutableArray->items_cnt = currentMutableCount;
+            return false;
+        }
+        mutableArray->items_cnt += 5;
+    }
+    mutableArray->items_cnt = currentMutableCount;
+
+    for(EFIndex index = 0; index < otherArray->items_cnt; index++)
+    {
+        if(mutableArray->callbacks->append != NULL && !mutableArray->callbacks->append(otherArray->items[index]))
+        {
+            /* TODO: have to revert back, but currently not implemented */
+            return false;
+        }
+
+        /* append */
+        EFIndex idx = (mutableArray->items_cnt)++;
+        mutableArray->items[idx] = otherArray->items[index];
+    }
+
+    return true;
+}
+
+Boolean EFArrayInsertValuesOfArrayAtIndex(EFMutableArrayRef mutableArrayRef,
+                                          EFIndex index,
+                                          EFArrayRef otherArrayRef)
+{
+    return false;
+}
+
+Boolean EFArrayRemoveValuesInRange(EFMutableArrayRef mutableArrayRef,
+                                   EFRange range)
+{
+    return false;
 }
