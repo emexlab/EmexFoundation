@@ -150,7 +150,7 @@ EFFileRef __EFFileCreate(EFAllocatorRef allocatorRef,
      * locations.
      */
     EFAUTOREL EFStringRef path = EFURLCopyPath(allocatorRef, file->url);
-    if(policy.mustExist && care_about_file_exist_policy && !access(EFStringGetCStringPtr(path, kEFStringEncodingUTF8), F_OK))
+    if(policy.mustExist && care_about_file_exist_policy && access(EFStringGetCStringPtr(path, kEFStringEncodingUTF8), F_OK) != 0)
     {
         return NULL;
     }
