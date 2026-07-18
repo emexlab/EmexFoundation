@@ -147,10 +147,10 @@ EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef
     return (EFFileHandleRef)EFAUTOTRANSFER(fileHandle);
 }
 
-EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef,
-                                              EFStringRef pathStringRef,
-                                              int flg,
-                                              ...)
+EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef,
+                                                     EFStringRef pathStringRef,
+                                                     int flg,
+                                                     ...)
 {
     if(pathStringRef == NULL)
     {
@@ -158,6 +158,46 @@ EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef,
     }
 
     const char *str = EFStringGetCStringPtr(pathStringRef, kEFStringEncodingASCII);
+    if(str == NULL)
+    {
+        return NULL;
+    }
+
+    /* potentially getting mode */
+    mode_t mode = 0;
+    if(flg & O_CREAT)
+    {
+        va_list ap;
+        va_start(ap, flg);
+        mode = va_arg(ap, int);
+        va_end(ap);
+    }
+
+    /* really opening the file */
+    int fd = open(str, flg, mode);
+    if(fd < 0)
+    {
+        return NULL;
+    }
+
+    EFFileHandleRef fileHandleRef = EFFileHandleCreateWithFileDescriptor(allocatorRef, fd);
+    close(fd);
+    return fileHandleRef;
+}
+
+EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef,
+                                                    EFURLRef urlRef,
+                                                    int flg,
+                                                    ...)
+{
+    if(urlRef == NULL || EFURLGetType(urlRef) != kEFURLTypePOSIX)
+    {
+        return NULL;
+    }
+
+    EFStringRef string = EFURLCopyPath(allocatorRef, urlRef);
+    const char *str = EFStringGetCStringPtr(string, kEFStringEncodingASCII);
+    EFReleaseTry(string);
     if(str == NULL)
     {
         return NULL;

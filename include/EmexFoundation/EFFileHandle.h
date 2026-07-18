@@ -35,6 +35,7 @@
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFPageGroup.h>
+#include <EmexFoundation/EFURL.h>
 
 typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,
@@ -49,7 +50,8 @@ extern EFTypeID EFFileHandleGetTypeID(void);
 
 extern EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
 extern EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
-extern EFFileHandleRef EFFileHandleCreateWithOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
+extern EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
+extern EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef, EFURLRef urlRef, int flg, ...);
 
 extern EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
 extern EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
