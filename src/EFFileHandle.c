@@ -904,6 +904,30 @@ void EFFileHandlePuts(EFFileHandleRef fileHandleRef,
     EFFileHandleWrite(fileHandleRef, (const UInt8*)s, strlen(s));
 }
 
+void EFFileHandlePrintf(EFFileHandleRef fileHandleRef,
+                        const char *format,
+                        ...)
+{
+    if(fileHandleRef == NULL || format == NULL)
+    {
+        return;
+    }
+
+    EFStringRef formatStr = EFStringCreateWithCString(kEFAllocatorDefault, format, kEFStringEncodingUTF8);
+    if(formatStr == NULL)
+    {
+        return;
+    }
+
+    va_list arguments;
+    va_start(arguments, format);
+    EFAUTOREL EFStringRef resultRef = EFStringCreateWithFormatAndArguments(NULL, formatStr, arguments);
+    EFRelease(formatStr);
+    va_end(arguments);
+
+    EFFileHandlePuts(fileHandleRef, EFStringGetCStringPtr(resultRef, kEFStringEncodingUTF8));
+}
+
 EFFileHandleType EFFileHandleGetType(EFFileHandleRef fileHandleRef)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
