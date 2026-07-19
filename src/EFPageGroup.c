@@ -189,15 +189,14 @@ EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef,
     return EFPageGroupCreateWithPages(allocatorRef, group->pagesArrayRef);
 }
 
-EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef,
-                                EFPageGroupRef groupRef)
+EFArrayRef EFPageGroupGetPages(EFPageGroupRef groupRef)
 {
     __EFPageGroup group = (__EFPageGroup)groupRef;
     if(group == NULL)
     {
         return NULL;
     }
-    return EFArrayCreateCopy(allocatorRef, group->pagesArrayRef);
+    return group->pagesArrayRef;
 }
 
 EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef)

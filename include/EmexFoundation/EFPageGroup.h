@@ -38,7 +38,7 @@ EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateWithPage(EFAllocat
 EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRef pagesArrayRef);
 EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
-EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFArrayRef EFPageGroupGetPages(EFPageGroupRef groupRef);
 
 EF_EXTERN EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef);
 EF_EXTERN Boolean EFPageGroupExtend(EFPageGroupRef groupRef);
