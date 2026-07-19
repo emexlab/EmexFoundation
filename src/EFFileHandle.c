@@ -848,7 +848,7 @@ EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef,
     }
 }
 
-char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n)
+char *EFFileHandleGets(EFFileHandleRef fileHandleRef, char *s, int n)
 {
     if(s == NULL || n <= 0)
     {
@@ -865,7 +865,7 @@ char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n)
     while(i < n - 1)
     {
         char c;
-        ssize_t r = EFFileHandleRead(fileHandle, (UInt8*)&c, (EFIndex)1);
+        ssize_t r = EFFileHandleRead(fileHandleRef, (UInt8*)&c, (EFIndex)1);
 
         if(r < 0)
         {
@@ -890,4 +890,14 @@ char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n)
 
     s[i] = '\0';
     return s;
+}
+
+EFFileHandleType EFFileHandleGetType(EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return kEFFileHandleTypeBSD;
+    }
+    return fileHandle->type;
 }
