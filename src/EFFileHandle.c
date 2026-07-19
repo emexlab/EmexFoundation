@@ -892,6 +892,18 @@ char *EFFileHandleGets(EFFileHandleRef fileHandleRef, char *s, int n)
     return s;
 }
 
+void EFFileHandlePutc(EFFileHandleRef fileHandleRef,
+                      char c)
+{
+    EFFileHandleWrite(fileHandleRef, (const UInt8*)&c, (EFIndex)sizeof(c));
+}
+
+void EFFileHandlePuts(EFFileHandleRef fileHandleRef,
+                      char *s)
+{
+    EFFileHandleWrite(fileHandleRef, (const UInt8*)s, strlen(s));
+}
+
 EFFileHandleType EFFileHandleGetType(EFFileHandleRef fileHandleRef)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
