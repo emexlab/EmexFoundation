@@ -59,6 +59,9 @@ EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateWithPathAndOptio
 EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef, EFURLRef urlRef, int flg, ...);
 EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileHandleReadData(EFFileHandleRef fileHandleRef, EFIndex length);
+EF_EXTERN Boolean EFFileHandleWriteData(EFFileHandleRef fileHandleRef, EFDataRef dataRef);
+
 EF_EXTERN EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
 EF_EXTERN EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
 EF_EXTERN EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);

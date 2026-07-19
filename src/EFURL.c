@@ -25,6 +25,7 @@
 #include <pthread.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -114,14 +115,40 @@ EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
         char *tmpPath = malloc(PATH_MAX);
         if(realpath(EFStringGetCStringPtr(stringRef, kEFStringEncodingUTF8), tmpPath) == NULL)
         {
+            /* need to take cwd env */
+            if(getcwd(tmpPath, PATH_MAX) == NULL)
+            {
+                free(tmpPath);
+                return NULL;
+            }
+
+            EFAUTOREL EFStringRef cwd = EFStringCreateWithCString(allocatorRef, tmpPath, kEFStringEncodingUTF8);
             free(tmpPath);
+            if(cwd == NULL)
+            {
+                return NULL;
+            }
+
+            EFAUTOREL EFMutableArrayRef pathComponents = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, 0);
+            EFAUTOREL EFArrayRef pathComponentsCwdBase = EFStringComponentsSplitBySeparator(cwd, EFSTR("/"));
+            EFAUTOREL EFArrayRef pathComponentsEnd = EFStringComponentsSplitBySeparator(pathString, EFSTR("/"));
+            if(pathComponents == NULL || pathComponentsCwdBase == NULL || pathComponentsEnd == NULL ||
+               !EFArrayAppendValuesOfArray(pathComponents, pathComponentsCwdBase) ||
+               !EFArrayAppendValuesOfArray(pathComponents, pathComponentsEnd))
+            {
+                return NULL;
+            }
+
+            url->pathComponents = EFAUTOTRANSFER(pathComponents);
+            return (EFURLRef)EFAUTOTRANSFER(url);
         }
         else
         {
-            EFStringRef newStringRef = EFStringCreateWithCString(kEFAllocatorDefault, tmpPath, kEFStringEncodingUTF8);
+            EFStringRef newStringRef = EFStringCreateWithCString(allocatorRef, tmpPath, kEFStringEncodingUTF8);
             if(newStringRef != NULL)
             {
-                stringRef = newStringRef;
+                EFReleaseTry(pathString);
+                pathString = newStringRef;
             }
         }
     }
@@ -164,7 +191,7 @@ EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFStringRef prefix = EFSTR("");
+    EFStringRef prefix = EFSTR("/");
 
     switch(url->type)
     {

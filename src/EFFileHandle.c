@@ -374,8 +374,8 @@ EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef,
     return fileHandleRef;
 }
 
-extern EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef,
-                                              EFFileHandleRef fileHandleRef)
+EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef,
+                                       EFFileHandleRef fileHandleRef)
 {
     __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
     if(fileHandle == NULL)
@@ -415,6 +415,100 @@ extern EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef,
     }
 
     return (EFFileHandleRef)EFAUTOTRANSFER(newFileHandle);
+}
+
+EFDataRef EFFileHandleReadData(EFFileHandleRef fileHandleRef,
+                               EFIndex length)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL || !fileHandle->readable || (EFFileHandleGetLength(fileHandleRef) + EFFileHandleSeek(fileHandleRef, 0, kEFFileHandleSeekTypeCur)) < length)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFMutableDataRef mutableData = EFDataCreateMutable(EFGetAllocator(fileHandleRef), length);
+    if(mutableData == NULL)
+    {
+        return NULL;
+    }
+
+    UInt8 *buffer = EFDataGetMutablePtr(mutableData);
+    if(buffer == NULL)
+    {
+        return NULL;
+    }
+
+    switch(fileHandle->type)
+    {
+        case kEFFileHandleTypeBSD:
+            if((EFIndex)read(fileHandle->fileDescriptor, buffer, (size_t)length) < length)
+            {
+                return NULL;
+            }
+            return EFAUTOTRANSFER(mutableData);
+        case kEFFileHandleTypeVirtual:
+            EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, (size_t)fileHandle->virtualFileDescriptor.offset, buffer, length);
+            if(vret > 0)
+            {
+                fileHandle->virtualFileDescriptor.offset += vret;
+            }
+            if(vret < length)
+            {
+                return NULL;
+            }
+            return EFAUTOTRANSFER(mutableData);
+        default:
+            return NULL;
+    }
+}
+
+Boolean EFFileHandleWriteData(EFFileHandleRef fileHandleRef,
+                              EFDataRef dataRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL || dataRef == NULL || !fileHandle->writable)
+    {
+        return false;
+    }
+
+    const EFIndex length = EFDataGetLength(dataRef);
+    const UInt8 *buffer = EFDataGetPtr(dataRef);
+    if(buffer == NULL)
+    {
+        return false;
+    }
+
+    switch(fileHandle->type)
+    {
+        case kEFFileHandleTypeBSD:
+            return (EFIndex)write(fileHandle->fileDescriptor, buffer, length);
+        case kEFFileHandleTypeVirtual:
+            EFIndex start = fileHandle->virtualFileDescriptor.offset;
+            EFIndex endOffset = start + length;
+
+            while(endOffset > EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef))
+            {
+                if(!EFPageGroupExtend(fileHandle->virtualFileDescriptor.pageGroupRef))
+                {
+                    return false;
+                }
+            }
+
+            EFIndex vret = EFPageGroupWrite(fileHandle->virtualFileDescriptor.pageGroupRef, start, buffer, length);
+            if(vret < 0)
+            {
+                return false;
+            }
+
+            fileHandle->virtualFileDescriptor.offset = start + vret;
+            if(fileHandle->virtualFileDescriptor.offset > fileHandle->virtualFileDescriptor.endOffset)
+            {
+                fileHandle->virtualFileDescriptor.endOffset = fileHandle->virtualFileDescriptor.offset;
+            }
+            return true;
+        default:
+            return false;
+    }
 }
 
 EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,

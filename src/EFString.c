@@ -35,6 +35,8 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFString.h>
+#include <EmexFoundation/EFURL.h>
+#include <EmexFoundation/EFFileHandle.h>
 
 typedef __EFString EFString;
 
@@ -711,6 +713,33 @@ EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRe
     }
 
     return __EFStringCreate(allocatorRef, (const UInt8*)(string->buffer + range.location), range.length, string->encoding, true, true);
+}
+
+EFStringRef EFStringCreateWithContentsOfURL(EFAllocatorRef allocatorRef,
+                                            EFURLRef urlRef,
+                                            EFStringEncoding encoding)
+{
+    EFAUTOREL EFFileHandleRef fileHandleRef = EFFileHandleCreateWithURLAndOptions(allocatorRef, urlRef, O_RDONLY);
+    EFAUTOREL EFDataRef dataRef = EFFileHandleReadData(fileHandleRef, EFFileHandleGetLength(fileHandleRef));
+    return EFStringCreateFromExternalRepresentation(allocatorRef, dataRef, encoding);
+}
+
+Boolean EFStringSaveTofURL(EFStringRef stringRef,
+                           EFURLRef urlRef)
+{
+    __EFString string = (__EFString)stringRef;
+    if(string == NULL)
+    {
+        return false;
+    }
+
+    EFAllocatorRef allocatorRef = EFGetAllocator(stringRef);
+    EFAUTOREL EFFileHandleRef fileHandleRef = EFFileHandleCreateWithURLAndOptions(allocatorRef, urlRef, O_CREAT | O_TRUNC | O_WRONLY, 0644);
+    if(EFFileHandleWrite(fileHandleRef, (const UInt8*)string->buffer, string->length) < string->length)
+    {
+        return false;
+    }
+    return true;
 }
 
 const char *EFStringGetCStringPtr(EFStringRef stringRef,

@@ -34,6 +34,7 @@
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFNumber.h>
+#include <EmexFoundation/EFURL.h>
 
 typedef enum: UInt8 {
     kEFStringEncodingUTF7,
@@ -90,6 +91,9 @@ EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFStringCreateCopy(EFAllocatorRef allo
 EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFStringCreateCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
 EF_EXTERN EF_RETURNS_RETAINED EFMutableStringRef EFStringCreateMutableCopy(EFAllocatorRef allocatorRef, EFStringRef stringRef);
 EF_EXTERN EF_RETURNS_RETAINED EFMutableStringRef EFStringCreateMutableCopyWithRange(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFRange range);
+
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFStringCreateWithContentsOfURL(EFAllocatorRef allocatorRef, EFURLRef urlRef, EFStringEncoding encoding);
+EF_EXTERN Boolean EFStringSaveTofURL(EFStringRef stringRef, EFURLRef urlRef);
 
 EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFStringCreateExternalRepresentation(EFAllocatorRef allocatorRef, EFStringRef stringRef, EFStringEncoding encoding);
 EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFStringCreateFromExternalRepresentation(EFAllocatorRef allocatorRef, EFDataRef dataRef, EFStringEncoding encoding);
