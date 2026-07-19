@@ -7,7 +7,15 @@ project(EmexFoundation
 
 find_package(Threads REQUIRED)
 
-add_library(EmexFoundation STATIC
+option(EMEXFOUNDATION_STATIC "EmexFoundation will be linked as a static library" OFF)
+
+if(EMEXFOUNDATION_STATIC)
+    set(LIB_TYPE STATIC)
+else()
+    set(LIB_TYPE SHARED)
+endif()
+
+add_library(EmexFoundation ${LIB_TYPE}
     src/EFRuntime/EFBase.c
     src/EFRuntime/EFAllocator.c
 
