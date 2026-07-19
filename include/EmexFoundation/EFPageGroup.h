@@ -47,4 +47,6 @@ EF_EXTERN Boolean EFPageGroupMerge(EFPageGroupRef groupRef);
 EF_EXTERN EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const UInt8 *b, EFIndex length);
 EF_EXTERN EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, UInt8 *b, EFIndex length);
 
+EF_EXTERN EFIndex EFPageGroupGetLastWrittenOffset(EFPageGroupRef groupRef);
+
 #endif /* EFPAGE_GROUP_H */

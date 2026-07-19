@@ -36,6 +36,7 @@
 typedef struct __EFPageGroup {
     EFObject header;
     EFMutableArrayRef pagesArrayRef;
+    EFIndex lastOffset;
 } *__EFPageGroup;
 
 static void __EFPageGroupDeinit(EFObjectRef groupRef)
@@ -380,6 +381,12 @@ static EFIndex __EFPageGroupXfer(EFObjectRef groupRef,
         pageRef = EFArrayGetValueAtIndex(group->pagesArrayRef, index);
     }
 
+    EFIndex lastOffset = (off + length);
+    if(lastOffset > group->lastOffset)
+    {
+        group->lastOffset = lastOffset;
+    }
+
     return done;
 }
 
@@ -397,4 +404,15 @@ EFIndex EFPageGroupRead(EFPageGroupRef groupRef,
                         EFIndex length)
 {
     return __EFPageGroupXfer(groupRef, off, b, length, kVPXferRead);
+}
+
+EFIndex EFPageGroupGetLastWrittenOffset(EFPageGroupRef groupRef)
+{
+    __EFPageGroup group = (__EFPageGroup)groupRef;
+    if(group == NULL)
+    {
+        return -1;
+    }
+
+    return group->lastOffset;
 }
