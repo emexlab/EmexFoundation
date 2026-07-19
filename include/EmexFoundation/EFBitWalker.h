@@ -56,4 +56,6 @@ EF_EXTERN void EFBitWalkerSync(EFBitWalkerRef walkerRef);
 EF_EXTERN EFBitWalkerPosition EFBitWalkerGetPosition(EFBitWalkerRef walkerRef);
 EF_EXTERN void EFBitWalkerSetPosition(EFBitWalkerRef walkerRef, EFBitWalkerPosition position);
 
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFFileHandleRef EFBitWalkerGetHandle(EFBitWalkerRef walkerRef);
+
 #endif /* EFBITWALKER_H */

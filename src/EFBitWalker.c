@@ -315,3 +315,13 @@ void EFBitWalkerSetPosition(EFBitWalkerRef walkerRef,
     walker->bytePos = position.bytePos;
     walker->bitIndex = position.bitIndex;
 }
+
+EFFileHandleRef EFBitWalkerGetHandle(EFBitWalkerRef walkerRef)
+{
+    __EFBitWalker walker = (__EFBitWalker)walkerRef;
+    if(walker == NULL)
+    {
+        return NULL;
+    }
+    return walker->fileHandle;
+}
