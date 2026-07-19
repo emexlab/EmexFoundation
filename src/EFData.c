@@ -36,7 +36,7 @@ typedef struct __EFData {
     EFObject header;
     Boolean isMutable;
     Boolean isInlined;    /* meaning the object has the buffer in it self */
-    UInt8 *buffer;       /* it is neither inlined nor undeallocatable if mutable */
+    UInt8 *buffer;        /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
 } *__EFData;
 

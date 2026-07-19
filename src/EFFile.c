@@ -270,7 +270,45 @@ EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocatorRef,
     }
     return EFBitWalkerCreateWithHandle(allocatorRef, file->fileHandle, endian);
 }
-EFFileType EFFileGetType(EFFileRef fileRef);
+
+EFDataRef EFFileCopyData(EFAllocatorRef allocatorRef,
+                         EFFileRef fileRef)
+{
+    __EFFile file = (__EFFile)fileRef;
+    if(file == NULL || !EFFileOpen(fileRef))
+    {
+        return NULL;
+    }
+
+    EFIndex length = EFFileHandleGetLength(file->fileHandle);
+    UInt8 *buffer = EFAllocatorAllocate(allocatorRef, length, 0);
+    if(buffer == NULL)
+    {
+        return NULL;
+    }
+
+    EFFileHandleSeek(file->fileHandle, 0, kEFFileHandleSeekTypeSet);
+    EFIndex readLength = EFFileHandleRead(file->fileHandle, buffer, length);
+    if(length > readLength)
+    {
+        EFAllocatorDeallocate(allocatorRef, buffer);
+        return NULL;
+    }
+
+    EFDataRef data = EFDataCreateWithBuffer(allocatorRef, buffer, length);
+    EFAllocatorDeallocate(allocatorRef, buffer);
+    return data;
+}
+
+EFFileType EFFileGetType(EFFileRef fileRef)
+{
+    __EFFile file = (__EFFile)fileRef;
+    if(file == NULL)
+    {
+        return kEFFileTypeUnknown;
+    }
+    return file->type;
+}
 
 static inline const char *get_extension(const char *path)
 {

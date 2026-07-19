@@ -74,6 +74,7 @@ EF_EXTERN void EFFileClose(EFFileRef fileRef);
 
 EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileCopyFileHandle(EFAllocatorRef allocatorRef, EFFileRef fileRef);
 EF_EXTERN EF_RETURNS_RETAINED EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocatorRef, EFFileRef fileRef, EFEndian endian);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileCopyData(EFAllocatorRef allocatorRef, EFFileRef fileRef);
 
 EF_EXTERN EFFileType EFFileGetType(EFFileRef fileRef);
 
