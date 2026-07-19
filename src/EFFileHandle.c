@@ -899,7 +899,7 @@ void EFFileHandlePutc(EFFileHandleRef fileHandleRef,
 }
 
 void EFFileHandlePuts(EFFileHandleRef fileHandleRef,
-                      char *s)
+                      const char *s)
 {
     EFFileHandleWrite(fileHandleRef, (const UInt8*)s, strlen(s));
 }

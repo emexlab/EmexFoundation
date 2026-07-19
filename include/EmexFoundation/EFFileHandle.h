@@ -78,7 +78,7 @@ EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocat
 
 EF_EXTERN char *EFFileHandleGets(EFFileHandleRef fileHandleRef, char *s, int n);
 EF_EXTERN void EFFileHandlePutc(EFFileHandleRef fileHandleRef, char c);
-EF_EXTERN void EFFileHandlePuts(EFFileHandleRef fileHandleRef, char *s);
+EF_EXTERN void EFFileHandlePuts(EFFileHandleRef fileHandleRef, const char *s);
 
 EF_EXTERN EFFileHandleType EFFileHandleGetType(EFFileHandleRef fileHandleRef);
 
