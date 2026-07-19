@@ -31,31 +31,31 @@
 
 typedef struct __EFProcess *EFProcessRef;
 
-extern EFTypeID EFProcessGetTypeID(void);
+EF_EXTERN EFTypeID EFProcessGetTypeID(void);
 
-extern EFProcessRef EFProcessGetCurrentProcess(void);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFProcessRef EFProcessGetCurrentProcess(void);
 
-extern EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
-extern EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
-extern EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
+EF_EXTERN EF_RETURNS_RETAINED EFProcessRef EFProcessCreateWithCommand(EFAllocatorRef allocatorRef, EFStringRef commandRef, EFArrayRef arguments);
+EF_EXTERN EF_RETURNS_RETAINED EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef, EFStringRef pathRef, EFArrayRef arguments);
+EF_EXTERN EF_RETURNS_RETAINED EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef, SInt32 processIdentifier);
 
-extern SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
-extern SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
-extern SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
-extern SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 
-extern Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
-extern Boolean EFProcessSuspend(EFProcessRef processRef);
-extern Boolean EFProcessResume(EFProcessRef processRef);
-extern Boolean EFProcessTerminate(EFProcessRef processRef);
-extern Boolean EFProcessForceKill(EFProcessRef processRef);
+EF_EXTERN Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
+EF_EXTERN Boolean EFProcessSuspend(EFProcessRef processRef);
+EF_EXTERN Boolean EFProcessResume(EFProcessRef processRef);
+EF_EXTERN Boolean EFProcessTerminate(EFProcessRef processRef);
+EF_EXTERN Boolean EFProcessForceKill(EFProcessRef processRef);
 
-extern Boolean EFProcessIsAlive(EFProcessRef processRef);
+EF_EXTERN Boolean EFProcessIsAlive(EFProcessRef processRef);
 
-extern EFStringRef EFProcessGetCommand(EFProcessRef processRef);
-extern EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
-extern EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFStringRef EFProcessGetCommand(EFProcessRef processRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFStringRef EFProcessGetExecutablePath(EFProcessRef processRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFArrayRef EFProcessGetArguments(EFProcessRef processRef);
 
-extern SInt32 EFProcessWaitPID(EFProcessRef processRef, int *status, int options);
+EF_EXTERN SInt32 EFProcessWaitPID(EFProcessRef processRef, int *status, int options);
 
 #endif /* EFPROCESS_H */

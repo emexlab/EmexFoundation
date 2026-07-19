@@ -40,25 +40,25 @@
         _temp; \
     })
 
-extern EFTypeID EFClassRegister(EFClass *cls);
-extern EFClass *EFClassGetByID(EFTypeID id);
+EF_EXTERN EFTypeID EFClassRegister(EFClass *cls);
+EF_EXTERN EFClass *EFClassGetByID(EFTypeID id);
 
-extern EFTypeID EFGetTypeID(EFObjectRef ref);
-extern EFRootType EFGetRootType(EFObjectRef ref);
+EF_EXTERN EFTypeID EFGetTypeID(EFObjectRef ref);
+EF_EXTERN EFRootType EFGetRootType(EFObjectRef ref);
 
-extern Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
+EF_EXTERN Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
-extern EFObjectRef EFRetain(EFObjectRef ref);
-extern void EFRelease(EFObjectRef ref);
-extern EFObjectRef EFRetainTry(EFObjectRef ref);
-extern Boolean EFReleaseTry(EFObjectRef ref);
-extern Boolean EFReleaseTryHelper(void *ref);
-extern EFIndex EFGetRetainCount(EFObjectRef ref);
+EF_EXTERN EF_RETURNS_RETAINED EFObjectRef EFRetain(EFObjectRef ref);
+EF_EXTERN void EFRelease(EF_CONSUMED EFObjectRef ref);
+EF_EXTERN EFObjectRef EFRetainTry(EFObjectRef ref);
+EF_EXTERN Boolean EFReleaseTry(EF_CONSUMED EFObjectRef ref);
+EF_EXTERN Boolean EFReleaseTryHelper(void *ref);    /* technically consumes */
+EF_EXTERN EFIndex EFGetRetainCount(EFObjectRef ref);
 
-extern EFAllocatorRef EFGetAllocator(EFObjectRef ref);
+EF_EXTERN EFAllocatorRef EFGetAllocator(EFObjectRef ref);
 
-extern EFStringRef EFCopyDescription(EFObjectRef ref);
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFCopyDescription(EFObjectRef ref);
 
-extern void EFLog(EFStringRef formatStringRef, ...);
+EF_EXTERN void EFLog(EFStringRef formatStringRef, ...);
 
 #endif /* EFRUNTIME_H */

@@ -30,6 +30,8 @@
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFBitWalker.h>
 
+typedef struct __EFFile *EFFileRef;
+
 typedef enum: UInt8 {
     kEFFileTypeUnknown,
     kEFFileTypeDirectory,
@@ -57,28 +59,26 @@ typedef struct EFFilePolicy {
     Boolean createOnOpen;
 } EFFilePolicy;
 
-extern EFFilePolicy EFFilePolicyInData;
-extern EFFilePolicy EFFilePolicyOutData;
-extern EFFilePolicy EFFilePolicyInNoCreate;
+EF_EXTERN EFFilePolicy EFFilePolicyInData;
+EF_EXTERN EFFilePolicy EFFilePolicyOutData;
+EF_EXTERN EFFilePolicy EFFilePolicyInNoCreate;
 
-typedef struct __EFFile *EFFileRef;
+EF_EXTERN EFTypeID EFFileGetTypeID(void);
 
-extern EFTypeID EFFileGetTypeID(void);
+EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithPath(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFStringRef stringRef);
+EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithURL(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithString(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFURLRef urlRef, EFStringRef stringRef);
 
-extern EFFileRef EFFileCreateWithPath(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFStringRef stringRef);
-extern EFFileRef EFFileCreateWithURL(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFURLRef urlRef);
-extern EFFileRef EFFileCreateWithString(EFAllocatorRef allocatorRef, EFFilePolicy policy, EFURLRef urlRef, EFStringRef stringRef);
+EF_EXTERN Boolean EFFileOpen(EFFileRef fileRef);
+EF_EXTERN void EFFileClose(EFFileRef fileRef);
 
-extern Boolean EFFileOpen(EFFileRef fileRef);
-extern void EFFileClose(EFFileRef fileRef);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileCopyFileHandle(EFAllocatorRef allocatorRef, EFFileRef fileRef);
+EF_EXTERN EF_RETURNS_RETAINED EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocatorRef, EFFileRef fileRef, EFEndian endian);
 
-extern EFFileHandleRef EFFileCopyFileHandle(EFAllocatorRef allocatorRef, EFFileRef fileRef);
-extern EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocatorRef, EFFileRef fileRef, EFEndian endian);
+EF_EXTERN EFFileType EFFileGetType(EFFileRef fileRef);
 
-extern EFFileType EFFileGetType(EFFileRef fileRef);
+EF_EXTERN EFFileType EFFileTypeForPath(EFStringRef path, Boolean mustExist);
 
-extern EFFileType EFFileTypeForPath(EFStringRef path, Boolean mustExist);
-
-extern EFURLRef EFFileGetURL(EFFileRef fileRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFURLRef EFFileGetURL(EFFileRef fileRef);
 
 #endif /* EFFILE_H */

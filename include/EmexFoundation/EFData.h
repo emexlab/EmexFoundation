@@ -35,23 +35,23 @@
 typedef struct __EFData *EFDataRef;
 typedef struct __EFData *EFMutableDataRef;
 
-extern EFTypeID EFDataGetTypeID(void);
+EF_EXTERN EFTypeID EFDataGetTypeID(void);
 
-extern EFDataRef EFDataCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
-extern EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
-extern EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, EFIndex capacity);
-extern EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
-extern EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFDataCreateWithBuffer(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFDataCreateWithBufferNoCopy(EFAllocatorRef allocatorRef, const UInt8 *buffer, EFIndex length);
+EF_EXTERN EF_RETURNS_RETAINED EFMutableDataRef EFDataCreateMutable(EFAllocatorRef allocatorRef, EFIndex capacity);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFDataCreateCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
+EF_EXTERN EF_RETURNS_RETAINED EFMutableDataRef EFDataCreateMutableCopy(EFAllocatorRef allocatorRef, EFDataRef dataRef);
 
-extern EFIndex EFDataGetLength(EFDataRef dataRef);
-extern const UInt8 *EFDataGetPtr(EFDataRef dataRef);
-extern UInt8 *EFDataGetMutablePtr(EFMutableDataRef mutableDataRef);
-extern Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef, EFRange range, UInt8 *buffer);
+EF_EXTERN EFIndex EFDataGetLength(EFDataRef dataRef);
+EF_EXTERN const UInt8 *EFDataGetPtr(EFDataRef dataRef);
+EF_EXTERN UInt8 *EFDataGetMutablePtr(EFMutableDataRef mutableDataRef);
+EF_EXTERN Boolean EFDataCopyRangeToBuffer(EFDataRef dataRef, EFRange range, UInt8 *buffer);
 
-extern Boolean EFDataSetLength(EFMutableDataRef mutableDataRef, EFIndex length);
-extern Boolean EFDataIncreaseLength(EFMutableDataRef mutableDataRef, EFIndex extraLength);
-extern Boolean EFDataAppendBuffer(EFMutableDataRef mutableDataRef, const UInt8 *buffer, EFIndex length);
-extern Boolean EFDataReplaceBufferInRange(EFMutableDataRef mutableDataRef, EFRange range, const UInt8 *newBytes, EFIndex newLength);
-extern Boolean EFDataDeleteBufferInRange(EFMutableDataRef mutableDataRef, EFRange range);
+EF_EXTERN Boolean EFDataSetLength(EFMutableDataRef mutableDataRef, EFIndex length);
+EF_EXTERN Boolean EFDataIncreaseLength(EFMutableDataRef mutableDataRef, EFIndex extraLength);
+EF_EXTERN Boolean EFDataAppendBuffer(EFMutableDataRef mutableDataRef, const UInt8 *buffer, EFIndex length);
+EF_EXTERN Boolean EFDataReplaceBufferInRange(EFMutableDataRef mutableDataRef, EFRange range, const UInt8 *newBytes, EFIndex newLength);
+EF_EXTERN Boolean EFDataDeleteBufferInRange(EFMutableDataRef mutableDataRef, EFRange range);
 
 #endif /* EFDATA_H */

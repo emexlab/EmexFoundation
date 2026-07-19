@@ -37,16 +37,16 @@ typedef struct __EFURL *EFURLRef;
 typedef struct __EFString *EFStringRef;
 typedef struct __EFArray *EFArrayRef;
 
-extern EFTypeID EFURLGetTypeID(void);
+EF_EXTERN EFTypeID EFURLGetTypeID(void);
 
-extern EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef, EFStringRef string);
+EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef, EFStringRef string);
 
-extern EFURLType EFURLGetType(EFURLRef urlRef);
-extern EFArrayRef EFURLGetPathComponents(EFURLRef urlRef);
-extern Boolean EFURLIsRelative(EFURLRef urlRef);
+EF_EXTERN EFURLType EFURLGetType(EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFArrayRef EFURLGetPathComponents(EFURLRef urlRef);
+EF_EXTERN Boolean EFURLIsRelative(EFURLRef urlRef);
 
-extern EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef, EFURLRef urlRef);
-extern EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef, EFURLRef urlRef);
-extern EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef, EFURLRef urlRef);
 
 #endif /* EFURL_H */

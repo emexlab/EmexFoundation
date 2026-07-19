@@ -31,20 +31,20 @@
 
 typedef struct __EFPageGroup *EFPageGroupRef;
 
-extern EFTypeID EFPageGroupGetTypeID(void);
+EF_EXTERN EFTypeID EFPageGroupGetTypeID(void);
 
-extern EFPageGroupRef EFPageGroupCreate(EFAllocatorRef allocatorRef);
-extern EFPageGroupRef EFPageGroupCreateWithPage(EFAllocatorRef allocatorRef, EFPageRef pageRef);
-extern EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRef pagesArrayRef);
-extern EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
+EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreate(EFAllocatorRef allocatorRef);
+EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateWithPage(EFAllocatorRef allocatorRef, EFPageRef pageRef);
+EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateWithPages(EFAllocatorRef allocatorRef, EFArrayRef pagesArrayRef);
+EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFPageGroupCreateCopy(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
-extern EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
+EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFPageGroupCopyPages(EFAllocatorRef allocatorRef, EFPageGroupRef groupRef);
 
-extern EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef);
-extern Boolean EFPageGroupExtend(EFPageGroupRef groupRef);
-extern Boolean EFPageGroupMerge(EFPageGroupRef groupRef);
+EF_EXTERN EFIndex EFPageGroupGetLength(EFPageGroupRef groupRef);
+EF_EXTERN Boolean EFPageGroupExtend(EFPageGroupRef groupRef);
+EF_EXTERN Boolean EFPageGroupMerge(EFPageGroupRef groupRef);
 
-extern EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const UInt8 *b, EFIndex length);
-extern EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, UInt8 *b, EFIndex length);
+EF_EXTERN EFIndex EFPageGroupWrite(EFPageGroupRef groupRef, EFIndex off, const UInt8 *b, EFIndex length);
+EF_EXTERN EFIndex EFPageGroupRead(EFPageGroupRef groupRef, EFIndex off, UInt8 *b, EFIndex length);
 
 #endif /* EFPAGE_GROUP_H */

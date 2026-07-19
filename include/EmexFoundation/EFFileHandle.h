@@ -51,29 +51,28 @@ typedef enum: UInt8 {
 
 typedef struct __EFFileHandle *EFFileHandleRef;
 
-extern EFTypeID EFFileHandleGetTypeID(void);
+EF_EXTERN EFTypeID EFFileHandleGetTypeID(void);
 
-extern EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
-extern EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
-extern EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
-extern EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef, EFURLRef urlRef, int flg, ...);
-extern EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreate(EFAllocatorRef allocatorRef);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateWithFileDescriptor(EFAllocatorRef allocatorRef, int fd);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef, EFStringRef pathStringRef, int flg, ...);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef, EFURLRef urlRef, int flg, ...);
+EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
-extern EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
-extern EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
-extern EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);
+EF_EXTERN EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef, UInt8 *buffer, EFIndex length);
+EF_EXTERN EFIndex EFFileHandleWrite(EFFileHandleRef fileHandleRef, const UInt8 *buffer, EFIndex length);
+EF_EXTERN EFIndex EFFileHandleTruncate(EFFileHandleRef fileHandleRef, EFIndex length);
 
-extern EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, EFFileHandleSeekType seekType);
-extern void EFFileHandleSync(EFFileHandleRef fileHandleRef);
+EF_EXTERN EFIndex EFFileHandleSeek(EFFileHandleRef fileHandleRef, EFIndex offset, EFFileHandleSeekType seekType);
+EF_EXTERN void EFFileHandleSync(EFFileHandleRef fileHandleRef);
 
-extern EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
-extern Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
-extern Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
+EF_EXTERN EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef);
+EF_EXTERN Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
+EF_EXTERN Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
 
-extern EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
+EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
-extern EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
-
-extern char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n);
+EF_EXTERN char *EFFileHandleGets(EFFileHandleRef fileHandle, char *s, int n);
 
 #endif /* EFFILEHANDLE_H */

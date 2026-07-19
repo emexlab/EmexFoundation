@@ -27,8 +27,8 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFBase.h>
 
-extern EFAllocatorRef kEFAllocatorDefault;
-extern EFAllocatorRef kEFAllocatorMalloc;
+EF_EXTERN EFAllocatorRef kEFAllocatorDefault;
+EF_EXTERN EFAllocatorRef kEFAllocatorMalloc;
 
 typedef struct EFAllocator {
     EFRootType _rt;
@@ -43,10 +43,10 @@ typedef struct EFAllocator {
     EFAllocatorReallocateCallback reallocate;
 } EFAllocator;
 
-extern EFObjectRef EFObjectCreate(EFAllocatorRef allocatorRef, EFTypeID typeID, EFIndex size);
+EF_EXTERN EF_RETURNS_RETAINED EFObjectRef EFObjectCreate(EFAllocatorRef allocatorRef, EFTypeID typeID, EFIndex size);
 
-extern void *EFAllocatorAllocate(EFAllocatorRef allocatorRef, EFIndex size, EFOptionFlags hint);
-extern void *EFAllocatorReallocate(EFAllocatorRef allocatorRef, void *ptr, EFIndex newSize, EFOptionFlags hint);
-extern void EFAllocatorDeallocate(EFAllocatorRef allocatorRef, void *ptr);
+EF_EXTERN void *EFAllocatorAllocate(EFAllocatorRef allocatorRef, EFIndex size, EFOptionFlags hint);
+EF_EXTERN void *EFAllocatorReallocate(EFAllocatorRef allocatorRef, void *ptr, EFIndex newSize, EFOptionFlags hint);
+EF_EXTERN void EFAllocatorDeallocate(EFAllocatorRef allocatorRef, void *ptr);
 
 #endif /* EFALLOCATOR_H */

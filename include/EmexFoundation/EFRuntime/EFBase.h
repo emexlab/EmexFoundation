@@ -34,53 +34,60 @@
 #define kEFNotATypeID   ((uint64_t)0)
 
 #ifndef UINT8_MIN
-#define UINT8_MIN 0
+#define UINT8_MIN   0
 #endif /* UINT8_MIN*/
 #ifndef UINT8_MAX
-#define UINT8_MAX 0xFF
+#define UINT8_MAX   0xFF
 #endif /* UINT8_MAX */
 #ifndef UINT16_MIN
-#define UINT16_MIN 0
+#define UINT16_MIN  0
 #endif /* UINT16_MIN */
 #ifndef UINT16_MAX
-#define UINT16_MAX 0xFFFF
+#define UINT16_MAX  0xFFFF
 #endif /* UINT16_MAX */
 #ifndef UINT32_MIN
-#define UINT32_MIN 0
+#define UINT32_MIN  0
 #endif /* UINT32_MIN */
 #ifndef UINT32_MAX
-#define UINT32_MAX 0xFFFFFFFF
+#define UINT32_MAX  0xFFFFFFFF
 #endif /* UINT32_MAX */
 #ifndef UINT64_MIN
-#define UINT64_MIN 0
+#define UINT64_MIN  0
 #endif /* UINT64_MIN */
 #ifndef UINT64_MAX
-#define UINT64_MAX 0xFFFFFFFFFFFFFFFF
+#define UINT64_MAX  0xFFFFFFFFFFFFFFFF
 #endif /* UINT64_MAX */
 #ifndef SINT8_MIN
-#define SINT8_MIN  0x80
+#define SINT8_MIN   0x80
 #endif /* SINT8_MIN */
 #ifndef SINT8_MAX
-#define SINT8_MAX  0x7F
+#define SINT8_MAX   0x7F
 #endif /* SINT8_MAX */
 #ifndef SINT16_MIN
-#define SINT16_MIN 0x8000
+#define SINT16_MIN  0x8000
 #endif /* SINT16_MIN */
 #ifndef SINT16_MAX
-#define SINT16_MAX 0x7FFF
+#define SINT16_MAX  0x7FFF
 #endif /* SINT16_MAX */
 #ifndef SINT32_MIN
-#define SINT32_MIN 0x80000000
+#define SINT32_MIN  0x80000000
 #endif /* SINT32_MIN */
 #ifndef SINT32_MAX
-#define SINT32_MAX 0x7FFFFFFF
+#define SINT32_MAX  0x7FFFFFFF
 #endif /* SINT32_MIN */
 #ifndef SINT64_MIN
-#define SINT64_MIN 0x8000000000000000LL
+#define SINT64_MIN  0x8000000000000000LL
 #endif /* SINT64_MIN */
 #ifndef SINT64_MAX
-#define SINT64_MAX 0x7FFFFFFFFFFFFFFFLL
+#define SINT64_MAX  0x7FFFFFFFFFFFFFFFLL
 #endif /* SINT64_MAX */
+
+#define EF_EXTERN   extern
+
+/* later for arc in my own objc runtime */
+#define EF_RETURNS_RETAINED
+#define EF_RETURNS_NOT_RETAINED
+#define EF_CONSUMED
 
 /* normal types */
 typedef unsigned long EFOptionFlags;
@@ -150,6 +157,6 @@ static inline Boolean EFRangeIsEqual(EFRange range1,
     return (range1.location == range2.location && range1.length == range2.length);
 }
 
-extern EFRange EFRangeZero;
+EF_EXTERN EFRange EFRangeZero;
 
 #endif /* EFBASE_H */

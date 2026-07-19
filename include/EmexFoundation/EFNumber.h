@@ -43,14 +43,14 @@ typedef enum: UInt8 {
 
 typedef struct __EFNumber *EFNumberRef;
 
-extern EFTypeID EFNumberGetTypeID(void);
+EF_EXTERN EFTypeID EFNumberGetTypeID(void);
 
-extern EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef, EFNumberType type, const void *value);
+EF_EXTERN EF_RETURNS_RETAINED EFNumberRef EFNumberCreate(EFAllocatorRef allocatorRef, EFNumberType type, const void *value);
 
-extern EFIndex EFNumberGetByteSize(EFNumberRef numberRef);
-extern EFNumberType EFNumberGetType(EFNumberRef numberRef);
-extern Boolean EFNumberGetValue(EFNumberRef numberRef, EFNumberType type, void *value);
+EF_EXTERN EFIndex EFNumberGetByteSize(EFNumberRef numberRef);
+EF_EXTERN EFNumberType EFNumberGetType(EFNumberRef numberRef);
+EF_EXTERN Boolean EFNumberGetValue(EFNumberRef numberRef, EFNumberType type, void *value);
 
-extern EFComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
+EF_EXTERN EFComparisonResult EFNumberCompare(EFNumberRef numberRef, EFNumberRef otherNumberRef);
 
 #endif /* EFNUMBER_H */
