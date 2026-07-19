@@ -28,6 +28,11 @@
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFFileHandle.h>
 
+typedef struct {
+    EFIndex bytePos;
+    UInt8 bitIndex;
+} EFBitWalkerPosition;
+
 typedef struct __EFBitWalker *EFBitWalkerRef;
 
 EF_EXTERN EFTypeID EFBitWalkerGetTypeID(void);
@@ -47,5 +52,8 @@ EF_EXTERN void EFBitWalkerSkip(EFBitWalkerRef walkerRef, EFIndex numBits);
 EF_EXTERN EFIndex EFBitWalkerBytesUsed(EFBitWalkerRef walkerRef);
 EF_EXTERN void EFBitWalkerAlignByte(EFBitWalkerRef walkerRef);
 EF_EXTERN void EFBitWalkerSync(EFBitWalkerRef walkerRef);
+
+EF_EXTERN EFBitWalkerPosition EFBitWalkerGetPosition(EFBitWalkerRef walkerRef);
+EF_EXTERN void EFBitWalkerSetPosition(EFBitWalkerRef walkerRef, EFBitWalkerPosition position);
 
 #endif /* EFBITWALKER_H */

@@ -285,3 +285,33 @@ void EFBitWalkerSync(EFBitWalkerRef walkerRef)
 
     EFFileHandleSync(walker->fileHandle);
 }
+
+EFBitWalkerPosition EFBitWalkerGetPosition(EFBitWalkerRef walkerRef)
+{
+    __EFBitWalker walker = (__EFBitWalker)walkerRef;
+    if(walker == NULL)
+    {
+        return (EFBitWalkerPosition){
+            .bytePos = 0,
+            .bitIndex = 0,
+        };
+    }
+
+    return (EFBitWalkerPosition){
+        .bytePos = walker->bytePos,
+        .bitIndex = walker->bitIndex,
+    };
+}
+
+void EFBitWalkerSetPosition(EFBitWalkerRef walkerRef,
+                            EFBitWalkerPosition position)
+{
+    __EFBitWalker walker = (__EFBitWalker)walkerRef;
+    if(walker == NULL)
+    {
+        return;
+    }
+
+    walker->bytePos = position.bytePos;
+    walker->bitIndex = position.bitIndex;
+}
