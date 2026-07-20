@@ -25,7 +25,7 @@ void foo(void)
 {
     EFAUTOREL EFStringRef someString = EFStringCreateWithCString(kEFAllocatorDefault, "meow", kEFStringEncodingUTF8);
     EFLog(EFSTR("%@\n"), someString);
-    EFReleasetry(someString); /* performs a null check before EFRelease() */
+    EFReleaseTry(someString); /* performs a null check before EFRelease() */
     someString = EFStringCreateWithCString(kEFAllocatorDefault, "nya", kEFStringEncodingUTF8);
     EFLog(EFSTR("%@\n"), someString);
     /* auto-release will still work */

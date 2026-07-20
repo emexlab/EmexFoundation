@@ -188,7 +188,7 @@ static void __EFStringDeinit(EFObjectRef stringRef)
     EFString string = (EFString)stringRef;
     if(string->isMutable)
     {
-        free(string->buffer);
+        EFAllocatorDeallocate(EFGetAllocator(stringRef), string->buffer);
     }
 }
 
@@ -251,7 +251,7 @@ static inline EFStringRef __EFStringCreate(EFAllocatorRef allocatorRef,
 
     if(isMutable)
     {
-        string->buffer = malloc((size_t)(length + 1));
+        string->buffer = EFAllocatorAllocate(allocatorRef, (EFIndex)(length + 1), 0);
         if(string->buffer == NULL)
         {
             EFRelease((EFStringRef)string);
@@ -344,6 +344,7 @@ EFStringRef EFStringCreateWithCStringNoCopy(EFAllocatorRef allocatorRef,
 }
 
 typedef struct {
+    EFAllocatorRef allocatorRef;
     char *data;
     size_t length;
     size_t cap;
@@ -364,7 +365,7 @@ static inline void __evfb_ensure(__EFFmtBuf *b,
         {
             nc *= 2;
         }
-        char *p = realloc(b->data, nc);
+        char *p = EFAllocatorReallocate(b->allocatorRef, b->data, nc, 0);
         if(p == NULL)
         {
             b->failed = true;
@@ -484,6 +485,7 @@ EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef,
     }
 
     __EFFmtBuf b = {0};
+    b.allocatorRef = allocatorRef;
     va_list ap;
     va_copy(ap, arguments);
 
@@ -645,12 +647,12 @@ EFStringRef EFStringCreateWithFormatAndArguments(EFAllocatorRef allocatorRef,
 
     if(b.failed)
     {
-        free(b.data);
+        EFAllocatorDeallocate(b.allocatorRef, b.data);
         return NULL;
     }
 
     EFStringRef resultRef = EFStringCreateWithBuffer(allocatorRef, (const UInt8 *)(b.data ? b.data : ""), b.length, kEFStringEncodingUTF8);
-    free(b.data);
+    EFAllocatorDeallocate(b.allocatorRef, b.data);
     return resultRef;
 }
 
@@ -1132,7 +1134,7 @@ Boolean EFStringAppendString(EFMutableStringRef mutableStringRef,
     }
 
     EFIndex totalNewLength = mutableString->length + appendString->length + 1;
-    char *newp = realloc(mutableString->buffer, totalNewLength);
+    char *newp = EFAllocatorReallocate(EFGetAllocator(mutableStringRef), mutableString->buffer, totalNewLength, 0);
     if(newp == NULL)
     {
         return false;

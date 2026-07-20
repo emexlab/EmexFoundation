@@ -45,7 +45,7 @@ static void __EFDataDeinit(EFObjectRef dataRef)
     __EFData data = (__EFData)dataRef;
     if(data->isMutable)
     {
-        free(data->buffer);
+        EFAllocatorDeallocate(EFGetAllocator(dataRef), data->buffer);
     }
 }
 
@@ -96,7 +96,7 @@ static inline EFDataRef __EFDataCreate(EFAllocatorRef allocatorRef,
 
     if(isMutable)
     {
-        data->buffer = malloc((size_t)length);
+        data->buffer = EFAllocatorAllocate(allocatorRef, length, 0);
         if(data->buffer == NULL)
         {
             return NULL;
@@ -248,7 +248,7 @@ Boolean EFDataSetLength(EFMutableDataRef mutableDataRef,
         return true;
     }
 
-    void *newp = realloc(mutableData->buffer, (size_t)length);
+    void *newp = EFAllocatorReallocate(EFGetAllocator(mutableDataRef), mutableData->buffer, length, 0);
     if(newp == NULL)
     {
         return false;

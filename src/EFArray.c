@@ -91,7 +91,7 @@ static void __EFArrayClassDeinit(EFObjectRef arrayRef)
             array->callbacks->remove(array->items[index]);
         }
     }
-    free(array->items);
+    EFAllocatorDeallocate(EFGetAllocator(arrayRef), array->items);
 }
 
 static Boolean __EFArrayClassEqual(EFObjectRef arrayRef1,
@@ -240,7 +240,7 @@ EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
     void *items = NULL; /* freeing NULL is allowed as a UNIX semantic */
     if(capacity > 0)
     {
-        items = calloc(capacity, sizeof(void*));
+        items = EFAllocatorAllocate(allocatorRef, capacity * sizeof(void*), 0);
         if(items == NULL)
         {
             return NULL;
@@ -250,7 +250,7 @@ EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
     __EFArray array = (__EFArray)EFObjectCreate(allocatorRef, EFArrayGetTypeID(), (EFIndex)sizeof(struct __EFArray));
     if(array == NULL)
     {
-        free(items);
+        EFAllocatorDeallocate(allocatorRef, items);
         return NULL;
     }
 
@@ -350,7 +350,7 @@ Boolean __EFArrayResizeIfNeededForOneMoreIndex(__EFArray array)
     }
 
     /* actual reallocation */
-    void *new_ptr = realloc(array->items, (size_t)(new_cap * sizeof(void*)));
+    void *new_ptr = EFAllocatorReallocate(EFGetAllocator(array), array->items, (size_t)(new_cap * sizeof(void*)), 0);
     if(new_ptr == NULL)
     {
         return false;

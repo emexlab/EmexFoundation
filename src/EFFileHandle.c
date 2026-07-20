@@ -913,7 +913,7 @@ void EFFileHandlePrintf(EFFileHandleRef fileHandleRef,
         return;
     }
 
-    EFStringRef formatStr = EFStringCreateWithCString(kEFAllocatorDefault, format, kEFStringEncodingUTF8);
+    EFStringRef formatStr = EFStringCreateWithCString(EFGetAllocator(fileHandleRef), format, kEFStringEncodingUTF8);
     if(formatStr == NULL)
     {
         return;

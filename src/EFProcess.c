@@ -280,7 +280,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     if(cmdFile != NULL)
     {
         size_t capacity = 4096;
-        char *cmdBuffer = malloc(capacity);
+        char *cmdBuffer = EFAllocatorAllocate(allocatorRef, capacity, 0);
         size_t readBytes = 0;
 
         if(cmdBuffer != NULL)
@@ -296,7 +296,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                 if(readBytes >= capacity - 1)
                 {
                     capacity *= 2;
-                    char *newBuf = realloc(cmdBuffer, capacity);
+                    char *newBuf = EFAllocatorReallocate(allocatorRef, cmdBuffer, capacity, 0);
                     if(newBuf == NULL)
                     {
                         break;
@@ -348,12 +348,12 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                 }
                 else
                 {
-                    free(cmdBuffer);
+                    EFAllocatorDeallocate(allocatorRef, cmdBuffer);
                 }
             }
             else
             {
-                free(cmdBuffer);
+                EFAllocatorDeallocate(allocatorRef, cmdBuffer);
             }
         }
         fclose(cmdFile);
@@ -378,7 +378,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    char *procArgs = malloc(argMax);
+    char *procArgs = EFAllocatorAllocate(allocatorRef, argMax, 0);
     if(procArgs == NULL)
     {
         return NULL;
@@ -387,7 +387,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     size = (size_t)argMax;
     if(sysctl(argsMib, 3, procArgs, &size, NULL, 0) == -1)
     {
-        free(procArgs);
+        EFAllocatorDeallocate(allocatorRef, procArgs);
         goto skip_arg_copy;
     }
 
@@ -397,7 +397,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     char *cp = procArgs + sizeof(argc);
 
     /* NOTE: in this is the executable path! */
-    executablePath = EFStringCreateWithCString(kEFAllocatorDefault, cp, kEFStringEncodingUTF8);
+    executablePath = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
     for(; cp < &procArgs[size]; cp++)
     {
         if(*cp == '\0')
@@ -416,14 +416,14 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 
     if(cp >= &procArgs[size] || argc <= 0)
     {
-        free(procArgs);
+        EFAllocatorDeallocate(allocatorRef, procArgs);
         return NULL;
     }
 
     mutableArguments = EFArrayCreateMutable(allocatorRef, kEFArrayCallbacksObjectCallbacks, argc);
     if(mutableArguments == NULL)
     {
-        free(procArgs);
+        EFAllocatorDeallocate(allocatorRef, procArgs);
         return NULL;
     }
 
@@ -435,14 +435,14 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
             EFAUTOREL EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
             if(argument == NULL || !EFArrayAppendValue(mutableArguments, argument))
             {
-                free(procArgs);
+                EFAllocatorDeallocate(allocatorRef, procArgs);
                 return NULL;
             }
         }
         cp += strlen(cp) + 1;
         arg_count++;
     }
-    free(procArgs);
+    EFAllocatorDeallocate(allocatorRef, procArgs);
 #elifdef __FreeBSD__
     int pathMib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, processIdentifier };
     char pathBuf[1024];
@@ -457,7 +457,7 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
 
     if(sysctl(argsMib, 4, NULL, &argsSize, NULL, 0) == 0 && argsSize > 0)
     {
-        char *argsBuf = malloc(argsSize);
+        char *argsBuf = EFAllocatorAllocate(allocatorRef, argsSize, 0);
         if(argsBuf != NULL)
         {
             if(sysctl(argsMib, 4, argsBuf, &argsSize, NULL, 0) == 0)
@@ -476,14 +476,14 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                         EFAUTOREL EFStringRef argument = EFStringCreateWithCString(allocatorRef, cp, kEFStringEncodingUTF8);
                         if(argument == NULL || !EFArrayAppendValue(mutableArguments, argument))
                         {
-                            free(argsBuf);
+                            EFAllocatorDeallocate(allocatorRef, argsBuf);
                             return NULL;
                         }
                         cp += strlen(cp) + 1;
                     }
                 }
             }
-            free(argsBuf);
+            EFAllocatorDeallocate(allocatorRef, argsBuf);
         }
     }
 #endif /* __APPLE__ || __FreeBSD__ || __linux__ */
@@ -506,7 +506,7 @@ skip_arg_copy:
 #ifdef __linux__
     if(commandCString != NULL)
     {
-        free((void *)commandCString);
+        EFAllocatorDeallocate(allocatorRef, (void *)commandCString);
     }
 #endif
 

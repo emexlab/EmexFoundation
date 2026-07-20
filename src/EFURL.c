@@ -112,18 +112,18 @@ EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
         url->type = kEFURLTypePOSIX;
         pathString = EFRetain(stringRef);
 
-        char *tmpPath = malloc(PATH_MAX);
+        char *tmpPath = EFAllocatorAllocate(allocatorRef, PATH_MAX, 0);
         if(realpath(EFStringGetCStringPtr(stringRef, kEFStringEncodingUTF8), tmpPath) == NULL)
         {
             /* need to take cwd env */
             if(getcwd(tmpPath, PATH_MAX) == NULL)
             {
-                free(tmpPath);
+                EFAllocatorDeallocate(allocatorRef, tmpPath);
                 return NULL;
             }
 
             EFAUTOREL EFStringRef cwd = EFStringCreateWithCString(allocatorRef, tmpPath, kEFStringEncodingUTF8);
-            free(tmpPath);
+            EFAllocatorDeallocate(allocatorRef, tmpPath);
             if(cwd == NULL)
             {
                 return NULL;
@@ -206,7 +206,7 @@ EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef,
             break;
     }
 
-    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(kEFAllocatorDefault, prefix);
+    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(allocatorRef, prefix);
 
     EFIndex pathComponentCount = EFArrayGetCount(url->pathComponents);
     for(EFIndex index = 0; index < pathComponentCount; index++)
@@ -234,7 +234,7 @@ EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(kEFAllocatorDefault, EFSTR(""));
+    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(allocatorRef, EFSTR(""));
 
     EFIndex pathComponentCount = EFArrayGetCount(url->pathComponents);
     for(EFIndex index = 0; index < pathComponentCount; index++)
@@ -262,7 +262,7 @@ EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(kEFAllocatorDefault, EFSTR(""));
+    EFAUTOREL EFMutableStringRef mutableString = EFStringCreateMutableCopy(allocatorRef, EFSTR(""));
 
     EFIndex pathComponentCount = EFArrayGetCount(url->pathComponents);
     for(EFIndex index = 1; index < pathComponentCount; index++)
