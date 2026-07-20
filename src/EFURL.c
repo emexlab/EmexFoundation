@@ -115,6 +115,12 @@ EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
         char *tmpPath = EFAllocatorAllocate(allocatorRef, PATH_MAX, 0);
         if(realpath(EFStringGetCStringPtr(stringRef, kEFStringEncodingUTF8), tmpPath) == NULL)
         {
+            if(EFStringHasPrefix(stringRef, EFSTR("/")))
+            {
+                pathString = EFRetain(stringRef);
+                goto six_feet_under;
+            }
+
             /* need to take cwd env */
             if(getcwd(tmpPath, PATH_MAX) == NULL)
             {
@@ -153,6 +159,7 @@ EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef,
         }
     }
 
+six_feet_under:
     url->pathComponents = EFStringComponentsSplitBySeparator(pathString, EFSTR("/"));
     if(url->pathComponents == NULL)
     {

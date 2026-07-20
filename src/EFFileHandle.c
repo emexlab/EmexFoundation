@@ -157,13 +157,8 @@ EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef
                                                      int flg,
                                                      ...)
 {
-    if(pathStringRef == NULL)
-    {
-        return NULL;
-    }
-
-    const char *str = EFStringGetCStringPtr(pathStringRef, kEFStringEncodingASCII);
-    if(str == NULL)
+    EFAUTOREL EFURLRef urlRef = EFURLCreateWithString(allocatorRef, pathStringRef);
+    if(urlRef == NULL)
     {
         return NULL;
     }
@@ -178,16 +173,7 @@ EFFileHandleRef EFFileHandleCreateWithPathAndOptions(EFAllocatorRef allocatorRef
         va_end(ap);
     }
 
-    /* really opening the file */
-    int fd = open(str, flg, mode);
-    if(fd < 0)
-    {
-        return NULL;
-    }
-
-    EFFileHandleRef fileHandleRef = EFFileHandleCreateWithFileDescriptor(allocatorRef, fd);
-    close(fd);
-    return fileHandleRef;
+    return EFFileHandleCreateWithURLAndOptions(allocatorRef, urlRef, flg, mode);
 }
 
 static EFFileHandleRef __EFFileHandleCreateNetDesc(EFAllocatorRef allocatorRef,
