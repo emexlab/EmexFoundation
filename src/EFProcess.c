@@ -663,22 +663,11 @@ Boolean EFProcessIsAlive(EFProcessRef processRef)
     return getpgid(process->processIdentifier) != -1;
 }
 
-EFProcessRef EFProcessCurrent;
+extern EFProcessRef EFProcessCurrent;
 
 extern EFProcessRef EFProcessGetCurrentProcess(void)
 {
     return EFProcessCurrent;
-}
-
-__attribute__((constructor(102)))
-void EFProcessConstructor(void)
-{
-    EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
-    if(EFProcessCurrent == NULL)
-    {
-        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
-        exit(1);
-    }
 }
 
 SInt32 EFProcessWaitPID(EFProcessRef processRef,

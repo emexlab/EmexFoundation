@@ -526,7 +526,7 @@ EFIndex EFFileHandleRead(EFFileHandleRef fileHandleRef,
         case kEFFileHandleTypeBSD:
             return (EFIndex)read(fileHandle->fileDescriptor, buffer, (size_t)length);
         case kEFFileHandleTypeVirtual:
-            EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, (size_t)fileHandle->virtualFileDescriptor.offset, buffer, length);
+            EFIndex vret = EFPageGroupRead(fileHandle->virtualFileDescriptor.pageGroupRef, fileHandle->virtualFileDescriptor.offset, buffer, length);
             if(vret > 0)
             {
                 fileHandle->virtualFileDescriptor.offset += vret;

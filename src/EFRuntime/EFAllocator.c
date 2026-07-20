@@ -29,6 +29,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
+#include <EmexFoundation/EmexFoundation.h>
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 
 static void *__EFAllocatorDefaultAllocate(EFAllocatorRef allocatorRef,
@@ -129,9 +130,18 @@ extern void EFAllocatorDeallocate(EFAllocatorRef allocatorRef,
     allocator->deallocate(allocatorRef, ptr);
 }
 
-__attribute__((constructor(101)))
+EFProcessRef EFProcessCurrent;
+
+__attribute__((constructor))
 static void EFAllocatorConstructor(void)
 {
     /* default is malloc */
     kEFAllocatorDefault = kEFAllocatorMalloc;
+    
+    EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
+    if(EFProcessCurrent == NULL)
+    {
+        fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
+        exit(1);
+    }
 }
