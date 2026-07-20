@@ -108,6 +108,7 @@ typedef uint64_t UInt64;
 typedef int64_t SInt64;
 typedef float Float32;
 typedef double Float64;
+typedef UInt16 UniChar;
 typedef double EFTimeInterval;
 typedef EFTimeInterval EFAbsoluteTime;
 /* no OSStatus??? this is modern, aint macintosh carbon era shit, my water aint carbonised */
