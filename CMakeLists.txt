@@ -16,6 +16,8 @@ else()
 endif()
 
 add_library(EmexFoundation ${LIB_TYPE}
+    src/CrossSupport/memfd.c
+
     src/EFRuntime/EFBase.c
     src/EFRuntime/EFAllocator.c
 
@@ -30,6 +32,7 @@ add_library(EmexFoundation ${LIB_TYPE}
     src/EFURL.c
     src/EFFile.c
     src/EFBitWalker.c
+    src/EFUUID.c
 )
 
 target_include_directories(EmexFoundation
