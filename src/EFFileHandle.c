@@ -732,7 +732,7 @@ EFIndex EFFileHandleGetLength(EFFileHandleRef fileHandleRef)
             }
             return fdstat.st_size;
         case kEFFileHandleTypeVirtual:
-            return EFPageGroupGetLength(fileHandle->virtualFileDescriptor.pageGroupRef);
+            return EFPageGroupGetLastWrittenOffset(fileHandle->virtualFileDescriptor.pageGroupRef);
         default:
             return -1;
     }
