@@ -55,7 +55,7 @@ EF_EXTERN Boolean EFEqual(EFObjectRef ref1, EFObjectRef ref2);
 
 EF_EXTERN EF_RETURNS_RETAINED EFObjectRef EFRetain(EFObjectRef ref);
 EF_EXTERN void EFRelease(EF_CONSUMED EFObjectRef ref);
-EF_EXTERN EFObjectRef EFRetainTry(EFObjectRef ref);
+EF_EXTERN EF_RETURNS_RETAINED EFObjectRef EFRetainTry(EFObjectRef ref);
 EF_EXTERN Boolean EFReleaseTry(EF_CONSUMED EFObjectRef ref);
 EF_EXTERN Boolean EFReleaseTryHelper(void *ref);    /* technically consumes */
 EF_EXTERN EFIndex EFGetRetainCount(EFObjectRef ref);
