@@ -39,6 +39,11 @@
         (var) = NULL; \
         _temp; \
     })
+#define EFAUTOSWAP(var, newvar) \
+    __extension__ ({ \
+        EFReleaseTry((var)); \
+        (var) = (newvar); \
+    })
 
 EF_EXTERN EFTypeID EFClassRegister(EFClass *cls);
 EF_EXTERN EFClass *EFClassGetByID(EFTypeID id);
