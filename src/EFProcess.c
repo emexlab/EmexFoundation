@@ -189,7 +189,7 @@ EFProcessRef EFProcessCreateWithPath(EFAllocatorRef allocatorRef,
 EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
                                                   SInt32 processIdentifier)
 {
-    if(processIdentifier < 0)
+    if(processIdentifier <= 0)
     {
         return NULL;
     }
