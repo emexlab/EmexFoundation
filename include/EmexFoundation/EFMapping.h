@@ -19,24 +19,28 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef EMEXFOUNDATION_H
-#define EMEXFOUNDATION_H
+#ifndef EFMAPPING_H
+#define EFMAPPING_H
+
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
+#include <stdio.h>
+#include <stddef.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
-#include <EmexFoundation/CrossSupport/memfd.h>
-#include <EmexFoundation/EFNumber.h>
-#include <EmexFoundation/EFString.h>
-#include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/EFData.h>
-#include <EmexFoundation/EFFileHandle.h>
-#include <EmexFoundation/EFProcess.h>
-#include <EmexFoundation/EFURL.h>
-#include <EmexFoundation/EFFile.h>
-#include <EmexFoundation/EFBitWalker.h>
-#include <EmexFoundation/EFUUID.h>
-#include <EmexFoundation/EFMapping.h>
 
-#endif /* EMEXFOUNDATION_H */
+typedef struct __EFMapping *EFMappingRef;
+
+EF_EXTERN EFTypeID EFMappingGetTypeID(void);
+
+EF_EXTERN EF_RETURNS_RETAINED EFMappingRef EFMappingCreate(EFAllocatorRef allocatorRef, void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+
+EF_EXTERN void *EFMappingGetAddress(EFMappingRef mappingRef);
+EF_EXTERN EFIndex EFMappingGetLength(EFMappingRef mappingRef);
+EF_EXTERN void EFMappingDisableUnmap(EFMappingRef mappingRef);
+
+#endif /* EFMAPPING_H */

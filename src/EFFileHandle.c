@@ -673,3 +673,26 @@ SInt32 EFFileHandleGetFileDescriptor(EFFileHandleRef fileHandleRef)
 
     return fileHandle->fileDescriptor;
 }
+
+EFMappingRef EFFileHandleCopyMapping(EFAllocatorRef allocatorRef,
+                                     EFFileHandleRef fileHandleRef)
+{
+    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    if(fileHandle == NULL)
+    {
+        return NULL;
+    }
+
+    int protFlags = 0;
+    if(fileHandle->writable && fileHandle->readable)
+    {
+        protFlags = O_RDONLY | O_WRONLY;
+    }
+    else
+    {
+        protFlags = fileHandle->readable ? O_RDONLY : 0;
+        protFlags = fileHandle->writable ? O_WRONLY : 0;
+    }
+
+    return EFMappingCreate(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), protFlags, MAP_SHARED, fileHandle->fileDescriptor, 0);
+}

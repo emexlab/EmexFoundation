@@ -35,6 +35,7 @@
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFURL.h>
+#include <EmexFoundation/EFMapping.h>
 
 typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,
@@ -75,5 +76,7 @@ EF_EXTERN void EFFileHandlePuts(EFFileHandleRef fileHandleRef, const char *s);
 EF_EXTERN void EFFileHandlePrintf(EFFileHandleRef fileHandleRef, const char *format, ...);
 
 EF_EXTERN SInt32 EFFileHandleGetFileDescriptor(EFFileHandleRef fileHandleRef);
+
+EF_EXTERN EF_RETURNS_RETAINED EFMappingRef EFFileHandleCopyMapping(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
 #endif /* EFFILEHANDLE_H */
