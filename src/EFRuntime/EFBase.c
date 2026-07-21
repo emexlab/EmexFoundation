@@ -199,7 +199,10 @@ EFClass *EFClassGetByID(EFTypeID id)
 EFAllocatorRef EFGetAllocator(EFObjectRef ref)
 {
     EFObject *object = (EFObject*)ref;
-    assert(object != NULL);
+    if(object == NULL)
+    {
+        return kEFAllocatorDefault;
+    }
     return object->allocatorRef;
 }
 
