@@ -26,6 +26,7 @@
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
+#include <EmexFoundation/CrossSupport/memfd.h>
 #include <EmexFoundation/EFNumber.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>
@@ -37,5 +38,6 @@
 #include <EmexFoundation/EFURL.h>
 #include <EmexFoundation/EFFile.h>
 #include <EmexFoundation/EFBitWalker.h>
+#include <EmexFoundation/EFUUID.h>
 
 #endif /* EMEXFOUNDATION_H */
