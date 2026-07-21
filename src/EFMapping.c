@@ -90,7 +90,7 @@ EFMappingRef EFMappingCreate(EFAllocatorRef allocatorRef,
     }
 
     mapping->addr = mmap(addr, length, prot, flags, fd, offset);
-    if(mapping->addr == NULL)
+    if(mapping->addr == MAP_FAILED)
     {
         return NULL;
     }
