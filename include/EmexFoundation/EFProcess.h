@@ -46,6 +46,9 @@ EF_EXTERN SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
 EF_EXTERN SInt32 EFProcessGetProcessGroupIdentifier(EFProcessRef processRef);
 EF_EXTERN SInt32 EFProcessGetSessionIdentifier(EFProcessRef processRef);
 
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFProcessCopyUserName(EFAllocatorRef allocatorRef, EFProcessRef processRef);
+EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFProcessCopyGroupName(EFAllocatorRef allocatorRef, EFProcessRef processRef);
+
 EF_EXTERN Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
 EF_EXTERN Boolean EFProcessSuspend(EFProcessRef processRef);
 EF_EXTERN Boolean EFProcessResume(EFProcessRef processRef);

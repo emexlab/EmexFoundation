@@ -30,6 +30,9 @@
 #include <signal.h>
 #include <spawn.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
 #ifdef __linux__
 #include <limits.h>
 #elif defined(__APPLE__) || defined(__FreeBSD__)
@@ -613,6 +616,34 @@ SInt32 EFProcessGetSessionIdentifier(EFProcessRef processRef)
     }
 
     return process->sessionIdentifier;
+}
+
+EFStringRef EFProcessCopyUserName(EFAllocatorRef allocatorRef,
+                                  EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return NULL;
+    }
+
+    struct passwd *pw = getpwuid(process->userIdentifier);
+    const char *username = (pw != NULL) ? pw->pw_name : NULL;
+    return EFStringCreateWithCString(allocatorRef, username, kEFStringEncodingUTF8);
+}
+
+EFStringRef EFProcessCopyGroupName(EFAllocatorRef allocatorRef,
+                                   EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return NULL;
+    }
+
+    struct group *gr = getgrgid(process->groupIdentifier);
+    const char *groupname = (gr != NULL) ? gr->gr_name : NULL;
+    return EFStringCreateWithCString(allocatorRef, groupname, kEFStringEncodingUTF8);
 }
 
 EFStringRef EFProcessGetCommand(EFProcessRef processRef)
