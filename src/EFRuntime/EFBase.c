@@ -128,7 +128,7 @@ void EFRelease(EFObjectRef ref)
     else if(old <= 0)
     {
         fprintf(stderr, "EFRelease: fatal error occured, reference underflow\n");
-        exit(1);
+        abort();
     }
 }
 
