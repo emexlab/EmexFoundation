@@ -395,6 +395,18 @@ extension_validation:
     return kEFFileTypeUnknown;
 }
 
+void EFFileUnlink(EFFileRef fileRef)
+{
+    __EFFile file = (__EFFile)fileRef;
+    if(file == NULL)
+    {
+        return;
+    }
+
+    EFAUTOREL EFStringRef path = EFURLCopyPath(EFGetAllocator(fileRef), file->url);
+    unlink(EFStringGetCStringPtr(path, kEFStringEncodingUTF8));
+}
+
 EFURLRef EFFileGetURL(EFFileRef fileRef)
 {
     __EFFile file = (__EFFile)fileRef;

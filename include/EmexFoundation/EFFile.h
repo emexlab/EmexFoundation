@@ -79,6 +79,7 @@ EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileCopyData(EFAllocatorRef allocatorR
 EF_EXTERN EFFileType EFFileGetType(EFFileRef fileRef);
 
 EF_EXTERN EFFileType EFFileTypeForPath(EFStringRef path, Boolean mustExist);
+EF_EXTERN void EFFileUnlink(EFFileRef fileRef);
 
 EF_EXTERN EF_RETURNS_NOT_RETAINED EFURLRef EFFileGetURL(EFFileRef fileRef);
 
