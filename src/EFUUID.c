@@ -152,9 +152,6 @@ EFStringRef EFUUIDCreateString(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    EFLog(EFSTR("%hd\n"), uuid->bytes.byte0);
-    EFLog(EFSTR("%hd\n"), uuid->bytes.byte1);
-
     char buf[37];
     memset(buf, '0', sizeof(buf));
     _intToHexChars(uuid->bytes.byte0, &buf[0], 2);
