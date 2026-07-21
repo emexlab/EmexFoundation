@@ -55,6 +55,8 @@ typedef struct __EFProcess {
     SInt32 parentProcessIdentifier;
     SInt32 userIdentifier;
     SInt32 groupIdentifier;
+    SInt32 processGroupIdentifier;
+    SInt32 sessionIdentifier;
 
     /* nice to have ^^ */
     EFStringRef command;
@@ -79,7 +81,7 @@ static EFStringRef __EFProcessCopyDescription(EFObjectRef processRef)
 {
     __EFProcess process = (__EFProcess)processRef;
     EFAllocatorRef allocator = EFGetAllocator(processRef);
-    return EFStringCreateWithFormat(allocator, EFSTR("<EFProcess %p>{processIdentifier = %ld, parentProcessIdentifier = %ld, userIdentifier = %ld, groupIdentifier = %ld, command = %@, executablePath = %@, arguments = %@, alive = %d}"), processRef, process->processIdentifier, process->parentProcessIdentifier, process->userIdentifier, process->groupIdentifier, process->command, process->executablePath, process->arguments, EFProcessIsAlive(processRef));
+    return EFStringCreateWithFormat(allocator, EFSTR("<EFProcess %p>{processIdentifier = %ld, parentProcessIdentifier = %ld, userIdentifier = %ld, groupIdentifier = %ld, processGroupIdentifier = %ld, sessionIdentifier = %ld, command = %@, executablePath = %@, arguments = %@, alive = %d}"), processRef, process->processIdentifier, process->parentProcessIdentifier, process->userIdentifier, process->groupIdentifier, process->processGroupIdentifier, process->sessionIdentifier, process->command, process->executablePath, process->arguments, EFProcessIsAlive(processRef));
 }
 
 static EFClass EFProcessClass = {
@@ -202,6 +204,8 @@ EFProcessRef EFProcessCreateWithProcessIdentifier(EFAllocatorRef allocatorRef,
     SInt32 ppid = 0;
     SInt32 uid = 0;
     SInt32 gid = 0;
+    SInt32 pgid = getpgid(processIdentifier);
+    SInt32 sid = getsid(processIdentifier);
 
     char const *commandCString = NULL;
 
@@ -538,6 +542,8 @@ skip_arg_copy:
     process->parentProcessIdentifier = ppid;
     process->userIdentifier = uid;
     process->groupIdentifier = gid;
+    process->processGroupIdentifier = pgid;
+    process->sessionIdentifier = sid;
     process->weSpawnedThis = false;
 
     return (EFProcessRef)process;
@@ -548,7 +554,7 @@ SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef)
     __EFProcess process = (__EFProcess)processRef;
     if(process == NULL)
     {
-        return 0;
+        return -1;
     }
 
     return process->processIdentifier;
@@ -559,7 +565,7 @@ SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef)
     __EFProcess process = (__EFProcess)processRef;
     if(process == NULL)
     {
-        return 0;
+        return -1;
     }
 
     return process->parentProcessIdentifier;
@@ -570,7 +576,7 @@ SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef)
     __EFProcess process = (__EFProcess)processRef;
     if(process == NULL)
     {
-        return 0;
+        return -1;
     }
 
     return process->userIdentifier;
@@ -581,10 +587,32 @@ SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef)
     __EFProcess process = (__EFProcess)processRef;
     if(process == NULL)
     {
-        return 0;
+        return -1;
     }
 
     return process->groupIdentifier;
+}
+
+SInt32 EFProcessGetProcessGroupIdentifier(EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return -1;
+    }
+
+    return process->processGroupIdentifier;
+}
+
+SInt32 EFProcessGetSessionIdentifier(EFProcessRef processRef)
+{
+    __EFProcess process = (__EFProcess)processRef;
+    if(process == NULL)
+    {
+        return -1;
+    }
+
+    return process->sessionIdentifier;
 }
 
 EFStringRef EFProcessGetCommand(EFProcessRef processRef)

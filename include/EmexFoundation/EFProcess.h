@@ -43,6 +43,8 @@ EF_EXTERN SInt32 EFProcessGetProcessIdentifier(EFProcessRef processRef);
 EF_EXTERN SInt32 EFProcessGetParentProcessIdentifier(EFProcessRef processRef);
 EF_EXTERN SInt32 EFProcessGetUserIdentifier(EFProcessRef processRef);
 EF_EXTERN SInt32 EFProcessGetGroupIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetProcessGroupIdentifier(EFProcessRef processRef);
+EF_EXTERN SInt32 EFProcessGetSessionIdentifier(EFProcessRef processRef);
 
 EF_EXTERN Boolean EFProcessSendSignal(EFProcessRef processRef, SInt32 signal);
 EF_EXTERN Boolean EFProcessSuspend(EFProcessRef processRef);
