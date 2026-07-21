@@ -84,7 +84,6 @@ static inline int __EFFilePolicyToProt(EFFilePolicyPermission p)
 typedef struct __EFFile {
     EFObject header;
     EFURLRef url;
-    EFPageGroupRef pageGroup;
     EFFileType type;
     EFFilePolicy policy;
     EFFileHandleRef fileHandle;
@@ -95,7 +94,6 @@ static void __EFBitWalkerDeinit(EFObjectRef fileRef)
     __EFFile file = (__EFFile)fileRef;
     EFReleaseTry(file->url);
     EFReleaseTry(file->fileHandle);
-    EFReleaseTry(file->pageGroup);
 }
 
 EFClass EFFileClass = {

@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <string.h>
 #include <EmexFoundation/CrossSupport/memfd.h>
 
 #ifdef __APPLE__
@@ -29,15 +31,17 @@
 int memfd_create(const char *name,
                  unsigned int flags)
 {
-    /* probably doesn't work on iOS, on iOS we'll have to fallback to a temporary file */
-    char shm_name[32];
-    snprintf(shm_name, sizeof(shm_name), "/mfd_%d_%p", getpid(), (void*)name);
-    int fd = shm_open(shm_name, O_CREAT | O_RDWR | O_EXCL, 0600);
-    if(fd < 0)
+    char tempBuf[PATH_MAX];
+    strncpy(tempBuf, name, PATH_MAX);
+
+    const char *tempFile = mktemp(tempBuf);
+    if(tempFile == NULL)
     {
         return -1;
     }
-    shm_unlink(shm_name);
+
+    int fd = open(tempFile, flags, 0777);
+    unlink(tempFile);   /* unlinking immediately keeps it in memory */
     return fd;
 }
 

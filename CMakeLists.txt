@@ -24,8 +24,6 @@ add_library(EmexFoundation ${LIB_TYPE}
     src/EFNumber.c
     src/EFString.c
     src/EFArray.c
-    src/EFPage.c
-    src/EFPageGroup.c
     src/EFData.c
     src/EFFileHandle.c
     src/EFProcess.c

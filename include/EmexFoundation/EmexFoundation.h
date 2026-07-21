@@ -30,8 +30,6 @@
 #include <EmexFoundation/EFNumber.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>
-#include <EmexFoundation/EFPage.h>
-#include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFProcess.h>

@@ -34,13 +34,7 @@
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFData.h>
-#include <EmexFoundation/EFPageGroup.h>
 #include <EmexFoundation/EFURL.h>
-
-typedef enum: UInt8 {
-    kEFFileHandleTypeBSD,
-    kEFFileHandleTypeVirtual,
-} EFFileHandleType;
 
 typedef enum: UInt8 {
     kEFFileHandleSeekTypeSet,
@@ -74,13 +68,12 @@ EF_EXTERN Boolean EFFileHandleIsReadable(EFFileHandleRef fileHandleRef);
 EF_EXTERN Boolean EFFileHandleIsWritable(EFFileHandleRef fileHandleRef);
 
 EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileHandleCopyDataForRange(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef, EFRange range);
-EF_EXTERN EF_RETURNS_RETAINED EFPageGroupRef EFFIleHandleCopyPageGroup(EFAllocatorRef allocatorRef, EFFileHandleRef fileHandleRef);
 
 EF_EXTERN char *EFFileHandleGets(EFFileHandleRef fileHandleRef, char *s, int n);
 EF_EXTERN void EFFileHandlePutc(EFFileHandleRef fileHandleRef, char c);
 EF_EXTERN void EFFileHandlePuts(EFFileHandleRef fileHandleRef, const char *s);
 EF_EXTERN void EFFileHandlePrintf(EFFileHandleRef fileHandleRef, const char *format, ...);
 
-EF_EXTERN EFFileHandleType EFFileHandleGetType(EFFileHandleRef fileHandleRef);
+EF_EXTERN SInt32 EFFileHandleGetFileDescriptor(EFFileHandleRef fileHandleRef);
 
 #endif /* EFFILEHANDLE_H */
