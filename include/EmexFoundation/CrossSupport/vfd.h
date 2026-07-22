@@ -27,6 +27,6 @@
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFBase.h>
 
-EF_EXTERN SInt32 vfd_create(const char *name, UInt32 flags);
+EF_EXTERN SInt32 vfd_create(UInt32 flags);
 
 #endif /* CROSSUNIX_VFD_H */

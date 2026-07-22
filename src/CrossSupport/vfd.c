@@ -33,36 +33,17 @@
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
 #include <EmexFoundation/CrossSupport/vfd.h>
+#include <EmexFoundation/EFString.h>
+#include <EmexFoundation/EFUUID.h>
 
-SInt32 vfd_create(const char *name,
-                  UInt32 flags)
+SInt32 vfd_create(UInt32 flags)
 {
-    /* need to fix the flags */
-    SInt32 accessMode = (flags & O_ACCMODE);
-    SInt32 fileDescriptor = -1;
-
-    /*
-#if defined(__linux__) || defined(__FreeBSD__)
-     * first method thing is memfd_create *
-    fileDescriptor = memfd_create(name, accessMode);
-    if(fileDescriptor >= 0)
-    {
-        return fileDescriptor;
-    }
-#endif * __linux__ || __FreeBSD__ *
-    */
-
-    /* fallback method */
-    char tempBuf[PATH_MAX];
-    strncpy(tempBuf, name, PATH_MAX);
-
-    const char *tempFile = mktemp(tempBuf);
-    if(tempFile == NULL)
-    {
-        return -1;
-    }
-
-    fileDescriptor = open(tempFile, accessMode | O_CREAT | O_TRUNC, 0777);
-    unlink(tempFile);   /* unlinking immediately keeps it in memory */
+    /* creates file descriptor that "lives in memory" */
+    EFAUTOREL EFUUIDRef uuid = EFUUIDCreate(kEFAllocatorDefault);
+    EFAUTOREL EFStringRef string = EFUUIDCreateString(kEFAllocatorDefault, uuid);
+    EFAUTOREL EFStringRef pathStr = EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("%s/%@"), getenv("TMPDIR"), string);
+    const char *pathStrC = EFStringGetCStringPtr(pathStr, kEFStringEncodingUTF8);
+    SInt32 fileDescriptor = open(pathStrC, flags | O_CREAT | O_TRUNC, 0777);
+    unlink(pathStrC);   /* unlinking immediately keeps it in memory */
     return fileDescriptor;
 }
