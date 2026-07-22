@@ -142,21 +142,22 @@ EFFileRef __EFFileCreate(EFAllocatorRef allocatorRef,
 
     file->policy = policy;
 
-    if(EFURLGetType(urlRef) == kEFURLTypePOSIX)
+    EFURLType urlType = EFURLGetType(urlRef);
+    EFAUTOREL EFStringRef path = EFURLCopyPath(allocatorRef, file->url);
+    file->type = EFFileTypeForPath(path, urlType == kEFURLTypePOSIX && policy.mustExist);
+    if(urlType == kEFURLTypePOSIX)
     {
         /*
          * resolving the true paths is important
          * so errors can reveal the actual file
          * locations.
          */
-        EFAUTOREL EFStringRef path = EFURLCopyPath(allocatorRef, file->url);
         if(policy.mustExist && care_about_file_exist_policy && access(EFStringGetCStringPtr(path, kEFStringEncodingUTF8), F_OK) != 0)
         {
             return NULL;
         }
 
         /* setting standard values */
-        file->type = EFFileTypeForPath(path, policy.mustExist);
         if(policy.mustBeAFile && file->type == kEFFileTypeDirectory)
         {
             return NULL;
