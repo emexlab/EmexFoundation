@@ -230,7 +230,7 @@ EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocatorRef,
                                                     EFStringRef pathComponent)
 {
     EFAUTOREL EFURLRef secondURL = EFURLCreateURLByDeletingLastPathComponent(allocatorRef, urlRef);
-    return EFURLCreateURLByAppendingPathComponent(allocatorRef, urlRef, pathComponent);
+    return EFURLCreateURLByAppendingPathComponent(allocatorRef, secondURL, pathComponent);
 }
 
 EFURLType EFURLGetType(EFURLRef urlRef)
