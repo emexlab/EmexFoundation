@@ -25,10 +25,6 @@
 #include <sys/mman.h>
 #include <EmexFoundation/EFRuntime/EFBase.h>
 
-#ifdef __APPLE__
-
-EF_EXTERN int memfd_create(const char *name, unsigned int flags);
-
-#endif /* __APPLE__ */
+EF_EXTERN SInt32 vfd_create(const char *name, UInt32 flags);
 
 #endif /* CROSSUNIX_MEMFD_H */

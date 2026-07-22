@@ -26,11 +26,23 @@
 #include <string.h>
 #include <EmexFoundation/CrossSupport/memfd.h>
 
-#ifdef __APPLE__
-
-int memfd_create(const char *name,
-                 unsigned int flags)
+SInt32 vfd_create(const char *name,
+                  UInt32 flags)
 {
+    /* need to fix the flags */
+    SInt32 accessMode = (flags & O_ACCMODE);
+    SInt32 fileDescriptor = -1;
+
+#if defined(__linux__) || defined(__FreeBSD__)
+    /* first method thing is memfd_create */
+    fileDescriptor = memfd_create(name, accessMode);
+    if(fileDescriptor >= 0)
+    {
+        return fileDescriptor;
+    }
+#endif /* __linux__ || __FreeBSD__ */
+
+    /* fallback method */
     char tempBuf[PATH_MAX];
     strncpy(tempBuf, name, PATH_MAX);
 
@@ -40,9 +52,7 @@ int memfd_create(const char *name,
         return -1;
     }
 
-    int fd = open(tempFile, flags, 0777);
+    int fd = open(tempFile, accessMode | O_CREAT | O_TRUNC, 0777);
     unlink(tempFile);   /* unlinking immediately keeps it in memory */
     return fd;
 }
-
-#endif /* __APPLE__ */
