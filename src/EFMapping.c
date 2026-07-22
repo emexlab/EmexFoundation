@@ -35,13 +35,13 @@ typedef struct __EFMapping {
     EFObject header;
     Boolean unmap;
     void *addr;
-    EFIndex length;
+    EFSize size;
 } *__EFMapping;
 
 static EFStringRef __EFMappingCopyDescription(EFObjectRef objectRef)
 {
     EFMappingRef mapping = (EFMappingRef)objectRef;
-    return EFStringCreateWithFormat(EFGetAllocator(objectRef), EFSTR("<EFMapping %p>{addr = %p, length = %lu}"), objectRef, mapping->addr, mapping->length);
+    return EFStringCreateWithFormat(EFGetAllocator(objectRef), EFSTR("<EFMapping %p>{addr = %p, length = %llu}"), objectRef, mapping->addr, mapping->size);
 }
 
 static void __EFMappingDeinit(EFObjectRef objectRef)
@@ -49,7 +49,7 @@ static void __EFMappingDeinit(EFObjectRef objectRef)
     EFMappingRef mapping = (EFMappingRef)objectRef;
     if(mapping->unmap)
     {
-        munmap(mapping->addr, mapping->length);
+        munmap(mapping->addr, mapping->size);
     }
 }
 
@@ -94,7 +94,7 @@ EFMappingRef EFMappingCreate(EFAllocatorRef allocatorRef,
     {
         return NULL;
     }
-    mapping->length = (EFIndex)length;
+    mapping->size = (EFSize)length;
     mapping->unmap = true;
 
     return (EFMappingRef)EFAUTOTRANSFER(mapping);
@@ -111,7 +111,7 @@ void *EFMappingGetAddress(EFMappingRef mappingRef)
     return (EFMappingRef)mapping->addr;
 }
 
-EFIndex EFMappingGetLength(EFMappingRef mappingRef)
+EFSize EFMappingGetSize(EFMappingRef mappingRef)
 {
     __EFMapping mapping = (__EFMapping)mappingRef;
     if(mapping == NULL)
@@ -119,7 +119,7 @@ EFIndex EFMappingGetLength(EFMappingRef mappingRef)
         return -1;
     }
 
-    return mapping->length;
+    return mapping->size;
 }
 
 void EFMappingDisableUnmap(EFMappingRef mappingRef)
