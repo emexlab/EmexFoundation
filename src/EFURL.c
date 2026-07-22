@@ -169,6 +169,70 @@ six_feet_under:
     return (EFURLRef)EFAUTOTRANSFER(url);
 }
 
+EFURLRef EFURLCreateURLByAppendingPathComponent(EFAllocatorRef allocatorRef,
+                                                EFURLRef urlRef,
+                                                EFStringRef pathComponent)
+{
+    __EFURL url = (__EFURL)urlRef;
+    if(url == NULL || pathComponent == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFMutableArrayRef mutablePathComponents = EFArrayCreateMutableCopy(allocatorRef, url->pathComponents);
+    if(!EFArrayAppendValue(mutablePathComponents, pathComponent))
+    {
+        return NULL;
+    }
+
+    EFAUTOREL __EFURL newUrl = (__EFURL)EFObjectCreate(allocatorRef, EFURLGetTypeID(), (EFIndex)sizeof(struct __EFURL));
+    if(newUrl == NULL)
+    {
+        return NULL;
+    }
+
+    newUrl->type = url->type;
+    newUrl->pathComponents = EFAUTOTRANSFER(mutablePathComponents);
+
+    return (EFURLRef)EFAUTOTRANSFER(newUrl);
+}
+
+EFURLRef EFURLCreateURLByDeletingLastPathComponent(EFAllocatorRef allocatorRef,
+                                                   EFURLRef urlRef)
+{
+    __EFURL url = (__EFURL)urlRef;
+    if(url == NULL)
+    {
+        return NULL;
+    }
+
+    EFAUTOREL EFMutableArrayRef mutablePathComponents = EFArrayCreateMutableCopy(allocatorRef, url->pathComponents);
+    if(mutablePathComponents == NULL)
+    {
+        return NULL;
+    }
+    EFArrayRemoveValueAtIndex(mutablePathComponents, EFArrayGetCount(mutablePathComponents) - 1);
+
+    EFAUTOREL __EFURL newUrl = (__EFURL)EFObjectCreate(allocatorRef, EFURLGetTypeID(), (EFIndex)sizeof(struct __EFURL));
+    if(newUrl == NULL)
+    {
+        return NULL;
+    }
+
+    newUrl->type = url->type;
+    newUrl->pathComponents = EFAUTOTRANSFER(mutablePathComponents);
+
+    return (EFURLRef)EFAUTOTRANSFER(newUrl);
+}
+
+EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocatorRef,
+                                                    EFURLRef urlRef,
+                                                    EFStringRef pathComponent)
+{
+    EFAUTOREL EFURLRef secondURL = EFURLCreateURLByDeletingLastPathComponent(allocatorRef, urlRef);
+    return EFURLCreateURLByAppendingPathComponent(allocatorRef, urlRef, pathComponent);
+}
+
 EFURLType EFURLGetType(EFURLRef urlRef)
 {
     __EFURL url = (__EFURL)urlRef;
