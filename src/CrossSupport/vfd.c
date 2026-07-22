@@ -40,14 +40,16 @@ SInt32 vfd_create(const char *name,
     SInt32 accessMode = (flags & O_ACCMODE);
     SInt32 fileDescriptor = -1;
 
+    /*
 #if defined(__linux__) || defined(__FreeBSD__)
-    /* first method thing is memfd_create */
+     * first method thing is memfd_create *
     fileDescriptor = memfd_create(name, accessMode);
     if(fileDescriptor >= 0)
     {
         return fileDescriptor;
     }
-#endif /* __linux__ || __FreeBSD__ */
+#endif * __linux__ || __FreeBSD__ *
+    */
 
     /* fallback method */
     char tempBuf[PATH_MAX];
