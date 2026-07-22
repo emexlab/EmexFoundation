@@ -41,7 +41,7 @@ SInt32 vfd_create(UInt32 flags)
     /* creates file descriptor that "lives in memory" */
     EFAUTOREL EFUUIDRef uuid = EFUUIDCreate(kEFAllocatorDefault);
     EFAUTOREL EFStringRef string = EFUUIDCreateString(kEFAllocatorDefault, uuid);
-    EFAUTOREL EFStringRef pathStr = EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("%s/%@"), getenv("TMPDIR"), string);
+    EFAUTOREL EFStringRef pathStr = EFStringCreateWithFormat(kEFAllocatorDefault, EFSTR("%s/%@"), getenv("TMPDIR")?: "/tmp", string);
     const char *pathStrC = EFStringGetCStringPtr(pathStr, kEFStringEncodingUTF8);
     SInt32 fileDescriptor = open(pathStrC, flags | O_CREAT | O_TRUNC, 0777);
     unlink(pathStrC);   /* unlinking immediately keeps it in memory */
