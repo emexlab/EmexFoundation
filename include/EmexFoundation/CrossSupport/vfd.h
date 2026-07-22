@@ -19,12 +19,14 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CROSSUNIX_MEMFD_H
-#define CROSSUNIX_MEMFD_H
+#ifndef CROSSUNIX_VFD_H
+#define CROSSUNIX_VFD_H
 
-#include <sys/mman.h>
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
 #include <EmexFoundation/EFRuntime/EFBase.h>
 
 EF_EXTERN SInt32 vfd_create(const char *name, UInt32 flags);
 
-#endif /* CROSSUNIX_MEMFD_H */
+#endif /* CROSSUNIX_VFD_H */

@@ -19,12 +19,19 @@
  * along with EmexFoundation. If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* ----------------------------------------------------------------------
+ *  System Headers
+ * -------------------------------------------------------------------- */
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <string.h>
-#include <EmexFoundation/CrossSupport/memfd.h>
+
+/* ----------------------------------------------------------------------
+ *  EmexFoundation Headers
+ * -------------------------------------------------------------------- */
+#include <EmexFoundation/CrossSupport/vfd.h>
 
 SInt32 vfd_create(const char *name,
                   UInt32 flags)
@@ -52,7 +59,7 @@ SInt32 vfd_create(const char *name,
         return -1;
     }
 
-    int fd = open(tempFile, accessMode | O_CREAT | O_TRUNC, 0777);
+    fileDescriptor = open(tempFile, accessMode | O_CREAT | O_TRUNC, 0777);
     unlink(tempFile);   /* unlinking immediately keeps it in memory */
-    return fd;
+    return fileDescriptor;
 }

@@ -16,7 +16,7 @@ else()
 endif()
 
 add_library(EmexFoundation ${LIB_TYPE}
-    src/CrossSupport/memfd.c
+    src/CrossSupport/vfd.c
 
     src/EFRuntime/EFBase.c
     src/EFRuntime/EFAllocator.c

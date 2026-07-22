@@ -37,7 +37,7 @@
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
  * -------------------------------------------------------------------- */
-#include <EmexFoundation/CrossSupport/memfd.h>
+#include <EmexFoundation/CrossSupport/vfd.h>
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFUUID.h>
