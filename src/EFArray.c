@@ -39,8 +39,8 @@ typedef struct __EFArray {
     Boolean isMutable;
     EFArrayCallbacks callbacks;
 
-    EFIndex items_cap;
-    EFIndex items_cnt;
+    EFIndex itemsCapacity;
+    EFIndex itemsCount;
     void **items;
 } *__EFArray;
 
@@ -86,7 +86,7 @@ static void __EFArrayClassDeinit(EFObjectRef arrayRef)
     __EFArray array = (__EFArray)arrayRef;
     if(array->callbacks->remove)
     {
-        for(EFIndex index = 0; index < array->items_cnt; index++)
+        for(EFIndex index = 0; index < array->itemsCount; index++)
         {
             array->callbacks->remove(array->items[index]);
         }
@@ -101,13 +101,13 @@ static Boolean __EFArrayClassEqual(EFObjectRef arrayRef1,
     __EFArray array2 = (__EFArray)arrayRef2;
 
     if(array1->callbacks != array2->callbacks ||
-       array1->items_cnt != array2->items_cnt)
+       array1->itemsCount != array2->itemsCount)
     {
         return false;
     }
     EFArrayCallbacks callbacks = array1->callbacks;
 
-    for(EFIndex index = 0; index < array1->items_cnt; index++)
+    for(EFIndex index = 0; index < array1->itemsCount; index++)
     {
         if(array1->items[index] == array2->items[index])
         {
@@ -128,14 +128,14 @@ static EFStringRef __EFArrayCopyDescription(EFObjectRef arrayRef)
     __EFArray array = (__EFArray)arrayRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
 
-    EFAUTOREL EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%@ %p>{count = %ld, items = {"), array->isMutable ? EFSTR("EFMutableArray") : EFSTR("EFArray"), arrayRef, array->items_cnt);
+    EFAUTOREL EFStringRef baseStringRef = EFStringCreateWithFormat(allocatorRef, EFSTR("<%@ %p>{count = %ld, items = {"), array->isMutable ? EFSTR("EFMutableArray") : EFSTR("EFArray"), arrayRef, array->itemsCount);
     EFAUTOREL EFMutableStringRef mutableStringRef = EFStringCreateMutableCopy(allocatorRef, baseStringRef);
     if(mutableStringRef == NULL)
     {
         return NULL;
     }
 
-    for(EFIndex index = 0; index < array->items_cnt; index++)
+    for(EFIndex index = 0; index < array->itemsCount; index++)
     {
         if(index > 0 && !EFStringAppendString(mutableStringRef, EFSTR(", ")))
         {
@@ -256,8 +256,8 @@ EFMutableArrayRef EFArrayCreateMutable(EFAllocatorRef allocatorRef,
 
     array->isMutable = true;
     array->callbacks = callbacks;
-    array->items_cnt = 0;
-    array->items_cap = capacity;
+    array->itemsCount = 0;
+    array->itemsCapacity = capacity;
     array->items = items;
 
     return (EFMutableArrayRef)array;
@@ -273,13 +273,13 @@ static EFArrayRef __EFArrayCreateCopy(EFAllocatorRef allocatorRef,
     }
 
     __EFArray srcArray = (__EFArray)arrayRef;
-    EFAUTOREL EFMutableArrayRef copyArrayRef = EFArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->items_cnt);
+    EFAUTOREL EFMutableArrayRef copyArrayRef = EFArrayCreateMutable(allocatorRef, srcArray->callbacks, srcArray->itemsCount);
     if(copyArrayRef == NULL)
     {
         return NULL;
     }
 
-    for(EFIndex index = 0; index < srcArray->items_cnt; index++)
+    for(EFIndex index = 0; index < srcArray->itemsCount; index++)
     {
         if(!EFArrayAppendValue(copyArrayRef, srcArray->items[index]))
         {
@@ -312,7 +312,7 @@ EFIndex EFArrayGetCount(EFArrayRef arrayRef)
     }
 
     __EFArray array = (__EFArray)arrayRef;
-    return array->items_cnt;
+    return array->itemsCount;
 }
 
 void *EFArrayGetValueAtIndex(EFArrayRef arrayRef,
@@ -325,7 +325,7 @@ void *EFArrayGetValueAtIndex(EFArrayRef arrayRef,
 
     /* wrap around check */
     __EFArray array = (__EFArray)arrayRef;
-    if(array->items_cnt <= index)
+    if(array->itemsCount <= index)
     {
         return NULL;
     }
@@ -335,15 +335,15 @@ void *EFArrayGetValueAtIndex(EFArrayRef arrayRef,
 
 Boolean __EFArrayResizeIfNeededForOneMoreIndex(__EFArray array)
 {
-    EFIndex needed_cap = array->items_cnt + 1;
-    if(array->items_cap >= needed_cap)
+    EFIndex neededCapacity = array->itemsCount + 1;
+    if(array->itemsCapacity >= neededCapacity)
     {
         return true;
     }
 
     /* need to reallocate */
-    EFIndex new_cap = array->items_cap + 5;
-    if(new_cap < array->items_cap)
+    EFIndex new_cap = array->itemsCapacity + 5;
+    if(new_cap < array->itemsCapacity)
     {
         /* wrapped around */
         return false;
@@ -356,7 +356,7 @@ Boolean __EFArrayResizeIfNeededForOneMoreIndex(__EFArray array)
         return false;
     }
     array->items = new_ptr;
-    array->items_cap = new_cap;
+    array->itemsCapacity = new_cap;
 
     return true;
 }
@@ -365,7 +365,7 @@ Boolean EFArrayAppendValue(EFMutableArrayRef mutableArrayRef,
                            void *ptr)
 {
     __EFArray mutableArray = (__EFArray)mutableArrayRef;
-    if(mutableArray == NULL || ptr == NULL || !mutableArray->isMutable || mutableArray->items_cnt >= __LONG_MAX__ || !__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
+    if(mutableArray == NULL || ptr == NULL || !mutableArray->isMutable || mutableArray->itemsCount >= __LONG_MAX__ || !__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
     {
         return false;
     }
@@ -376,7 +376,7 @@ Boolean EFArrayAppendValue(EFMutableArrayRef mutableArrayRef,
     }
 
     /* append */
-    EFIndex idx = (mutableArray->items_cnt)++;
+    EFIndex idx = (mutableArray->itemsCount)++;
     mutableArray->items[idx] = ptr;
 
     return true;
@@ -387,7 +387,7 @@ Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef mutableArrayRef,
                                   void *ptr)
 {
     __EFArray mutableArray = (__EFArray)mutableArrayRef;
-    if(mutableArray == NULL || ptr == NULL || !mutableArray->isMutable || index > mutableArray->items_cnt || mutableArray->items_cnt >= __LONG_MAX__ || index < 0 || !__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
+    if(mutableArray == NULL || ptr == NULL || !mutableArray->isMutable || index > mutableArray->itemsCount || mutableArray->itemsCount >= __LONG_MAX__ || index < 0 || !__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
     {
         return false;
     }
@@ -398,9 +398,9 @@ Boolean EFArrayInsertValueAtIndex(EFMutableArrayRef mutableArrayRef,
     }
 
     /* insert */
-    memmove(&mutableArray->items[index + 1], &mutableArray->items[index], (size_t)((mutableArray->items_cnt - index) * sizeof(void*)));
+    memmove(&mutableArray->items[index + 1], &mutableArray->items[index], (size_t)((mutableArray->itemsCount - index) * sizeof(void*)));
     mutableArray->items[index] = ptr;
-    mutableArray->items_cnt++;
+    mutableArray->itemsCount++;
 
     return true;
 }
@@ -409,7 +409,7 @@ void EFArrayRemoveValueAtIndex(EFMutableArrayRef mutableArrayRef,
                                EFIndex index)
 {
     __EFArray mutableArray = (__EFArray)mutableArrayRef;
-    if(mutableArray == NULL || !mutableArray->isMutable || index >= mutableArray->items_cnt || index < 0)
+    if(mutableArray == NULL || !mutableArray->isMutable || index >= mutableArray->itemsCount || index < 0)
     {
         return;
     }
@@ -419,8 +419,8 @@ void EFArrayRemoveValueAtIndex(EFMutableArrayRef mutableArrayRef,
         mutableArray->callbacks->remove(mutableArray->items[index]);
     }
 
-    memmove(&mutableArray->items[index], &mutableArray->items[index + 1], (size_t)((mutableArray->items_cnt - index - 1) * sizeof(void*)));
-    mutableArray->items_cnt--;
+    memmove(&mutableArray->items[index], &mutableArray->items[index + 1], (size_t)((mutableArray->itemsCount - index - 1) * sizeof(void*)));
+    mutableArray->itemsCount--;
 }
 
 Boolean EFArrayAppendValuesOfArray(EFMutableArrayRef mutableArrayRef,
@@ -433,20 +433,20 @@ Boolean EFArrayAppendValuesOfArray(EFMutableArrayRef mutableArrayRef,
         return false;
     }
 
-    EFIndex currentMutableCount = mutableArray->items_cnt;
-    EFIndex remaining = otherArray->items_cnt;
+    EFIndex currentMutableCount = mutableArray->itemsCount;
+    EFIndex remaining = otherArray->itemsCount;
     for(; remaining > 0; remaining -= 5)
     {
         if(!__EFArrayResizeIfNeededForOneMoreIndex(mutableArray))
         {
-            mutableArray->items_cnt = currentMutableCount;
+            mutableArray->itemsCount = currentMutableCount;
             return false;
         }
-        mutableArray->items_cnt += 5;
+        mutableArray->itemsCount += 5;
     }
-    mutableArray->items_cnt = currentMutableCount;
+    mutableArray->itemsCount = currentMutableCount;
 
-    for(EFIndex index = 0; index < otherArray->items_cnt; index++)
+    for(EFIndex index = 0; index < otherArray->itemsCount; index++)
     {
         if(mutableArray->callbacks->append != NULL && !mutableArray->callbacks->append(otherArray->items[index]))
         {
@@ -455,7 +455,7 @@ Boolean EFArrayAppendValuesOfArray(EFMutableArrayRef mutableArrayRef,
         }
 
         /* append */
-        EFIndex idx = (mutableArray->items_cnt)++;
+        EFIndex idx = (mutableArray->itemsCount)++;
         mutableArray->items[idx] = otherArray->items[index];
     }
 
