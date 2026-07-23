@@ -679,5 +679,5 @@ EFMappingRef EFFileHandleCopyMapping(EFAllocatorRef allocatorRef,
     protFlags |= fileHandle->readable ? PROT_READ : 0;
     protFlags |= fileHandle->writable ? PROT_WRITE : 0;
 
-    return EFMappingCreate(allocatorRef, NULL, (size_t)EFFileHandleGetLength(fileHandleRef), protFlags, MAP_SHARED, fileHandle->fileDescriptor, 0);
+    return EFMappingCreate(allocatorRef, NULL, (EFSize)EFFileHandleGetLength(fileHandleRef), protFlags, MAP_SHARED, fileHandle->fileDescriptor, 0);
 }

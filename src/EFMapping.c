@@ -77,7 +77,7 @@ EFTypeID EFMappingGetTypeID(void)
 
 EFMappingRef EFMappingCreate(EFAllocatorRef allocatorRef,
                              void *addr,
-                             size_t length,
+                             EFSize size,
                              int prot,
                              int flags,
                              int fd,
@@ -89,12 +89,12 @@ EFMappingRef EFMappingCreate(EFAllocatorRef allocatorRef,
         return NULL;
     }
 
-    mapping->addr = mmap(addr, length, prot, flags, fd, offset);
+    mapping->addr = mmap(addr, (int)size, prot, flags, fd, offset);
     if(mapping->addr == MAP_FAILED)
     {
         return NULL;
     }
-    mapping->size = (EFSize)length;
+    mapping->size = size;
     mapping->unmap = true;
 
     return (EFMappingRef)EFAUTOTRANSFER(mapping);
