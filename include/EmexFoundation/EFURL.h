@@ -40,9 +40,9 @@ typedef struct __EFArray *EFArrayRef;
 EF_EXTERN EFTypeID EFURLGetTypeID(void);
 
 EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateWithString(EFAllocatorRef allocatorRef, EFStringRef string);
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByAppendingPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef, EFStringRef pathComponent);
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByDeletingLastPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef);
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef, EFStringRef pathComponent);
+EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateByAppendingPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef, EFStringRef pathComponent);
+EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateByDeletingLastPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateByReplacingLastPathComponent(EFAllocatorRef allocatorRef, EFURLRef urlRef, EFStringRef pathComponent);
 
 EF_EXTERN EFURLType EFURLGetType(EFURLRef urlRef);
 EF_EXTERN EF_RETURNS_NOT_RETAINED EFArrayRef EFURLGetPathComponents(EFURLRef urlRef);
@@ -51,5 +51,7 @@ EF_EXTERN Boolean EFURLIsRelative(EFURLRef urlRef);
 EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPath(EFAllocatorRef allocatorRef, EFURLRef urlRef);
 EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPathWithoutPrefix(EFAllocatorRef allocatorRef, EFURLRef urlRef);
 EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPathWithoutHostname(EFAllocatorRef allocatorRef, EFURLRef urlRef);
+
+EF_EXTERN EF_RETURNS_NOT_RETAINED EFStringRef EFURLGetPath(EFURLRef urlRef);
 
 #endif /* EFURL_H */
