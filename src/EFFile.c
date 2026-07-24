@@ -143,7 +143,7 @@ EFFileRef __EFFileCreate(EFAllocatorRef allocatorRef,
     file->policy = policy;
 
     EFURLType urlType = EFURLGetType(urlRef);
-    EFAUTOREL EFStringRef path = EFURLCopyPath(allocatorRef, file->url);
+    EFStringRef path = EFURLGetPath(file->url);
     file->type = EFFileTypeForPath(path, urlType == kEFURLTypePOSIX && policy.mustExist);
     if(urlType == kEFURLTypePOSIX)
     {
@@ -404,8 +404,7 @@ void EFFileUnlink(EFFileRef fileRef)
         return;
     }
 
-    EFAUTOREL EFStringRef path = EFURLCopyPath(EFGetAllocator(fileRef), file->url);
-    unlink(EFStringGetCStringPtr(path, kEFStringEncodingUTF8));
+    unlink(EFStringGetCStringPtr(EFURLGetPath(file->url), kEFStringEncodingUTF8));
 }
 
 EFURLRef EFFileGetURL(EFFileRef fileRef)

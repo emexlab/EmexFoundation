@@ -51,7 +51,7 @@ static void __EFURLDeinit(EFObjectRef urlRef)
 
 static EFStringRef __EFURLCopyDescription(EFObjectRef urlRef)
 {
-    return EFURLCopyPath(EFGetAllocator(urlRef), urlRef);
+    return EFRetainTry(EFURLGetPath(urlRef));
 }
 
 EFClass EFURLClass = {
@@ -364,8 +364,31 @@ EFStringRef EFURLGetPath(EFURLRef urlRef)
 
     if(url->pathString == NULL)
     {
+EFSUPPRESS_DEPRECATED_START
         url->pathString = EFURLCopyPath(EFGetAllocator(urlRef), urlRef);
+EFSUPPRESS_DEPRECATED_END
     }
 
     return url->pathString;
+}
+
+/* compatibility layer */
+EFURLRef EFURLCreateURLByAppendingPathComponent(EFAllocatorRef allocatorRef,
+                                                EFURLRef urlRef,
+                                                EFStringRef pathComponent)
+{
+    return EFURLCreateByAppendingPathComponent(allocatorRef, urlRef, pathComponent);
+}
+
+EFURLRef EFURLCreateURLByDeletingLastPathComponent(EFAllocatorRef allocatorRef,
+                                                   EFURLRef urlRef)
+{
+    return EFURLCreateByDeletingLastPathComponent(allocatorRef, urlRef);
+}
+
+EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocatorRef,
+                                                    EFURLRef urlRef,
+                                                    EFStringRef pathComponent)
+{
+    return EFURLCreateByReplacingLastPathComponent(allocatorRef, urlRef, pathComponent);
 }

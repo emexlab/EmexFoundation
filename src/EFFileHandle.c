@@ -308,8 +308,7 @@ EFFileHandleRef EFFileHandleCreateWithURLAndOptions(EFAllocatorRef allocatorRef,
         return __EFFileHandleCreateNetDesc(allocatorRef, urlRef);
     }
 
-    EFAUTOREL EFStringRef string = EFURLCopyPath(allocatorRef, urlRef);
-    const char *str = EFStringGetCStringPtr(string, kEFStringEncodingASCII);
+    const char *str = EFStringGetCStringPtr(EFURLGetPath(urlRef), kEFStringEncodingASCII);
     if(str == NULL)
     {
         return NULL;

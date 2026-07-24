@@ -31,7 +31,7 @@
 #include <EmexFoundation/EFRuntime/EFClass.h>
 #include <EmexFoundation/EFRuntime/EFObject.h>
 
-/* releases the object when it's out of scope */
+/* automated object holding (less powerful than ARC, but very powerful) */
 #define EFAUTOREL __attribute__((cleanup(EFReleaseTryHelper)))
 #define EFAUTOTRANSFER(var) \
     __extension__ ({ \
@@ -44,6 +44,26 @@
         EFReleaseTry((var)); \
         (var) = (newvar); \
     })
+
+/* cross platform deprecation management */
+#if defined(__GNUC__) || defined(__clang__)
+#define EFDEPRECATED(msg) __attribute__((deprecated(msg)))
+#elif defined(_MSC_VER)
+#define EFDEPRECATED(msg) __declspec(deprecated(msg))
+#else
+#define EFDEPRECATED(msg)
+#endif /* __GNUC__ || __clang__ */
+
+#if defined(__GNUC__) || defined(__clang__)
+#define EFSUPPRESS_DEPRECATED_START _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#define EFSUPPRESS_DEPRECATED_END _Pragma("GCC diagnostic pop")
+#elif defined(_MSC_VER)
+#define EFSUPPRESS_DEPRECATED_START __pragma(warning(push)) __pragma(warning(disable: 4996))
+#define EFSUPPRESS_DEPRECATED_END __pragma(warning(pop))
+#else
+#define EFSUPPRESS_DEPRECATED_START
+#define EFSUPPRESS_DEPRECATED_END
+#endif /* __GNUC__ || __clang__ */
 
 EF_EXTERN EFTypeID EFClassRegister(EFClass *cls);
 EF_EXTERN EFClass *EFClassGetByID(EFTypeID id);
