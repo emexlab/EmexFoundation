@@ -68,8 +68,9 @@ EF_EXTERN Boolean EFFileOpen(EFFileRef file);
 EF_EXTERN void EFFileClose(EFFileRef file);
 
 EF_EXTERN EF_RETURNS_RETAINED EFFileHandleRef EFFileCopyFileHandle(EFAllocatorRef allocator, EFFileRef file);
-EF_EXTERN EF_RETURNS_RETAINED EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocator, EFFileRef file, EFEndian endian);
-EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileCopyData(EFAllocatorRef allocator, EFFileRef file);
+
+EF_EXTERN EF_RETURNS_RETAINED EFBitWalkerRef EFFileCreateBitWalker(EFAllocatorRef allocator, EFFileRef file, EFEndian endian);
+EF_EXTERN EF_RETURNS_RETAINED EFDataRef EFFileCreateData(EFAllocatorRef allocator, EFFileRef file);
 
 EF_EXTERN EFFileType EFFileGetType(EFFileRef file);
 

@@ -1381,8 +1381,8 @@ Boolean EFStringIsNumber(EFStringRef string)
     return false;
 }
 
-EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator,
-                               EFStringRef string)
+EFNumberRef EFStringCreateNumber(EFAllocatorRef allocator,
+                                 EFStringRef string)
 {
     if(string == NULL || string->length <= 0)
     {

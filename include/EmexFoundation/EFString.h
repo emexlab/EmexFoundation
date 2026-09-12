@@ -128,7 +128,7 @@ EF_EXTERN Boolean EFStringAppendFormat(EFMutableStringRef mutableString, EFStrin
 EF_EXTERN Boolean EFStringDeleteRange(EFMutableStringRef mutableString, EFRange range);
 
 EF_EXTERN Boolean EFStringIsNumber(EFStringRef string);
-EF_EXTERN EF_RETURNS_RETAINED EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef string);
+EF_EXTERN EF_RETURNS_RETAINED EFNumberRef EFStringCreateNumber(EFAllocatorRef allocator, EFStringRef string);
 
 EF_EXTERN EFRange EFStringFind(EFStringRef string,  EFStringRef findString,  EFStringCompareFlags compareOptions);  /* unimplemented (later for torvalds dick ass linux proc fs to find fields like UID/GID and so on) */
 

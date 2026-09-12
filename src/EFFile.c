@@ -246,9 +246,9 @@ EFFileHandleRef EFFileCopyFileHandle(EFAllocatorRef allocatorRef,
     return EFFileHandleCreateCopy(allocatorRef, file->fileHandle);
 }
 
-EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocator,
-                                   EFFileRef file,
-                                   EFEndian endian)
+EFBitWalkerRef EFFileCreateBitWalker(EFAllocatorRef allocator,
+                                     EFFileRef file,
+                                     EFEndian endian)
 {
     if(file == NULL || !EFFileOpen(file))
     {
@@ -258,8 +258,8 @@ EFBitWalkerRef EFFileCopyBitWalker(EFAllocatorRef allocator,
     return EFBitWalkerCreateWithHandle(allocator, file->fileHandle, endian);
 }
 
-EFDataRef EFFileCopyData(EFAllocatorRef allocator,
-                         EFFileRef file)
+EFDataRef EFFileCreateData(EFAllocatorRef allocator,
+                           EFFileRef file)
 {
     if(file == NULL || !EFFileOpen(file))
     {
