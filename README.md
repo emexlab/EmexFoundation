@@ -44,3 +44,19 @@ EFStringRef foo(void)
 }
 ```
 
+## Types
+It comes with base types, such as:
+- `EFNumber`
+- `EFString`
+- `EFURL`
+- `EFUUID`
+- `EFData`
+- `EFArray`
+- `EFMapping`
+- `EFFileManager`
+- `EFFile`
+- `EFFileHandle`
+- `EFBitWalker`
+- `EFMallocBlock`
+- `EFProcess`
+Those types make your life enormously easier and they are very polymorphic.

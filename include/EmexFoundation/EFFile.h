@@ -62,7 +62,7 @@ EF_EXTERN EFTypeID EFFileGetTypeID(void);
 
 EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithPath(EFAllocatorRef allocator, EFFilePolicy policy, EFStringRef string);
 EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithURL(EFAllocatorRef allocator, EFFilePolicy policy, EFURLRef url);
-EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateWithString(EFAllocatorRef allocator, EFFilePolicy policy, EFURLRef url, EFStringRef string);
+EF_EXTERN EF_RETURNS_RETAINED EFFileRef EFFileCreateUnsavedWithString(EFAllocatorRef allocator, EFFilePolicy policy, EFURLRef url, EFStringRef string);
 
 EF_EXTERN Boolean EFFileOpen(EFFileRef file);
 EF_EXTERN void EFFileClose(EFFileRef file);

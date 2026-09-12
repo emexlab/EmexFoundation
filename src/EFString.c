@@ -1179,10 +1179,10 @@ Boolean EFStringAppendFormat(EFMutableStringRef mutableString,
     return success;
 }
 
-Boolean EFStringDelete(EFMutableStringRef mutableString,
-                       EFRange range)
+Boolean EFStringDeleteRange(EFMutableStringRef mutableString,
+                            EFRange range)
 {
-    if(mutableString == NULL || range.location < 0 || range.length < 0)
+    if(mutableString == NULL || !mutableString->isMutable || range.location < 0 || range.length < 0)
     {
         return false;
     }

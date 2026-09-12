@@ -125,7 +125,7 @@ EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFStringComponentsSplitBySeparator(EFSt
 EF_EXTERN Boolean EFStringTrimWhitespace(EFMutableStringRef mutableString);
 EF_EXTERN Boolean EFStringAppendString(EFMutableStringRef mutableString, EFStringRef appendString);
 EF_EXTERN Boolean EFStringAppendFormat(EFMutableStringRef mutableString, EFStringRef formatString, ...);
-EF_EXTERN Boolean EFStringDelete(EFMutableStringRef mutableString, EFRange range);
+EF_EXTERN Boolean EFStringDeleteRange(EFMutableStringRef mutableString, EFRange range);
 
 EF_EXTERN Boolean EFStringIsNumber(EFStringRef string);
 EF_EXTERN EF_RETURNS_RETAINED EFNumberRef EFStringCopyNumber(EFAllocatorRef allocator, EFStringRef string);

@@ -50,4 +50,7 @@ EF_EXTERN Boolean EFFileManagerIsExecutableAtURL(EFFileManagerRef manager, EFURL
 EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFFileManagerContentsOfDirectoryAtPath(EFFileManagerRef manager, EFStringRef path);
 EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFFileManagerContentsOfDirectoryAtURL(EFFileManagerRef manager, EFURLRef url);
 
+EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFFileManagerFilesOfDirectoryAtPath(EFFileManagerRef manager, EFStringRef path);
+EF_EXTERN EF_RETURNS_RETAINED EFArrayRef EFFileManagerFilesOfDirectoryAtURL(EFFileManagerRef manager, EFURLRef url);
+
 #endif /* EFFILEMANAGER_H */

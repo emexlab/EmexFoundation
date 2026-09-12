@@ -49,9 +49,4 @@ EF_EXTERN EF_RETURNS_RETAINED EFStringRef EFURLCopyPathWithoutHostname(EFAllocat
 
 EF_EXTERN EF_RETURNS_NOT_RETAINED EFStringRef EFURLGetPath(EFURLRef url);
 
-/* compatibility layer */
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByAppendingPathComponent(EFAllocatorRef allocator, EFURLRef url, EFStringRef pathComponent) EFDEPRECATED("use EFURLCreateByAppendingPathComponent() instead.");
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByDeletingLastPathComponent(EFAllocatorRef allocator, EFURLRef url) EFDEPRECATED("use EFURLCreateByDeletingLastPathComponent() instead.");
-EF_EXTERN EF_RETURNS_RETAINED EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocator, EFURLRef url, EFStringRef pathComponent) EFDEPRECATED("use EFURLCreateByReplacingLastPathComponent() instead.");
-
 #endif /* EFURL_H */

@@ -172,10 +172,10 @@ EFFileRef EFFileCreateWithURL(EFAllocatorRef allocator,
     return __EFFileCreate(allocator, policy, urlRef, true);
 }
 
-EFFileRef EFFileCreateWithString(EFAllocatorRef allocator,
-                                 EFFilePolicy policy,
-                                 EFURLRef urlRef,
-                                 EFStringRef string)
+EFFileRef EFFileCreateUnsavedWithString(EFAllocatorRef allocator,
+                                        EFFilePolicy policy,
+                                        EFURLRef urlRef,
+                                        EFStringRef string)
 {
     EFAUTOREL EFFileRef file = (EFFileRef)__EFFileCreate(allocator, policy, urlRef, false);
     if(file == NULL)

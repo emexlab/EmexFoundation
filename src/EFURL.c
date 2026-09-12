@@ -365,24 +365,3 @@ EFSUPPRESS_DEPRECATED_END
 
     return url->pathString;
 }
-
-/* compatibility layer */
-EFURLRef EFURLCreateURLByAppendingPathComponent(EFAllocatorRef allocator,
-                                                EFURLRef url,
-                                                EFStringRef pathComponent)
-{
-    return EFURLCreateByAppendingPathComponent(allocator, url, pathComponent);
-}
-
-EFURLRef EFURLCreateURLByDeletingLastPathComponent(EFAllocatorRef allocator,
-                                                   EFURLRef url)
-{
-    return EFURLCreateByDeletingLastPathComponent(allocator, url);
-}
-
-EFURLRef EFURLCreateURLByReplacingLastPathComponent(EFAllocatorRef allocator,
-                                                    EFURLRef url,
-                                                    EFStringRef pathComponent)
-{
-    return EFURLCreateByReplacingLastPathComponent(allocator, url, pathComponent);
-}
