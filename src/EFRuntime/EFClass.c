@@ -27,6 +27,7 @@
 #include <assert.h>
 #include <stdatomic.h>
 #include <pthread.h>
+#include <strings.h>
 
 /* ----------------------------------------------------------------------
  *  EmexFoundation Headers
@@ -170,14 +171,7 @@ static EFClassDefinitionNewest *EFClassCopySafely(void *classDefinition)
                 return NULL;
             }
 
-            newestClassDefinition->header.name = EFStringCreateCopy(kEFAllocatorDefault, classDefinitionV4->header.name);
-            newestClassDefinition->header.version = EFCLASS_NEWEST_VERSION;
-            newestClassDefinition->init = classDefinitionV4->init;
-            newestClassDefinition->deinit = classDefinitionV4->deinit;
-            newestClassDefinition->equal = classDefinitionV4->equal;
-            newestClassDefinition->hash = classDefinitionV4->hash;
-            newestClassDefinition->copyDescription = classDefinitionV4->copyDescription;
-            newestClassDefinition->copyDebugDescription = classDefinitionV4->copyDebugDescription;
+            bcopy(classDefinitionV4, newestClassDefinition, sizeof(EFClassDefinitionNewest));
 
             return newestClassDefinition;
         }
