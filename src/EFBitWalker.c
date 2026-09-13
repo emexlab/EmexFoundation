@@ -27,17 +27,17 @@
 #include <EmexFoundation/EFFileHandle.h>
 #include <EmexFoundation/EFString.h>
 
-typedef struct __EFBitWalker {
+struct __EFBitWalker {
     EFObject super;
     EFFileHandleRef fileHandle;
     EFIndex bytePos;
     UInt8 bitIndex;
     EFEndian endian;
-} *__EFBitWalker;
+};
 
 static void __EFBitWalkerDeinit(EFObjectRef walkerRef)
 {
-    __EFBitWalker walker = (__EFBitWalker)walkerRef;
+    EFBitWalkerRef walker = (EFBitWalkerRef)walkerRef;
     EFRelease(walker->fileHandle);
 }
 

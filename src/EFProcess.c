@@ -50,7 +50,7 @@
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>
 
-typedef struct __EFProcess {
+struct __EFProcess {
     EFObject super;
     Boolean weSpawnedThis;
 
@@ -66,11 +66,11 @@ typedef struct __EFProcess {
     EFStringRef command;
     EFStringRef executablePath;
     EFArrayRef arguments;
-} *__EFProcess;
+};
 
 static void __EFProcessDeinit(EFObjectRef processRef)
 {
-    __EFProcess process = (__EFProcess)processRef;
+    EFProcessRef process = (EFProcessRef)processRef;
     if(process->weSpawnedThis)
     {
         EFProcessForceKill(processRef);
@@ -83,7 +83,7 @@ static void __EFProcessDeinit(EFObjectRef processRef)
 
 static EFStringRef __EFProcessDebugCopyDescription(EFObjectRef processRef)
 {
-    __EFProcess process = (__EFProcess)processRef;
+    EFProcessRef process = (EFProcessRef)processRef;
     EFAllocatorRef allocator = EFGetAllocator(processRef);
     return EFStringCreateWithFormat(allocator, EFSTR("<EFProcess %p>{processIdentifier = %ld, parentProcessIdentifier = %ld, userIdentifier = %ld, groupIdentifier = %ld, processGroupIdentifier = %ld, sessionIdentifier = %ld, command = %@, executablePath = %@, arguments = %@, alive = %d}"), processRef, process->processIdentifier, process->parentProcessIdentifier, process->userIdentifier, process->groupIdentifier, process->processGroupIdentifier, process->sessionIdentifier, process->command, process->executablePath, process->arguments, EFProcessIsAlive(processRef));
 }

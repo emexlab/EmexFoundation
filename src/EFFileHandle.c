@@ -47,17 +47,17 @@
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFMapping.h>
 
-typedef struct __EFFileHandle {
+struct __EFFileHandle {
     EFObject super;
     SInt32 flg;
     Boolean readable;
     Boolean writable;
     SInt32 fileDescriptor;
-} *__EFFileHandle;
+};
 
 static void __EVFileHandleDeinit(EFObjectRef fileHandleRef)
 {
-    __EFFileHandle fileHandle = (__EFFileHandle)fileHandleRef;
+    EFFileHandleRef fileHandle = (EFFileHandleRef)fileHandleRef;
     close(fileHandle->fileDescriptor);
 }
 
@@ -347,7 +347,7 @@ EFFileHandleRef EFFileHandleCreateCopy(EFAllocatorRef allocator,
         return NULL;
     }
 
-    EFAUTOREL __EFFileHandle newFileHandle = (__EFFileHandle)EFObjectCreate(allocator, EFFileHandleGetTypeID(), (EFIndex)sizeof(struct __EFFileHandle));
+    EFAUTOREL EFFileHandleRef newFileHandle = (EFFileHandleRef)EFObjectCreate(allocator, EFFileHandleGetTypeID(), (EFIndex)sizeof(struct __EFFileHandle));
     if(fileHandle == NULL)
     {
         return NULL;

@@ -30,15 +30,15 @@
 #include <EmexFoundation/EFMallocBlock.h>
 #include <EmexFoundation/EFString.h>
 
-typedef struct __EFMallocBlock {
+struct __EFMallocBlock {
     EFObject super;
     EFSize size;
     EFObjectDeinitCallback deinitCallback;
-} *__EFMallocBlock;
+};
 
 static void __EFMallocBlockDeinit(EFObjectRef blockRef)
 {
-    __EFMallocBlock block = (__EFMallocBlock)blockRef;
+    EFMallocBlockRef block = (EFMallocBlockRef)blockRef;
     if(block->deinitCallback != NULL)
     {
         block->deinitCallback(blockRef);

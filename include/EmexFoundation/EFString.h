@@ -48,14 +48,14 @@ typedef enum: UInt8 {
     kEFStringCompareWidthInsensitive    = 1 << 6,
 } EFStringCompareFlags;
 
-typedef struct __EFString {
+struct __EFString {
     EFObject super;
     EFStringEncoding encoding;
     Boolean isMutable;
     Boolean isInlined;          /* meaning the buffer pointer points to after the string object */
     char *buffer;               /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
-} *__EFString;
+};
 
 #define EFSTR(cStr) EFSTR_ENC(cStr, kEFStringEncodingUTF8)
 

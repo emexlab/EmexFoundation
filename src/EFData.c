@@ -32,17 +32,17 @@
 #include <EmexFoundation/EFData.h>
 #include <EmexFoundation/EFString.h>
 
-typedef struct __EFData {
+struct __EFData {
     EFObject super;
     Boolean isMutable;
     Boolean isInlined;    /* meaning the object has the buffer in it self */
     UInt8 *buffer;        /* it is neither inlined nor undeallocatable if mutable */
     EFIndex length;
-} *__EFData;
+};
 
 static void __EFDataDeinit(EFObjectRef dataRef)
 {
-    __EFData data = (__EFData)dataRef;
+    EFDataRef data = (EFDataRef)dataRef;
     if(data->isMutable)
     {
         EFAllocatorDeallocate(EFGetAllocator(dataRef), data->buffer);
@@ -51,7 +51,7 @@ static void __EFDataDeinit(EFObjectRef dataRef)
 
 static EFStringRef __EFDataCopyDebugDescription(EFObjectRef dataRef)
 {
-    __EFData data = (__EFData)dataRef;
+    EFDataRef data = (EFDataRef)dataRef;
     return EFStringCreateWithFormat(EFGetAllocator(dataRef), EFSTR("<%@ %p>{buffer = %p, length = %ld}"), data->isMutable ? EFSTR("EFMutableData") : EFSTR("EFData"), dataRef, data->buffer, data->length);
 }
 

@@ -54,10 +54,10 @@ static void _intToHexChars(UInt32 in,
     }
 }
 
-typedef struct __EFUUID {
+struct __EFUUID {
     EFObject super;
     EFUUIDBytes bytes;
-} *__EFUUID;
+};
 
 static EFStringRef __EFStringCopyDebugDescription(EFObjectRef objectRef)
 {

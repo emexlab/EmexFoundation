@@ -37,7 +37,7 @@ static inline EFIndex __EFDictionaryCapacityForIndex(EFIndex index)
     return (__EFDictionaryBucketSizes[index] * 3) / 4;
 }
 
-typedef struct __EFDictionary {
+struct __EFDictionary {
     const void **keys;
     const void **values;
     UInt8 *metadata;
@@ -48,7 +48,7 @@ typedef struct __EFDictionary {
     Boolean isMutable;
     EFDictionaryKeyCallbacks keyCallbacks;
     EFDictionaryValueCallbacks valueCallbacks;
-} *__EFDictionary;
+};
 
 EF_HIDDEN EFClassDefinitionNewest EFDictionaryClass = {
     .header = {

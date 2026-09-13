@@ -34,17 +34,17 @@
 
 typedef __int128_t SInt128;
 
-typedef struct __EFNumber {
+struct __EFNumber {
     EFObject super;
     EFNumberType type;
     SInt128 s128;
-} *__EFNumber;
+};
 
 static Boolean __EFNumberEqual(EFObjectRef ref1,
                                EFObjectRef ref2)
 {
-    __EFNumber number1 = (__EFNumber)ref1;
-    __EFNumber number2 = (__EFNumber)ref2;
+    EFNumberRef number1 = (EFNumberRef)ref1;
+    EFNumberRef number2 = (EFNumberRef)ref2;
 
     if(number1->type != number2->type)
     {
@@ -59,7 +59,7 @@ static Boolean __EFNumberEqual(EFObjectRef ref1,
 static EFStringRef __EFNumberCopyDebugDescription(EFObjectRef numberRef)
 {
     /* since it is not a string we need to still somehow display it lol */
-    __EFNumber number = (__EFNumber)numberRef;
+    EFNumberRef number = (EFNumberRef)numberRef;
     switch(number->type)
     {
         case kEFNumberTypeOverflow:

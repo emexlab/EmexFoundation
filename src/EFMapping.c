@@ -30,12 +30,12 @@
 #include <EmexFoundation/EFMapping.h>
 #include <EmexFoundation/EFString.h>
 
-typedef struct __EFMapping {
+struct __EFMapping {
     EFObject super;
     Boolean unmap;
     void *addr;
     EFSize size;
-} *__EFMapping;
+};
 
 static EFStringRef __EFMappingCopyDebugDescription(EFObjectRef objectRef)
 {

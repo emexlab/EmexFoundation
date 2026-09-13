@@ -188,7 +188,7 @@ static Boolean __EFStringValidateEncoding(EFStringEncoding encoding,
 
 static void __EFStringDeinit(EFObjectRef stringRef)
 {
-    __EFString string = (__EFString)stringRef;
+    EFStringRef string = (EFStringRef)stringRef;
     if(string->isMutable)
     {
         EFAllocatorDeallocate(EFGetAllocator(stringRef), string->buffer);
@@ -208,7 +208,7 @@ static EFStringRef __EFStringCopyDescription(EFObjectRef stringRef)
 
 static EFHashCode __EFStringHash(EFObjectRef stringRef)
 {
-    __EFString string = (__EFString)stringRef;
+    EFStringRef string = (EFStringRef)stringRef;
     if(string == NULL)
     {
         return 0;

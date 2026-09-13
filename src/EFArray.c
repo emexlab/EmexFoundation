@@ -32,7 +32,7 @@
 #include <EmexFoundation/EFArray.h>
 #include <EmexFoundation/EFString.h>
 
-typedef struct __EFArray {
+struct __EFArray {
     EFObject super;
 
     Boolean isMutable;
@@ -41,7 +41,7 @@ typedef struct __EFArray {
     EFIndex itemsCapacity;
     EFIndex itemsCount;
     void **items;
-} *__EFArray;
+};
 
 EFArrayCallbacks kEFArrayCallbacksDefaultCallbacks = &(struct EFArrayCallbacks){
     .retain = NULL,
@@ -96,8 +96,8 @@ static void __EFArrayClassDeinit(EFObjectRef arrayRef)
 static Boolean __EFArrayClassEqual(EFObjectRef arrayRef1,
                                    EFObjectRef arrayRef2)
 {
-    __EFArray array1 = (__EFArray)arrayRef1;
-    __EFArray array2 = (__EFArray)arrayRef2;
+    EFArrayRef array1 = (EFArrayRef)arrayRef1;
+    EFArrayRef array2 = (EFArrayRef)arrayRef2;
 
     if(array1->callbacks != array2->callbacks ||
        array1->itemsCount != array2->itemsCount)
@@ -122,7 +122,7 @@ static Boolean __EFArrayClassEqual(EFObjectRef arrayRef1,
     return true;
 }
 
-static EFStringRef __EFArrayDebugCopyDescription(EFObjectRef arrayRef)
+static EFStringRef __EFArrayCopyDebugDescription(EFObjectRef arrayRef)
 {
     EFArrayRef array = (EFArrayRef)arrayRef;
     EFAllocatorRef allocatorRef = EFGetAllocator(arrayRef);
@@ -178,7 +178,7 @@ EF_HIDDEN EFClassDefinitionNewest EFArrayClass = {
     .equal = __EFArrayClassEqual,
     .hash = NULL,
     .copyDescription = NULL,
-    .copyDebugDescription = __EFArrayDebugCopyDescription,
+    .copyDebugDescription = __EFArrayCopyDebugDescription,
 };
 
 EFTypeID EFArrayGetTypeID(void)
@@ -318,7 +318,7 @@ void *EFArrayGetValueAtIndex(EFArrayRef array,
     return array->items[index];
 }
 
-Boolean __EFArrayResizeIfNeededForOneMoreIndex(__EFArray array)
+Boolean __EFArrayResizeIfNeededForOneMoreIndex(EFArrayRef array)
 {
     EFIndex neededCapacity = array->itemsCount + 1;
     if(array->itemsCapacity >= neededCapacity)

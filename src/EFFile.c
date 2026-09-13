@@ -74,17 +74,17 @@ static inline SInt32 __EFFilePolicyToORW(EFFilePolicyPermission p)
     return O_RDONLY;
 }
 
-typedef struct __EFFile {
+struct __EFFile {
     EFObject super;
     EFURLRef url;
     EFFileType type;
     EFFilePolicy policy;
     EFFileHandleRef fileHandle;
-} *__EFFile;
+};
 
 static void __EFBitWalkerDeinit(EFObjectRef fileRef)
 {
-    __EFFile file = (__EFFile)fileRef;
+    EFFileRef file = (EFFileRef)fileRef;
     EFReleaseTry(file->url);
     EFReleaseTry(file->fileHandle);
 }

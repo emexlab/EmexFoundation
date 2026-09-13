@@ -34,16 +34,16 @@
 #include <EmexFoundation/EFString.h>
 #include <EmexFoundation/EFArray.h>
 
-typedef struct __EFURL {
+struct __EFURL {
     EFObject super;
     EFURLType type;
     EFArrayRef pathComponents;
     EFStringRef pathString;
-} *__EFURL;
+};
 
 static void __EFURLDeinit(EFObjectRef urlRef)
 {
-    __EFURL url = (__EFURL)urlRef;
+    EFURLRef url = (EFURLRef)urlRef;
     EFReleaseTry(url->pathComponents);
     EFReleaseTry(url->pathString);
 }

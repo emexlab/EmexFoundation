@@ -36,9 +36,9 @@
 #include <EmexFoundation/EFRuntime/EFRuntime.h>
 #include <EmexFoundation/EFFileManager.h>
 
-typedef struct __EFFileManager {
+struct __EFFileManager {
     EFObject super;
-} *__EFFileManager;
+};
 
 EF_HIDDEN EFClassDefinitionNewest EFFileManagerClass = {
     .header = {
