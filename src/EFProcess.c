@@ -104,7 +104,7 @@ EF_HIDDEN EFClassDefinitionNewest EFProcessClass = {
 
 EFTypeID EFProcessGetTypeID(void)
 {
-    return kEFTypeIDNumber;
+    return kEFTypeIDProcess;
 }
 
 extern char *const *environ;
