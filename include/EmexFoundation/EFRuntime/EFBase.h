@@ -99,6 +99,10 @@ typedef struct {
     EFIndex location;
     EFIndex length;
 } EFRange;
+typedef struct {
+    EFIndex line;
+    EFIndex column;
+} EFStringLocation;
 typedef unsigned char Boolean;
 typedef unsigned char UInt8;
 typedef signed char SInt8;
@@ -188,10 +192,7 @@ typedef void (*EFAllocatorDeallocateCallback)(EFAllocatorRef allocatorRef, void 
 static inline EFRange EFRangeMake(EFIndex location,
                                   EFIndex length)
 {
-    return (EFRange){
-        .location = location,
-        .length = length,
-    };
+    return (EFRange){ .location = location, .length = length, };
 }
 
 static inline Boolean EFRangeIsEqual(EFRange range1,
@@ -200,6 +201,19 @@ static inline Boolean EFRangeIsEqual(EFRange range1,
     return (range1.location == range2.location && range1.length == range2.length);
 }
 
+static inline EFStringLocation EFStringLocationMake(EFIndex line,
+                                                    EFIndex column)
+{
+    return (EFStringLocation){ .line = line, .column = column };
+}
+
+static inline Boolean EFStringLocationIsEqual(EFStringLocation loc1,
+                                              EFStringLocation loc2)
+{
+    return (loc1.line == loc2.line && loc1.column == loc2.column);
+}
+
 EF_EXTERN EFRange EFRangeZero;
+EF_EXTERN EFStringLocation EFStringLocationZero;
 
 #endif /* EFBASE_H */
