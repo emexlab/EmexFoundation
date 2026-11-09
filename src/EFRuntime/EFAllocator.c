@@ -22,6 +22,9 @@
 /* ----------------------------------------------------------------------
  *  System Headers
  * -------------------------------------------------------------------- */
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif /* __APPLE__ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -136,11 +139,14 @@ static void EFAllocatorConstructor(void)
 {
     /* default is malloc */
     kEFAllocatorDefault = kEFAllocatorMalloc;
-    
+
+    /* FIXME: jailed iOS does not allow a process to see it self */
+    #if !(defined(__APPLE__) && TARGET_OS_IPHONE)
     EFProcessCurrent = EFProcessCreateWithProcessIdentifier(kEFAllocatorDefault, getpid());
     if(EFProcessCurrent == NULL)
     {
         fprintf(stderr, "EFProcessConstructor: failed to allocate current process\n");
         exit(1);
     }
+    #endif /* !(__APPLE__ && TARGET_OS_IPHONE) */
 }
