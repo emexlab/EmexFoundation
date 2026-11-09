@@ -511,7 +511,7 @@ skip_arg_copy:
 #ifdef __linux__
     if(commandCString != NULL)
     {
-        EFAllocatorDeallocate(allocatorRef, (void *)commandCString);
+        EFAllocatorDeallocate(allocator, (void *)commandCString);
     }
 #endif
 
